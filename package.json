@@ -1,0 +1,49 @@
+{
+	"name": "not-user",
+	"version": "0.0.1",
+	"description": "not-* family user model in not- environment",
+	"main": "index.js",
+	"scripts": {
+		"test": "./node_modules/.bin/mocha --reporter spec",
+		"pretest": "./node_modules/.bin/eslint ./src/**/**.js",
+		"lint": "./node_modules/.bin/eslint ./src/**/**.js",
+		"docs": "./node_modules/.bin/jsdoc -c jsdoc.json",
+		"cover": "istanbul cover _mocha $(find ./test -name \"*.js\" -not -path \"./node_modules/*\")"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/interrupter/not-user.git"
+	},
+	"keywords": [
+		"not-framework",
+		"not-node",
+		"user"
+	],
+	"author": "interrupter <alex.repin@mail.ru> (http://github.com/interrupter)",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/interrupter/not-user/issues"
+	},
+	"homepage": "https://github.com/interrupter/not-user#readme",
+	"dependencies": {
+		"mongoose": "^5.1.4",
+		"not-config": "*",
+		"not-error": "0.0.3",
+		"not-filter": "*",
+		"not-locale": "*",
+		"not-log": "*",
+		"not-node": "*"
+	},
+	"devDependencies": {
+		"chai": "*",
+		"chai-as-promised": "*",
+		"eslint": "*",
+		"ink-docstrap": "*",
+		"istanbul": "*",
+		"jsdoc": "*",
+		"mocha": "*",
+		"mockgoose": "*",
+		"request": "*",
+		"retire": "*"
+	}
+}
