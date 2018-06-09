@@ -1,6 +1,6 @@
 {
 	"name": "not-user",
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"description": "not-* family user model in not- environment",
 	"main": "index.js",
 	"scripts": {
@@ -26,9 +26,9 @@
 	},
 	"homepage": "https://github.com/interrupter/not-user#readme",
 	"dependencies": {
-		"mongoose": "^5.1.4",
+		"mongoose": "*",
 		"not-config": "*",
-		"not-error": "0.0.3",
+		"not-error": "*",
 		"not-filter": "*",
 		"not-locale": "*",
 		"not-log": "*",

@@ -419,7 +419,6 @@ describe('models/user - localy isolated in mockup without actually querying Mong
 			expect(User.thisMethods.checkPassword(null)).to.be.false;
 			expect(User.thisMethods.checkPassword(undefined)).to.be.false;
 		});
-
 		it('registerAs', () => {
 			User.thisMethods.save = ()=>{};
 			User.thisMethods.role = [];
