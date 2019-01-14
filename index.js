@@ -1,34 +1,34 @@
 const 	Schema = require('mongoose').Schema,
 	path = require('path'),
 	notAuth = require('not-node').Auth,
-	App = require('not-node').App,
+	App = require('not-node').Application,
 	config = require('not-config').readerForModule('user'),
 	log = require('not-log')(module);
 
 let middleware = function(req, res, next){
-	let User = this.getModel('User');
+	let User = App.getModel('User');
 	req.user = res.locals.user = null;
 	if (!req || !req.session || !req.session) {
-		log.error('no user session data', req.path);
+		log.error(`no user session data ${req.path}`);
 		return next();
 	}
-	log.info('load user', req.session.id, req.session.user, req.session.role);
+	log.debug(`load user id@${req.session.id}; user@${req.session.user}; role@${req.session.role}`);
 	if (req.session && req.session.user) {
 		User.getOne(req.session.user)
 			.then((user)=>{
 				if (user) {
-					log.info('User loaded', user.username);
+					log.debug(`User loaded ${user.username}`);
 					req.user = res.locals.user = user;
 					notAuth.setRole(req, user.role);
 				} else {
-					log.error('No user with such id where founded!', user);
+					log.error(`No user with such id@${req.session.user} where founded!`);
 					notAuth.cleanse(req);
 				}
 				return next();
 			})
 			.catch((err)=>{
-				log.error("Can't find user ", req.session.user);
-				log.error(err);
+				log.error(`Can't find user id@${req.session.user}`);
+				App.report(err).catch(log.error);
 				return next();
 			});
 	} else {
@@ -39,7 +39,7 @@ let middleware = function(req, res, next){
 
 let createRootUser = (app)=>{
 	let User = app.getModel('User');
-	log.info('Installing...');
+	log.info(`Installing...`);
 	let rootUser = config.get('root'),
 		root  = new User({
 			'email': 			rootUser.username,
@@ -57,9 +57,9 @@ let createRootUser = (app)=>{
 			log.debug('Root user document created');
 		})
 		.catch((err)=>{
-			log.error('errored', err);
+			log.error(err.message);
+			app.report(err).catch(log.error);
 			log.error('Can\'t create root user document');
-			routine.returnErrors(err, log.error);
 		});
 };
 
@@ -69,28 +69,27 @@ const initialize = function(app){
 	User.findOne({role: 'root'})
 		.then((user)=>{
 			if(user){
-				log.info('yeah!');
-				log.debug('Root user exists!', user._id.toString());
+				log.debug(`Root user exists!`);
 			}else{
-				log.info('nay!');
 				log.debug('Root user doesnt exists!');
 				return createRootUser(app);
 			}
 		})
-		.catch((err)=>{
-			log.error('While searching for root user reflection in DB!', err);
+		.catch((err) => {
+			log.error('While searching for root user reflection in DB!');
+			app.report(err).catch(log.error);
 		});
 };
 
 module.exports = {
 	name: 'not-user',
 	paths: {
-		routes:			path.join(__dirname, 'src', 'routes'),
+		routes:				path.join(__dirname, 'src', 'routes'),
 		controllers:	path.join(__dirname, 'src', 'controllers'),
-		views:			path.join(__dirname, 'src', 'views'),
+		views:				path.join(__dirname, 'src', 'views'),
 		templates:		path.join(__dirname, 'src', 'templates'),
-		models:			path.join(__dirname, 'src', 'models'),
-		locales:		path.join(__dirname, 'src', 'locales')
+		models:				path.join(__dirname, 'src', 'models'),
+		locales:			path.join(__dirname, 'src', 'locales')
 	},
 	getMiddleware(options){
 		log.info('...loadUser middleware');

@@ -25,7 +25,7 @@ exports.login = (req, res, next)=>{
 		.then((user)=>{
 			if(user && user._id){
 				notAuth.setAuth(req, user._id, user.role);
-				log.info('user authorized as', req.session.user, req.session.role);
+				log.info(`user authorized as ${req.session.user} ${req.session.role}`);
 				user.ip = ip;
 				req.session.save();
 				query.return.process(req, UserSchema, user);

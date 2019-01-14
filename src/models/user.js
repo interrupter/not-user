@@ -98,7 +98,7 @@ exports.thisStatics = {
 							.then(resolve)
 							.catch(reject);
 					}else{
-						reject(new notError(notLocale.say('user_not_found')).adopt(err));
+						reject(new notError(notLocale.say('user_not_found')));
 					}
 				})
 				.catch((err)=>{
