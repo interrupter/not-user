@@ -3,7 +3,7 @@ const 	Schema = require('mongoose').Schema,
 	notAuth = require('not-node').Auth,
 	App = require('not-node').Application,
 	config = require('not-config').readerForModule('user'),
-	log = require('not-log')(module);
+	log = App.logger;
 
 let middleware = function(req, res, next){
 	let User = App.getModel('User');
@@ -28,7 +28,7 @@ let middleware = function(req, res, next){
 			})
 			.catch((err)=>{
 				log.error(`Can't find user id@${req.session.user}`);
-				App.report(err).catch(log.error);
+				App.reporter.report(err).catch(log.error);
 				return next();
 			});
 	} else {
@@ -58,7 +58,7 @@ let createRootUser = (app)=>{
 		})
 		.catch((err)=>{
 			log.error(err.message);
-			app.report(err).catch(log.error);
+			App.reporter.report(err).catch(log.error);
 			log.error('Can\'t create root user document');
 		});
 };
@@ -77,7 +77,7 @@ const initialize = function(app){
 		})
 		.catch((err) => {
 			log.error('While searching for root user reflection in DB!');
-			app.report(err).catch(log.error);
+			App.reporter.report(err).catch(log.error);
 		});
 };
 
