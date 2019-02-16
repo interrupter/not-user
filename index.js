@@ -77,6 +77,7 @@ const initialize = function(app){
 		})
 		.catch((err) => {
 			log.error('While searching for root user reflection in DB!');
+			log.error(err);
 			App.reporter.report(err).catch(log.error);
 		});
 };
