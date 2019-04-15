@@ -28,18 +28,20 @@ before((done) => {
 			});
 		})
 		.then(()=>{
-			Proto.fabricate( User, {}, mongoose);
-			console.log(User.User);
+			Proto.fabricate(User, {}, mongoose);
+			console.log('DB connected, User model fabricated!');
 			done();
 		})
 		.catch((e)=>{
+			console.error(e);
 			done(e);
 		});
 });
 
-after(() => {
+after((done) => {
 	mongoose.disconnect();
 	mongoServer.stop();
+	done();
 });
 
 
@@ -48,437 +50,6 @@ describe('models/user - localy isolated in mockup without actually querying Mong
 		notLocale.fromDir(path.join(__dirname, '../src/locales'));
 		done();
 	});
-	describe('statics', function () {
-		describe('authorize', function () {
-			it('undefined', (done) => {
-				User.thisStatics.findOne = ()=>{
-					return {
-						exec(){
-							return new Promise((res, rej)=>{
-								res(undefined);
-							});
-						}
-					};
-				};
-				User.thisStatics.authorize('email','password')
-					.then(()=>{
-						expect(false).to.be.true;
-					})
-					.catch((err)=>{
-						expect(err).to.be.instanceof(notError);
-						expect(err.message).to.be.equal(notLocale.say('user_not_found'));
-						done();
-					});
-			});
-
-			it('empty user', (done) => {
-				User.thisStatics.findOne = ()=>{
-					return {
-						exec(){
-							return new Promise((res, rej)=>{
-								rej(new Error('qwerty Error'));
-							});
-						}
-					};
-				};
-				User.thisStatics.authorize('email','password')
-					.then(()=>{
-						expect(false).to.be.true;
-					})
-					.catch((err)=>{
-						expect(err).to.be.instanceof(notError);
-						expect(err.message).to.be.equal(notLocale.say('user_not_found'));
-						done();
-					});
-			});
-
-			it('user exists, wrong pass', (done) => {
-				User.thisStatics.findOne = ()=>{
-					return {
-						exec(){
-							return new Promise((res, rej)=>{
-								res({
-									checkPassword(){
-										return false;
-									}
-								});
-							});
-						}
-					};
-				};
-				User.thisStatics.authorize('email','password')
-					.then(()=>{
-						expect(false).to.be.true;
-					})
-					.catch((err)=>{
-						expect(err).to.be.instanceof(notError);
-						expect(err.message).to.be.equal(notLocale.say('password_incorrect'));
-						done();
-					});
-			});
-
-			it('user exists, pass is correct', (done) => {
-				User.thisStatics.findOne = ()=>{
-					return {
-						exec(){
-							return new Promise((res, rej)=>{
-								res({
-									checkPassword(){
-										return true;
-									},
-									active: true
-								});
-							});
-						}
-					};
-				};
-				User.thisStatics.authorize('email','password')
-					.then((user)=>{
-						expect(user.active).to.be.true;
-						done();
-					})
-					.catch((err)=>{
-						expect(false).to.be.true;
-					});
-			});
-		});
-
-		describe('toggleActive', function () {
-			it('item exists and has `active` field', (done) => {
-				User.thisStatics.findById = ()=>{
-					return new Promise((res)=>{
-						let item;
-						item = {
-							active: true,
-							save(){
-								return new Promise((res1)=>{
-									res1(item);
-								});
-							}
-						};
-						res(item);
-					});
-				};
-				User.thisStatics.toggleActive()
-					.then((item)=>{
-						expect(item.active).to.be.false;
-						done();
-					})
-					.catch((err)=>{
-						expect(false).to.be.true;
-						done(err);
-					});
-			});
-
-			it('item exists and has not `active` field', (done) => {
-				User.thisStatics.findById = ()=>{
-					return new Promise((res)=>{
-						let item;
-						item = {
-							save(){
-								return new Promise((res1)=>{
-									res1(item);
-								});
-							}
-						};
-						res(item);
-					});
-				};
-				User.thisStatics.toggleActive()
-					.then((item)=>{
-						expect(item.active).to.be.true;
-						done();
-					})
-					.catch((err)=>{
-						expect(false).to.be.true;
-						done(err);
-					});
-			});
-
-			it('item does exists', (done) => {
-				User.thisStatics.findById = ()=>{
-					return new Promise((res)=>{
-						res(null);
-					});
-				};
-				User.thisStatics.toggleActive()
-					.then(()=>{
-						expect(false).to.be.true;
-						done();
-					})
-					.catch((err)=>{
-						expect(err).to.be.instanceof(notError);
-						done();
-					});
-			});
-		});
-
-		describe('clearFromUnsafe', function () {
-			it('check', () => {
-				let item = {
-					hashedPassword: '1',
-					salt: '2'
-				};
-				let cleared = User.thisStatics.clearFromUnsafe(item);
-				expect(cleared).to.not.have.property('hashedPassword');
-				expect(cleared).to.not.have.property('salt');
-			});
-		});
-
-		describe('fieldValueExists', function () {
-			it('exists', (done) => {
-				User.thisStatics.findOne = ()=>{
-					return {
-						exec(){
-							return new Promise((res)=>{
-								res({_id:'123123123'});
-							});
-						}
-					};
-				};
-				User.thisStatics.fieldValueExists('email', 'me.please')
-					.then((result)=>{
-						expect(result).to.be.true;
-						done();
-					})
-					.catch((err)=>{
-						done(err);
-					});
-			});
-
-			it('does not exists', (done) => {
-				User.thisStatics.findOne = ()=>{
-					return {
-						exec(){
-							return new Promise((res)=>{
-								res(false);
-							});
-						}
-					};
-				};
-				User.thisStatics.fieldValueExists('email', 'me.please')
-					.then((result)=>{
-						expect(result).to.be.false;
-						done();
-					})
-					.catch((err)=>{
-						done(err);
-					});
-			});
-
-			it('throws', (done) => {
-				User.thisStatics.findOne = ()=>{
-					return {
-						exec(){
-							return new Promise((res, rej)=>{
-								rej(new Error('some error'));
-							});
-						}
-					};
-				};
-				User.thisStatics.fieldValueExists('email', 'me.please')
-					.then((result)=>{
-						expect(true).to.be.false;
-						done();
-					})
-					.catch((err)=>{
-						expect(err).to.be.instanceof(Error);
-						done();
-					});
-			});
-		});
-
-		describe('usernameExists', function () {
-			it('exists', (done) => {
-				User.thisStatics.findOne = ()=>{
-					return {
-						exec(){
-							return new Promise((res)=>{
-								res({_id:'123123123'});
-							});
-						}
-					};
-				};
-				User.thisStatics.usernameExists('me.please')
-					.then((result)=>{
-						expect(result).to.be.true;
-						done();
-					})
-					.catch((err)=>{
-						done(err);
-					});
-			});
-
-			it('does not exists', (done) => {
-				User.thisStatics.findOne = ()=>{
-					return {
-						exec(){
-							return new Promise((res)=>{
-								res(false);
-							});
-						}
-					};
-				};
-				User.thisStatics.usernameExists('me.please')
-					.then((result)=>{
-						expect(result).to.be.false;
-						done();
-					})
-					.catch((err)=>{
-						done(err);
-					});
-			});
-
-			it('throws', (done) => {
-				User.thisStatics.findOne = ()=>{
-					return {
-						exec(){
-							return new Promise((res, rej)=>{
-								rej(new Error('some error'));
-							});
-						}
-					};
-				};
-				User.thisStatics.usernameExists('me.please')
-					.then((result)=>{
-						expect(true).to.be.false;
-						done();
-					})
-					.catch((err)=>{
-						expect(err).to.be.instanceof(Error);
-						done();
-					});
-			});
-		});
-
-		describe('emailExists', function () {
-			it('exists', (done) => {
-				User.thisStatics.findOne = ()=>{
-					return {
-						exec(){
-							return new Promise((res)=>{
-								res({_id:'123123123'});
-							});
-						}
-					};
-				};
-				User.thisStatics.emailExists('me.please')
-					.then((result)=>{
-						expect(result).to.be.true;
-						done();
-					})
-					.catch((err)=>{
-						done(err);
-					});
-			});
-
-			it('does not exists', (done) => {
-				User.thisStatics.findOne = ()=>{
-					return {
-						exec(){
-							return new Promise((res)=>{
-								res(false);
-							});
-						}
-					};
-				};
-				User.thisStatics.emailExists('me.please')
-					.then((result)=>{
-						expect(result).to.be.false;
-						done();
-					})
-					.catch((err)=>{
-						done(err);
-					});
-			});
-
-			it('throws', (done) => {
-				User.thisStatics.findOne = ()=>{
-					return {
-						exec(){
-							return new Promise((res, rej)=>{
-								rej(new Error('some error'));
-							});
-						}
-					};
-				};
-				User.thisStatics.emailExists('me.please')
-					.then((result)=>{
-						expect(true).to.be.false;
-						done();
-					})
-					.catch((err)=>{
-						expect(err).to.be.instanceof(Error);
-						done();
-					});
-			});
-		});
-
-		describe('getByFieldValue', function () {
-			it('exists', (done) => {
-				User.thisStatics.findOne = ()=>{
-					return {
-						exec(){
-							return new Promise((res)=>{
-								res({_id:'123123123'});
-							});
-						}
-					};
-				};
-
-				User.thisStatics.getByFieldValue('email', 'me.please')
-					.then((result)=>{
-						expect(result).to.be.ok;
-						done();
-					})
-					.catch((err)=>{
-						done(err);
-					});
-			});
-
-			it('does not exists', (done) => {
-				User.thisStatics.findOne = ()=>{
-					return {
-						exec(){
-							return new Promise((res)=>{
-								res(false);
-							});
-						}
-					};
-				};
-				User.thisStatics.getByFieldValue('email', 'me.please')
-					.then((result)=>{
-						expect(result).to.be.false;
-						done();
-					})
-					.catch((err)=>{
-						done(err);
-					});
-			});
-
-			it('throws', (done) => {
-				User.thisStatics.findOne = ()=>{
-					return {
-						exec(){
-							return new Promise((res, rej)=>{
-								rej(new Error('some error'));
-							});
-						}
-					};
-				};
-				User.thisStatics.getByFieldValue('email', 'me.please')
-					.then((result)=>{
-						expect(true).to.be.false;
-						done();
-					})
-					.catch((err)=>{
-						expect(err).to.be.instanceof(Error);
-						done();
-					});
-			});
-		});
-	});
-
 	describe('methods', function () {
 		it('isRole', () => {
 			User.thisMethods.role = ['root'];
@@ -537,6 +108,257 @@ describe('models/user - localy isolated in mockup without actually querying Mong
 			expect(User.thisMethods.emailConfirmed).to.be.ok;
 			expect(User.thisMethods.confirm).to.be.equal('');
 			expect(User.thisMethods.role).to.be.include('confirmed');
+		});
+	});
+
+	describe('statics', function () {
+		it('adding user', (done) => {
+			(new User.User({
+				email: 'test@email.com',
+				username: 'testUser',
+				emailConfirmed: false,
+				password: 'qwerty'
+			})).save().then((user)=>{
+				expect(user.active).to.be.true;
+				expect(user.emailConfirmed).to.be.false;
+				expect(user.role).to.be.deep.equal(['user']);
+				done();
+			}).catch(done);
+		});
+	});
+	describe('authorize', function () {
+		it('undefined', (done) => {
+			User.User.authorize('email','password')
+				.then(()=>{
+					expect(false).to.be.true;
+				})
+				.catch((err)=>{
+					expect(err).to.be.instanceof(notError);
+					expect(err.message).to.be.equal(notLocale.say('user_not_found'));
+					done();
+				});
+		});
+
+		it('user exists, wrong pass', (done) => {
+			User.User.authorize('test@email.com','password')
+				.then(()=>{
+					expect(false).to.be.true;
+				})
+				.catch((err)=>{
+					expect(err).to.be.instanceof(notError);
+					expect(err.message).to.be.equal(notLocale.say('password_incorrect'));
+					done();
+				});
+		});
+		it('user exists, pass is correct', (done) => {
+			User.User.authorize('test@email.com','qwerty')
+				.then((user)=>{
+					expect(user.active).to.be.true;
+					done();
+				})
+				.catch((err)=>{
+					expect(false).to.be.true;
+				});
+		});
+	});
+
+	describe('toggleActive', function () {
+		it('item exists and has `active` field', (done) => {
+			(new User.User({
+				email: 'tester@email.com',
+				username: 'testerUser',
+				emailConfirmed: false,
+				password: 'qwertyStory'
+			})).save().then(async (user)=>{
+				try{
+					let userAfter = await User.User.toggleActive(user._id);
+					expect(userAfter.active).to.be.false;
+					done();
+				}catch(e){
+					done(e);
+				}
+			}).catch(done);
+		});
+
+		it('item does exists', (done) => {
+			User.User.toggleActive('5cb41aa82c821a441c1ded21')
+				.then(()=>{
+					expect(false).to.be.true;
+					done();
+				})
+				.catch((err)=>{
+					expect(err).to.be.instanceof(notError);
+					done();
+				});
+		});
+	});
+	describe('clearFromUnsafe', function () {
+		it('check', () => {
+			let item = {
+				hashedPassword: '1',
+				salt: '2'
+			};
+			let cleared = User.User.clearFromUnsafe(item);
+			expect(cleared).to.not.have.property('hashedPassword');
+			expect(cleared).to.not.have.property('salt');
+		});
+	});
+
+
+	describe('fieldValueExists', function () {
+		it('exists', function(done) {
+
+			((new User.User({
+				email: 'tester312@email.com',
+				username: 'testerUser312',
+				emailConfirmed: false,
+				password: 'qwertyStory'
+			})).save())
+				.then(()=>{
+					User.User.fieldValueExists('username', 'testerUser312')
+						.then((result)=>{
+							expect(result).to.be.true;
+							done();
+						})
+						.catch((err)=>{
+							done(err);
+						});
+				})
+				.catch(done);
+		});
+
+		it('does not exists', (done) => {
+			try{
+				User.User.fieldValueExists('email', 'me.please@test.com')
+					.then((result)=>{
+						expect(result).to.be.false;
+						done();
+					})
+					.catch((err)=>{
+						done(err);
+					});
+			}catch(e){
+				done(e);
+			}
+		});
+
+		it('throws', (done) => {
+			User.User.fieldValueExists(['emailEncrypted'], 'me.please')
+				.then(()=>{
+					expect(true).to.be.false;
+					done();
+				})
+				.catch((err)=>{
+					expect(err).to.be.instanceof(Error);
+					done();
+				});
+		});
+	});
+	describe('usernameExists', function () {
+		it('exists', (done) => {
+			User.User.usernameExists('testerUser312')
+				.then((result)=>{
+					expect(result).to.be.true;
+					done();
+				})
+				.catch((err)=>{
+					done(err);
+				});
+		});
+
+		it('does not exists', (done) => {
+			User.User.usernameExists('testerUser31212')
+				.then((result)=>{
+					expect(result).to.be.false;
+					done();
+				})
+				.catch((err)=>{
+					done(err);
+				});
+		});
+
+		it('throws', (done) => {
+			User.User.usernameExists(['me.please'])
+				.then(()=>{
+					expect(true).to.be.false;
+					done();
+				})
+				.catch((err)=>{
+					expect(err).to.be.instanceof(Error);
+					done();
+				});
+		});
+	});
+
+	describe('emailExists', function () {
+		it('exists', (done) => {
+			User.User.emailExists('tester312@email.com')
+				.then((result)=>{
+					expect(result).to.be.true;
+					done();
+				})
+				.catch((err)=>{
+					done(err);
+				});
+		});
+
+		it('does not exists', (done) => {
+			User.User.emailExists('tester312@email.com12')
+				.then((result)=>{
+					expect(result).to.be.false;
+					done();
+				})
+				.catch((err)=>{
+					done(err);
+				});
+		});
+
+		it('throws', (done) => {
+			User.User.emailExists(['tester312@email.com'])
+				.then(()=>{
+					expect(true).to.be.false;
+					done();
+				})
+				.catch((err)=>{
+					expect(err).to.be.instanceof(Error);
+					done();
+				});
+		});
+	});
+
+	describe('getByFieldValue', function () {
+		it('exists', (done) => {
+			User.User.getByFieldValue('email', 'tester312@email.com')
+				.then((result)=>{
+					expect(result.username).to.be.equal('testerUser312');
+					done();
+				})
+				.catch((err)=>{
+					done(err);
+				});
+		});
+
+		it('does not exists', (done) => {
+			User.User.getByFieldValue('email', 'me.please')
+				.then((result)=>{
+					expect(result).to.be.not.ok;
+					done();
+				})
+				.catch((err)=>{
+					done(err);
+				});
+		});
+
+		it('throws', (done) => {
+			User.User.getByFieldValue(['email'], 'me.please')
+				.then(()=>{
+					expect(true).to.be.false;
+					done();
+				})
+				.catch((err)=>{
+					expect(err).to.be.instanceof(Error);
+					done();
+				});
 		});
 	});
 });

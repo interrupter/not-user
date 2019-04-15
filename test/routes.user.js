@@ -29,7 +29,6 @@ before((done) => {
 		})
 		.then(()=>{
 			Proto.fabricate( User, {}, mongoose);
-			console.log(User.User);
 			done();
 		})
 		.catch((e)=>{
@@ -37,12 +36,13 @@ before((done) => {
 		});
 });
 
-after(() => {
+after((done) => {
 	mongoose.disconnect();
 	mongoServer.stop();
+	done();
 });
 
-
+/*
 describe('routes/user - in memory mongoDB', function () {
 	before(function (done) {
 		notLocale.fromDir(path.join(__dirname, '../src/locales'));
@@ -100,6 +100,7 @@ describe('routes/user - in memory mongoDB', function () {
 		});
 	});
 */
+/*
 	it('login - user not found', (done) => {
 		let userDocument = undefined,
 			res = {
@@ -262,4 +263,4 @@ describe('routes/user - in memory mongoDB', function () {
 			done();
 		});
 	});
-});
+});*/
