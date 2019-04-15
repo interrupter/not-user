@@ -4,7 +4,7 @@
 	"description": "not-* family user model in not- environment",
 	"main": "index.js",
 	"scripts": {
-		"test": "./node_modules/.bin/mocha --reporter spec ./tests/**.js",
+		"test": "./node_modules/.bin/mocha --reporter spec ./test/**.js",
 		"pretest": "./node_modules/.bin/eslint ./src/**/**.js",
 		"lint": "./node_modules/.bin/eslint ./app/**/**.js --fix",
 		"docs": "./node_modules/.bin/jsdoc -c jsdoc.json",
