@@ -2,7 +2,6 @@
 const testPaths = require('./options.js'),
 	expect = require('chai').expect,
 	assert = require('chai').assert,
-	mongoose = require('mongoose'),
 	notError = require('not-error'),
 	path = require('path'),
 	crypto = require('crypto'),
@@ -12,7 +11,37 @@ const testPaths = require('./options.js'),
 	domain = require('not-node').notDomain,
 	notLocale = require('not-locale'),
 	routes = require('../src/routes/user.js'),
-	User = require('../src/models/user.js');
+	Proto = require('not-node').Proto,
+	User = require('../src/models/user.js'),
+	mongoose = require('mongoose'),
+	MongoMemoryServer = require('mongodb-memory-server').MongoMemoryServer,
+	mongoServer = new MongoMemoryServer();
+
+before((done) => {
+	mongoServer
+		.getConnectionString()
+		.then((mongoUri) => {
+			return mongoose.connect(mongoUri, {}, (err) => {
+				if (err) {
+					done(err);
+				}
+			});
+		})
+		.then(()=>{
+			Proto.fabricate( User, {}, mongoose);
+			console.log(User.User);
+			done();
+		})
+		.catch((e)=>{
+			done(e);
+		});
+});
+
+after(() => {
+	mongoose.disconnect();
+	mongoServer.stop();
+});
+
 
 describe('models/user - localy isolated in mockup without actually querying MongoDB', function () {
 	before(function (done) {
@@ -114,7 +143,7 @@ describe('models/user - localy isolated in mockup without actually querying Mong
 			});
 		});
 
-		describe('toggleStatus', function () {
+		describe('toggleActive', function () {
 			it('item exists and has `active` field', (done) => {
 				User.thisStatics.findById = ()=>{
 					return new Promise((res)=>{
@@ -130,7 +159,7 @@ describe('models/user - localy isolated in mockup without actually querying Mong
 						res(item);
 					});
 				};
-				User.thisStatics.toggleStatus()
+				User.thisStatics.toggleActive()
 					.then((item)=>{
 						expect(item.active).to.be.false;
 						done();
@@ -155,7 +184,7 @@ describe('models/user - localy isolated in mockup without actually querying Mong
 						res(item);
 					});
 				};
-				User.thisStatics.toggleStatus()
+				User.thisStatics.toggleActive()
 					.then((item)=>{
 						expect(item.active).to.be.true;
 						done();
@@ -172,7 +201,7 @@ describe('models/user - localy isolated in mockup without actually querying Mong
 						res(null);
 					});
 				};
-				User.thisStatics.toggleStatus()
+				User.thisStatics.toggleActive()
 					.then(()=>{
 						expect(false).to.be.true;
 						done();
@@ -374,6 +403,70 @@ describe('models/user - localy isolated in mockup without actually querying Mong
 					};
 				};
 				User.thisStatics.emailExists('me.please')
+					.then((result)=>{
+						expect(true).to.be.false;
+						done();
+					})
+					.catch((err)=>{
+						expect(err).to.be.instanceof(Error);
+						done();
+					});
+			});
+		});
+
+		describe('getByFieldValue', function () {
+			it('exists', (done) => {
+				User.thisStatics.findOne = ()=>{
+					return {
+						exec(){
+							return new Promise((res)=>{
+								res({_id:'123123123'});
+							});
+						}
+					};
+				};
+
+				User.thisStatics.getByFieldValue('email', 'me.please')
+					.then((result)=>{
+						expect(result).to.be.ok;
+						done();
+					})
+					.catch((err)=>{
+						done(err);
+					});
+			});
+
+			it('does not exists', (done) => {
+				User.thisStatics.findOne = ()=>{
+					return {
+						exec(){
+							return new Promise((res)=>{
+								res(false);
+							});
+						}
+					};
+				};
+				User.thisStatics.getByFieldValue('email', 'me.please')
+					.then((result)=>{
+						expect(result).to.be.false;
+						done();
+					})
+					.catch((err)=>{
+						done(err);
+					});
+			});
+
+			it('throws', (done) => {
+				User.thisStatics.findOne = ()=>{
+					return {
+						exec(){
+							return new Promise((res, rej)=>{
+								rej(new Error('some error'));
+							});
+						}
+					};
+				};
+				User.thisStatics.getByFieldValue('email', 'me.please')
 					.then((result)=>{
 						expect(true).to.be.false;
 						done();

@@ -43,7 +43,7 @@ class ncLogin extends notFramework.notController {
 		this.form = new notFramework.notForm({
 			data: this.item,
 			options: {
-				prefix: 'login-form-',
+				prefix: 'user-form-',
 				helpers: {
 					submit: (params) => {
 						params.item.$login()

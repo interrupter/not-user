@@ -8,27 +8,58 @@ const testPaths = require('./options.js'),
 	log = require('not-log')(testPaths.log)(module),
 	remember = require('./remember'),
 	domain = require('not-node').notDomain,
+	Proto = require('not-node').Proto,
 	notLocale = require('not-locale'),
 	routes = require('../src/routes/user.js'),
-	User = require('../src/models/user.js');
+	User = require('../src/models/user.js'),
+	mongoose = require('mongoose'),
+	MongoMemoryServer = require('mongodb-memory-server').MongoMemoryServer,
+	mongoServer = new MongoMemoryServer();
+mongoose.Promise = Promise;
 
-describe('routes/user - localy isolated in mockup', function () {
+before((done) => {
+	mongoServer
+		.getConnectionString()
+		.then((mongoUri) => {
+			return mongoose.connect(mongoUri, {}, (err) => {
+				if (err) {
+					done(err);
+				}
+			});
+		})
+		.then(()=>{
+			Proto.fabricate( User, {}, mongoose);
+			console.log(User.User);
+			done();
+		})
+		.catch((e)=>{
+			done(e);
+		});
+});
+
+after(() => {
+	mongoose.disconnect();
+	mongoServer.stop();
+});
+
+
+describe('routes/user - in memory mongoDB', function () {
 	before(function (done) {
 		notLocale.fromDir(path.join(__dirname, '../src/locales'));
 		done();
 	});
 
-	it('login - ok', (done) => {
+	/*	it('login - ok', (done) => {
 		let userDocument = {
 				_id: '123123123',
 				email: 'test@mail.org',
 				emailConfirmed: true,
 				role: ['user'],
-				status: true
+				active: true
 			},
 			res = {
 				status(st){
-					this.status = st;
+					this.active = st;
 					return this;
 				},
 				json(result){
@@ -53,7 +84,6 @@ describe('routes/user - localy isolated in mockup', function () {
 			};
 		routes.getModel = (name)=>{
 			return {
-
 				authorize: (email, password)=>{
 					return new Promise((res, rej)=>{
 						res(userDocument);
@@ -66,9 +96,10 @@ describe('routes/user - localy isolated in mockup', function () {
 		};
 		routes.login(req, res, (err)=>{
 			expect(false).to.be.ok;
+			done();
 		});
 	});
-
+*/
 	it('login - user not found', (done) => {
 		let userDocument = undefined,
 			res = {
@@ -231,6 +262,4 @@ describe('routes/user - localy isolated in mockup', function () {
 			done();
 		});
 	});
-
-
 });

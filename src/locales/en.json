@@ -1,4 +1,6 @@
 {
 	"password_incorrect":	"Password is incorrect!",
-	"user_not_found":		"User not found!"
+	"user_not_found":		"User not found!",
+	"db_error":		"DB error!",
+	"mail_error":		"Mailer error!"
 }

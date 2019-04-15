@@ -12,11 +12,23 @@ exports.enrich = {
 };
 
 exports.thisSchema = {
+	username:{
+		type: String,
+		unique: true,
+		searchable: true,
+		required: true
+	},
 	email: {
 		type: String,
 		unique: true,
 		searchable: true,
 		required: true
+	},
+	confirm: {
+		type: String,
+		required: false,
+		searchable: true,
+		default: ''
 	},
 	emailConfirmed: {
 		type: Boolean,
@@ -46,7 +58,7 @@ exports.thisSchema = {
 		default: ['user']
 	},
 	//статус пользователя, активен или нет
-	status: {
+	active: {
 		type: Boolean,
 		required: true,
 		searchable: true,
@@ -57,11 +69,17 @@ exports.thisSchema = {
 		required: false,
 		default: ''
 	},
-	confirm: {
+	restore: {
 		type: String,
 		required: false,
 		searchable: true,
 		default: ''
+	},
+	country:{
+		type: String,
+		required: false,
+		searchable: true,
+		default: 'ru'
 	}
 };
 
@@ -88,7 +106,7 @@ exports.thisStatics = {
 				});
 		});
 	},
-	toggleStatus: function (id) {
+	toggleActive: function (id) {
 		return new Promise((resolve, reject)=>{
 			this.findById(id)
 				.then((user)=>{
@@ -113,17 +131,26 @@ exports.thisStatics = {
 		}
 		return user;
 	},
+	fieldValueExists: function(key, val){
+		return this.findOne({[key]: val	}).exec()
+			.then((user)=>{
+				return !!user;
+			});
+	},
 	usernameExists: function (username) {
 		return this.fieldValueExists('username', username);
 	},
 	emailExists: function (email) {
 		return this.fieldValueExists('email', email);
 	},
-	fieldValueExists: function(key, val){
-		return this.findOne({[key]: val	}).exec()
-			.then((user)=>{
-				return !!user;
-			});
+	getByFieldValue: function(key, val){
+		return this.findOne({[key]: val	}).exec();
+	},
+	getByUsername: function (username) {
+		return this.getByFieldValue('username', username);
+	},
+	getByEmail: function (email) {
+		return this.getByFieldValue('email', email);
 	}
 };
 
@@ -187,7 +214,6 @@ exports.thisMethods = {
 	isUser(){
 		return this.isRole('user');
 	},
-
 	confirmEmail() {
 		this.emailConfirmed = true;
 		this.confirm = '';

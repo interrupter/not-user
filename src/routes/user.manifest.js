@@ -60,9 +60,18 @@ module.exports = {
 		**/
 		register:{
 			method: 'post',
+			title: 'Регистрация',
 			rules:[{
 				auth: false
 			}],
+			fields: {
+				default:  [
+					'username',
+					'email',
+					'password',
+					'submit'
+				]
+			},
 			postFix: '/:actionName'
 		},
 		login:{
@@ -79,13 +88,40 @@ module.exports = {
 					'password',
 					'submit'
 				]
-			},
-			messages: {
-				success: 'Вы вошли!'
 			}
 		},
-		restorePassword:{
+		loginByEmail:{
 			method: 'post',
+			data: ['record'],
+			rules:[{
+				auth: false
+			}],
+			postFix: '/:actionName',
+			title: 'Вход одноразовой ссылкой',
+			fields: {
+				default:  [
+					'email',
+					'submit'
+				]
+			}
+		},
+		requestPasswordRestore:{
+			method: 'post',
+			title: 'Восстановление пароля',
+			rules:{
+				auth: false
+			},
+			fields: {
+				default:  [
+					'email',
+					'submit'
+				]
+			},
+			postFix: '/:actionName'
+		},
+		restorePassword:{
+			method: 'get',
+			title: 'Восстановление пароля',
 			rules:{
 				auth: false
 			},

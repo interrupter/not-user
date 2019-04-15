@@ -4,7 +4,6 @@ const 	Schema = require('mongoose').Schema,
 	App = require('not-node').Application,
 	config = require('not-config').readerForModule('user');
 
-
 let middleware = function(req, res, next){
 	let User = App.getModel('User');
 	req.user = res.locals.user = null;
@@ -41,14 +40,14 @@ let createRootUser = (app)=>{
 	App.logger.info(`Installing...`);
 	let rootUser = config.get('root'),
 		root  = new User({
-			'email': 			rootUser.username,
-			'username': 		rootUser.username,
-			'password': 		rootUser.password,
-			'confirm': 			'',
-			'emailConfirmed': 	true,
-			'role': 			[rootUser.role],
-			'__latest': 		true,
-			'status': 			true
+			'email': 					rootUser.email,
+			'username': 			rootUser.username,
+			'password': 			rootUser.password,
+			'confirm': 				'',
+			'emailConfirmed': true,
+			'role': 					[rootUser.role],
+			'__latest': 			true,
+			'status': 				true
 		});
 	return root.save()
 		.then(()=>{
@@ -93,6 +92,7 @@ module.exports = {
 		views:				path.join(__dirname, 'src', 'views'),
 		templates:		path.join(__dirname, 'src', 'templates'),
 		models:				path.join(__dirname, 'src', 'models'),
+		styles:				path.join(__dirname, 'src', 'styles'),
 		locales:			path.join(__dirname, 'src', 'locales')
 	},
 	getMiddleware(options){

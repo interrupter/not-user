@@ -4,11 +4,11 @@
 	"description": "not-* family user model in not- environment",
 	"main": "index.js",
 	"scripts": {
-		"test": "./node_modules/.bin/mocha --reporter spec",
+		"test": "./node_modules/.bin/mocha --reporter spec ./tests/**.js",
 		"pretest": "./node_modules/.bin/eslint ./src/**/**.js",
-		"lint": "./node_modules/.bin/eslint ./src/**/**.js",
+		"lint": "./node_modules/.bin/eslint ./app/**/**.js --fix",
 		"docs": "./node_modules/.bin/jsdoc -c jsdoc.json",
-		"cover": "istanbul cover _mocha $(find ./test -name \"*.js\" -not -path \"./node_modules/*\")"
+		"cover": "nyc npm test",
 	},
 	"repository": {
 		"type": "git",
@@ -27,22 +27,25 @@
 	"homepage": "https://github.com/interrupter/not-user#readme",
 	"dependencies": {
 		"mongoose": "*",
+		"validator": "*",
 		"not-config": "*",
 		"not-error": "*",
 		"not-filter": "*",
 		"not-locale": "*",
 		"not-log": "*",
-		"not-node": "*"
+		"not-node": "*",
+		"uuidv4": "*"
 	},
 	"devDependencies": {
 		"chai": "*",
 		"chai-as-promised": "*",
 		"eslint": "*",
 		"ink-docstrap": "*",
-		"istanbul": "*",
+		"nyc": "*",
 		"jsdoc": "*",
+		"should": "^13.2.1",
 		"mocha": "*",
-		"mockgoose": "*",
+		"mongodb-memory-server": "^5.0.3",
 		"request": "*",
 		"retire": "*"
 	}
