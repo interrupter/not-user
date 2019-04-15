@@ -8,7 +8,7 @@
 		"pretest": "./node_modules/.bin/eslint ./src/**/**.js",
 		"lint": "./node_modules/.bin/eslint ./app/**/**.js --fix",
 		"docs": "./node_modules/.bin/jsdoc -c jsdoc.json",
-		"cover": "nyc npm test",
+		"cover": "nyc npm test"
 	},
 	"repository": {
 		"type": "git",
