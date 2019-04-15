@@ -6,7 +6,7 @@
 	"scripts": {
 		"test": "./node_modules/.bin/mocha --reporter spec ./test/**.js",
 		"pretest": "./node_modules/.bin/eslint ./src/**/**.js",
-		"lint": "./node_modules/.bin/eslint ./app/**/**.js --fix",
+		"lint": "./node_modules/.bin/eslint ./src/**/**.js --fix",
 		"docs": "./node_modules/.bin/jsdoc -c jsdoc.json",
 		"cover": "nyc npm test"
 	},
