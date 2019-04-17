@@ -28,7 +28,9 @@ before((done) => {
 			});
 		})
 		.then(()=>{
-			Proto.fabricate(User, {}, mongoose);
+			if (typeof User.User == 'undefined'){
+				Proto.fabricate(User, {}, mongoose);
+			}
 			console.log('DB connected, User model fabricated!');
 			done();
 		})
@@ -111,7 +113,7 @@ describe('models/user - localy isolated in mockup without actually querying Mong
 		});
 	});
 
-	describe('statics', function () {
+	describe('authorize', function () {
 		it('adding user', (done) => {
 			(new User.User({
 				email: 'test@email.com',
@@ -125,8 +127,49 @@ describe('models/user - localy isolated in mockup without actually querying Mong
 				done();
 			}).catch(done);
 		});
-	});
-	describe('authorize', function () {
+
+		it('changing user password', (done) => {
+			(new User.User({
+				email: 'test22@email.com',
+				username: 'testUser22',
+				emailConfirmed: false,
+				password: 'qwerty22'
+			})).save().then(async(user)=>{
+
+				expect(user.active).to.be.true;
+				expect(user.emailConfirmed).to.be.false;
+				expect(user.role).to.be.deep.equal(['user']);
+				let oldHash = user.hashedPassword;
+				let oldSalt = user.salt;
+				user.password = 'toasttoast';
+				expect(user.password).to.be.deep.equal('toasttoast');
+				expect(oldHash).to.be.not.equal(user.hashedPassword);
+				expect(oldSalt).to.be.not.equal(user.salt);
+			 	let newUesr = 	await user.save();
+				return newUesr;
+			})
+				.then((user)=>{
+					User.User.authorize('test22@email.com','toasttoast')
+						.then((user)=>{
+							expect(user.username).to.be.equal('testUser22');
+							done();
+						})
+						.catch((e)=>{done(e);});
+				})
+				.catch((e)=>{done(e);});
+		});
+
+		it('throw', (done) => {
+			User.User.authorize({leg:['email','password']})
+				.then(()=>{
+					expect(false).to.be.true;
+				})
+				.catch((err)=>{
+					expect(err).to.be.instanceof(notError);
+					expect(err.message).to.be.equal(notLocale.say('user_not_found'));
+					done();
+				});
+		});
 		it('undefined', (done) => {
 			User.User.authorize('email','password')
 				.then(()=>{
@@ -158,6 +201,7 @@ describe('models/user - localy isolated in mockup without actually querying Mong
 				})
 				.catch((err)=>{
 					expect(false).to.be.true;
+					done(err);
 				});
 		});
 	});
@@ -182,6 +226,18 @@ describe('models/user - localy isolated in mockup without actually querying Mong
 
 		it('item does exists', (done) => {
 			User.User.toggleActive('5cb41aa82c821a441c1ded21')
+				.then(()=>{
+					expect(false).to.be.true;
+					done();
+				})
+				.catch((err)=>{
+					expect(err).to.be.instanceof(notError);
+					done();
+				});
+		});
+
+		it('throw', (done) => {
+			User.User.toggleActive({leg:'5cb41aa82c821a441c1ded21'})
 				.then(()=>{
 					expect(false).to.be.true;
 					done();
@@ -361,4 +417,77 @@ describe('models/user - localy isolated in mockup without actually querying Mong
 				});
 		});
 	});
+
+	describe('getByUsername', function () {
+		it('exists', (done) => {
+			User.User.getByUsername('testerUser312')
+				.then((result)=>{
+					expect(result.username).to.be.equal('testerUser312');
+					done();
+				})
+				.catch((err)=>{
+					done(err);
+				});
+		});
+
+		it('does not exists', (done) => {
+			User.User.getByUsername('testerUser31212')
+				.then((result)=>{
+					expect(result).to.be.not.ok;
+					done();
+				})
+				.catch((err)=>{
+					done(err);
+				});
+		});
+
+		it('throws', (done) => {
+			User.User.getByUsername(['me.please'])
+				.then(()=>{
+					expect(true).to.be.false;
+					done();
+				})
+				.catch((err)=>{
+					expect(err).to.be.instanceof(Error);
+					done();
+				});
+		});
+	});
+
+	describe('getByEmail', function () {
+		it('exists', (done) => {
+			User.User.getByEmail('tester312@email.com')
+				.then((result)=>{
+					expect(result.username).to.be.equal('testerUser312');
+					done();
+				})
+				.catch((err)=>{
+					done(err);
+				});
+		});
+
+		it('does not exists', (done) => {
+			User.User.getByEmail('tester312@email.com12')
+				.then((result)=>{
+					expect(result).to.be.not.ok;
+					done();
+				})
+				.catch((err)=>{
+					done(err);
+				});
+		});
+
+		it('throws', (done) => {
+			User.User.getByEmail(['tester312@email.com'])
+				.then(()=>{
+					expect(true).to.be.false;
+					done();
+				})
+				.catch((err)=>{
+					expect(err).to.be.instanceof(Error);
+					done();
+				});
+		});
+	});
+
 });

@@ -1,52 +1,90 @@
 {
-	"name": "not-user",
-	"version": "0.1.4",
-	"description": "not-* family user model in not- environment",
-	"main": "index.js",
-	"scripts": {
-		"test": "./node_modules/.bin/mocha --reporter spec ./test/**.js",
-		"pretest": "./node_modules/.bin/eslint ./src/**/**.js",
-		"lint": "./node_modules/.bin/eslint ./src/**/**.js --fix",
-		"docs": "./node_modules/.bin/jsdoc -c jsdoc.json",
-		"cover": "nyc npm test"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/interrupter/not-user.git"
-	},
-	"keywords": [
-		"not-framework",
-		"not-node",
-		"user"
-	],
-	"author": "interrupter <alex.repin@mail.ru> (http://github.com/interrupter)",
-	"license": "ISC",
-	"bugs": {
-		"url": "https://github.com/interrupter/not-user/issues"
-	},
-	"homepage": "https://github.com/interrupter/not-user#readme",
-	"dependencies": {
-		"mongoose": "*",
-		"validator": "*",
-		"not-config": "*",
-		"not-error": "*",
-		"not-filter": "*",
-		"not-locale": "*",
-		"not-log": "*",
-		"not-node": "*",
-		"uuidv4": "*"
-	},
-	"devDependencies": {
-		"chai": "*",
-		"chai-as-promised": "*",
-		"eslint": "*",
-		"ink-docstrap": "*",
-		"nyc": "*",
-		"jsdoc": "*",
-		"should": "^13.2.1",
-		"mocha": "*",
-		"mongodb-memory-server": "^5.0.3",
-		"request": "*",
-		"retire": "*"
-	}
+		"name": "not-user",
+		"version": "0.1.4",
+		"description": "not-* family user model in not- environment",
+		"main": "index.js",
+		"scripts": {
+				"test": "./node_modules/.bin/mocha --reporter spec ./test/**.js",
+				"pretest": "./node_modules/.bin/eslint ./src/**/**.js",
+				"lint": "./node_modules/.bin/eslint ./src/**/**.js --fix",
+				"docs": "./node_modules/.bin/jsdoc -c jsdoc.json",
+				"cover": "nyc npm test"
+		},
+		"repository": {
+				"type": "git",
+				"url": "git+https://github.com/interrupter/not-user.git"
+		},
+		"keywords": [
+				"not-framework",
+				"not-node",
+				"user"
+		],
+		"author": "interrupter <alex.repin@mail.ru> (http://github.com/interrupter)",
+		"license": "ISC",
+		"bugs": {
+				"url": "https://github.com/interrupter/not-user/issues"
+		},
+		"homepage": "https://github.com/interrupter/not-user#readme",
+		"dependencies": {
+				"generate-password": "^1.4.1",
+				"mongoose": "*",
+				"not-config": "*",
+				"not-error": "*",
+				"not-filter": "*",
+				"not-locale": "*",
+				"not-log": "*",
+				"not-node": "*",
+				"not-one-time-code": "^0.1.1",
+				"uuidv4": "*",
+				"validator": "*"
+		},
+		"devDependencies": {
+				"chai": "*",
+				"chai-as-promised": "*",
+				"eslint": "*",
+				"ink-docstrap": "*",
+				"jsdoc": "*",
+				"mocha": "*",
+				"mongodb-memory-server": "^5.0.3",
+				"nyc": "^13.3.0",
+				"request": "*",
+				"retire": "*",
+				"should": "^13.2.1"
+		},
+		"nyc": {
+				"include": [
+						"index.js",
+						"src/**/**/**.js"
+				],
+				"exclude": [
+						"test/**/**/**/**.js"
+				],
+				"reporter": [
+						"html"
+				],
+				"check-coverage": true,
+				"per-file": true,
+				"lines": 95,
+				"statements": 95,
+				"functions": 95,
+				"branches": 95,
+				"watermarks": {
+						"lines": [
+								80,
+								95
+						],
+						"functions": [
+								80,
+								95
+						],
+						"branches": [
+								80,
+								95
+						],
+						"statements": [
+								80,
+								95
+						]
+				}
+		}
 }

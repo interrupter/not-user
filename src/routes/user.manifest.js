@@ -90,7 +90,7 @@ module.exports = {
 				]
 			}
 		},
-		loginByEmail:{
+		requestLoginByEmail:{
 			method: 'post',
 			data: ['record'],
 			rules:[{
@@ -104,6 +104,14 @@ module.exports = {
 					'submit'
 				]
 			}
+		},
+		loginByEmail:{
+			method: 'get',
+			data: ['record'],
+			rules:[{
+				auth: false
+			}],
+			postFix: '/:actionName'
 		},
 		requestPasswordRestore:{
 			method: 'post',

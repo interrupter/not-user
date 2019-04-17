@@ -2,5 +2,10 @@
 	"password_incorrect":	"Пароль не верен",
 	"user_not_found":		"Пользователь не найден",
 	"db_error":		"Ошибка БД!",
-	"mail_error":		"Ошибка отправки сообщения!"
+	"mail_error":		"Ошибка отправки сообщения!",
+	"email_not_valid":	"Не верное значение Email!",
+	"password_length_not_valid":	"Пароль должен быть длиной от 6 до 100 знаков!",
+	"one_time_password_ttl_not_valid": "Время жизни одноразового пароля должно быть от {min} до {max} минут!",
+	"password_restoration_code_ttl_not_valid": "Время жизни кода для сброса пароля должно быть от {min} до {max} часов!",
+	"requestLoginByLink_success": "Одноразовая ссылка для входа отправлена на почту"
 }

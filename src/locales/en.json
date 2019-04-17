@@ -2,5 +2,10 @@
 	"password_incorrect":	"Password is incorrect!",
 	"user_not_found":		"User not found!",
 	"db_error":		"DB error!",
-	"mail_error":		"Mailer error!"
+	"mail_error":		"Mailer error!",
+	"email_not_valid":	"Email is not valid!",
+	"password_length_not_valid":	"Password length should be from 6 to 100 characters!",
+	"one_time_password_ttl_not_valid": "TTL of one time password should be from {min} to {max} minutes!",
+	"password_restoration_code_ttl_not_valid": "TTL of one time password should be from {min} to {max} hours!",
+	"requestLoginByLink_success": "One-time login link was emailed to you!"
 }

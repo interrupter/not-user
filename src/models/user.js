@@ -1,7 +1,14 @@
 const crypto = require('crypto'),
 	notError = require('not-error'),
-	notLocale = require('not-locale');
+	notLocale = require('not-locale'),
+	generator = require('generate-password');
 
+const DEFAULT_TTL = 3; //in minutes
+const DEFAULT_TTL_MIN = 1; //in minutes
+const DEFAULT_TTL_MAX = 60; //in minutes
+exports.DEFAULT_TTL  = DEFAULT_TTL;
+exports.DEFAULT_TTL_MIN  = DEFAULT_TTL_MIN;
+exports.DEFAULT_TTL_MAX  = DEFAULT_TTL_MAX;
 exports.thisModelName = 'User';
 exports.keepNotExtended = false;
 
@@ -23,12 +30,6 @@ exports.thisSchema = {
 		unique: true,
 		searchable: true,
 		required: true
-	},
-	confirm: {
-		type: String,
-		required: false,
-		searchable: true,
-		default: ''
 	},
 	emailConfirmed: {
 		type: Boolean,
@@ -67,12 +68,6 @@ exports.thisSchema = {
 	ip: {
 		type: String,
 		required: false,
-		default: ''
-	},
-	restore: {
-		type: String,
-		required: false,
-		searchable: true,
 		default: ''
 	},
 	country:{
@@ -177,6 +172,15 @@ exports.thisVirtuals = {
 exports.thisMethods = {
 	encryptPassword (password) {
 		return crypto.createHmac('sha1', this.salt).update(password).digest('hex');
+	},
+	createNewPassword(){
+		let pass = generator.generate({
+			length: 12,
+			uppercase: true,
+			numbers: true
+		});
+		this.password = pass;
+		return pass;
 	},
 	checkPassword(password) {
 		if(typeof password === 'string'){
