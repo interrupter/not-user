@@ -24,7 +24,7 @@ exports.getIP = (req)=>{
 	req.connection.socket.remoteAddress;
 };
 
-exports.login = (req, res, next)=>{
+exports.login = (req, res)=>{
 	log.debug('login');
 	let User = this.getModel('User'),
 		UserSchema = this.getModelSchema('User'),
@@ -47,31 +47,19 @@ exports.login = (req, res, next)=>{
 	}else{
 		User.authorize(email, password)
 			.then((user)=>{
-				if(user && user._id){
-					notAuth.setAuth(req, user._id, user.role);
-					log.info(`'${user.username}' authorized as ${req.session.user} ${req.session.role}`);
-					user.ip = ip;
-					req.session.save();
-					user.save();
-					query.return.process(req, UserSchema, user);
-					return res.status(200).json({user});
-				}else{
-					let err = new notError(notLocale.say('user_not_found'));
-					notApp.report(err);
-					return res.status(403).json({
-						error: err.message
-					});
-				}
+				notAuth.setAuth(req, user._id, user.role);
+				log.info(`'${user.username}' authorized as ${req.session.user} ${req.session.role}`);
+				user.ip = ip;
+				req.session.save();
+				user.save();
+				query.return.process(req, UserSchema, user);
+				return res.status(200).json({user});
 			})
 			.catch((err)=> {
 				notApp.report(err);
-				if (err instanceof notError) {
-					return res.status(403).json({
-						error: err.message
-					});
-				} else {
-					return next(err);
-				}
+				return res.status(403).json({
+					error: err.message
+				});
 			});
 	}
 };
@@ -194,7 +182,7 @@ exports.requestPasswordRestore = (req, res)=>{
 			});
 	}else{
 		res.status(403).json({
-			error: notLocale.say('user_not_found')
+			error: notLocale.say('email_not_valid')
 		});
 	}
 };
@@ -218,6 +206,7 @@ exports.restorePassword = (req, res)=>{
 		})
 		.then((user)=>{
 			let pass = user.createNewPassword();
+			log.info(`'${user.username}' restored password as ${user._id} ${user.role} via emailed one-time code`);
 			try{
 				notApp.inform({
 					to: user.email,
@@ -227,9 +216,7 @@ exports.restorePassword = (req, res)=>{
 				res.redirect('/restorePasswordSuccess');
 			}catch(e){
 				notApp.report(e);
-				res.status(500).json({
-					error: e.message
-				});
+				res.status(500).redirect('/restorePasswordError');
 			}
 		})
 		.catch((e)=>{

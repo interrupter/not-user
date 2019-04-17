@@ -351,6 +351,159 @@ describe('routes/user/register', function () {
 
 
 describe('routes/user/requestLoginByEmail', function () {
+	it('requestLoginByEmail - failed, misformed email', (done) => {
+		let	res = {
+				status(st){
+					this.status = st;
+					return this;
+				},
+				json(result){
+					expect(result.error).to.be.equal(notLocale.say('email_not_valid'));
+					expect(this.status).to.be.equal(403);
+					done();
+				}
+			},
+			req = {
+				headers:{
+					'x-forwarded-for': '127.0.0.1'
+				},
+				session:{
+					save(){}
+				},
+				body: {
+					email:'testmail.org'
+				}
+			};
+		notNode.Application = {
+			inform(){},
+			report(){},
+			getModel(name){
+				if(name === 'User'){
+					return User.User;
+				}else if(name === 'OneTimeCode'){
+					return OneTimeCode.OneTimeCode;
+				}
+			}
+		};
+		routes.getModel = ()=>{
+			return User.User;
+		};
+		routes.getModelSchema = ()=>{
+			return User.thisSchema;
+		};
+		routes.requestLoginByEmail(req, res, (err)=>{
+			if(err){
+				done(err);
+			}else{
+				expect(false).to.be.ok;
+				done();
+			}
+		});
+	});
+	it('requestLoginByEmail - failed, OneTimeCode.createCode throws', (done) => {
+		let	res = {
+				status(st){
+					this.status = st;
+					return this;
+				},
+				json(result){
+					expect(result.error).to.be.equal('Some error!');
+					expect(this.status).to.be.equal(500);
+					done();
+				}
+			},
+			req = {
+				headers:{
+					'x-forwarded-for': '127.0.0.1'
+				},
+				session:{
+					save(){}
+				},
+				body: {
+					email:'test@mail.org'
+				}
+			};
+		notNode.Application = {
+			inform(){},
+			report(){},
+			getModel(name){
+				if(name === 'User'){
+					return User.User;
+				}else if(name === 'OneTimeCode'){
+					return {
+						createCode(){
+							throw new Error('Some error!');
+						}
+					};
+				}
+			}
+		};
+		routes.getModel = ()=>{
+			return User.User;
+		};
+		routes.getModelSchema = ()=>{
+			return User.thisSchema;
+		};
+		routes.requestLoginByEmail(req, res, (err)=>{
+			if(err){
+				done(err);
+			}else{
+				expect(false).to.be.ok;
+				done();
+			}
+		});
+	});
+	it('requestLoginByEmail - failed, inform throws', (done) => {
+		let	res = {
+				status(st){
+					this.status = st;
+					return this;
+				},
+				json(result){
+					expect(result.error).to.be.equal('Some another error!');
+					expect(this.status).to.be.equal(500);
+					done();
+				}
+			},
+			req = {
+				headers:{
+					'x-forwarded-for': '127.0.0.1'
+				},
+				session:{
+					save(){}
+				},
+				body: {
+					email:'test@mail.org'
+				}
+			};
+		notNode.Application = {
+			inform(){
+				throw new Error('Some another error!');
+			},
+			report(){},
+			getModel(name){
+				if(name === 'User'){
+					return User.User;
+				}else if(name === 'OneTimeCode'){
+					return OneTimeCode.OneTimeCode;
+				}
+			}
+		};
+		routes.getModel = ()=>{
+			return User.User;
+		};
+		routes.getModelSchema = ()=>{
+			return User.thisSchema;
+		};
+		routes.requestLoginByEmail(req, res, (err)=>{
+			if(err){
+				done(err);
+			}else{
+				expect(false).to.be.ok;
+				done();
+			}
+		});
+	});
 	it('requestLoginByEmail - ok', (done) => {
 		let	res = {
 				status(st){
@@ -687,6 +840,165 @@ describe('routes/user/requestPasswordRestore', function () {
 			}
 		});
 	});
+	it('requestPasswordRestore - failed, misformed email', (done) => {
+		let	res = {
+			status(st){
+				this._status = st;
+				return this;
+			},
+			json(data){
+				expect(this._status).to.be.equal(403);
+				expect(data.error).to.be.equal(notLocale.say('email_not_valid'));
+				done();
+			}
+			},
+			req = {
+				headers:{
+					'x-forwarded-for': '127.0.0.1'
+				},
+				session:{
+					save(){}
+				},
+				body: {
+					email: 		'secondTimeTesteremail.com'
+				}
+			};
+			notNode.Application = {
+				inform(){},
+				report(err){
+					expect(err.error).to.be.equal(notLocale.say('email_not_valid'));
+				},
+				getModel(name){
+					if(name === 'User'){
+						return User.User;
+					}else if(name === 'OneTimeCode'){
+						return OneTimeCode.OneTimeCode;
+					}
+				}
+			};
+		routes.getModel = ()=>{
+			return User.User;
+		};
+		routes.getModelSchema = ()=>{
+			return User.thisSchema;
+		};
+		routes.requestPasswordRestore(req, res, (err)=>{
+			if(err){
+				done(err);
+			}else{
+				expect(false).to.be.ok;
+				done();
+			}
+		});
+	});
+	it('requestPasswordRestore - failed, OneTimeCode.createCode throws', (done) => {
+		let	res = {
+			status(st){
+				this._status = st;
+				return this;
+			},
+			json(data){
+				expect(this._status).to.be.equal(500);
+				expect(data.error).to.be.equal('Some vicious error!');
+				done();
+			}
+			},
+			req = {
+				headers:{
+					'x-forwarded-for': '127.0.0.1'
+				},
+				session:{
+					save(){}
+				},
+				body: {
+					email: 		'secondTimeTester@email.com'
+				}
+			};
+			notNode.Application = {
+				inform(){},
+				report(err){
+					expect(err.message).to.be.equal('Some vicious error!');
+				},
+				getModel(name){
+					if(name === 'User'){
+						return User.User;
+					}else if(name === 'OneTimeCode'){
+						return {
+							createCode(){
+								throw new Error('Some vicious error!')
+							}
+						};
+					}
+				}
+			};
+		routes.getModel = ()=>{
+			return User.User;
+		};
+		routes.getModelSchema = ()=>{
+			return User.thisSchema;
+		};
+		routes.requestPasswordRestore(req, res, (err)=>{
+			if(err){
+				done(err);
+			}else{
+				expect(false).to.be.ok;
+				done();
+			}
+		});
+	});
+	it('requestPasswordRestore - failed, inform throws', (done) => {
+		let	res = {
+			status(st){
+				this._status = st;
+				return this;
+			},
+			json(data){
+				expect(this._status).to.be.equal(500);
+				expect(data.error).to.be.equal('Some vicious error again!');
+				done();
+			}
+			},
+			req = {
+				headers:{
+					'x-forwarded-for': '127.0.0.1'
+				},
+				session:{
+					save(){}
+				},
+				body: {
+					email: 		'secondTimeTester@email.com'
+				}
+			};
+			notNode.Application = {
+				inform(){
+					throw new Error('Some vicious error again!');
+				},
+				report(err){
+					expect(err.message).to.be.equal('Some vicious error again!');
+				},
+				getModel(name){
+					if(name === 'User'){
+						return User.User;
+					}else if(name === 'OneTimeCode'){
+						return OneTimeCode.OneTimeCode;
+					}
+				}
+			};
+		routes.getModel = ()=>{
+			return User.User;
+		};
+		routes.getModelSchema = ()=>{
+			return User.thisSchema;
+		};
+		routes.requestPasswordRestore(req, res, (err)=>{
+			if(err){
+				done(err);
+			}else{
+				expect(false).to.be.ok;
+				done();
+			}
+		});
+	});
 });
 
 
@@ -712,7 +1024,7 @@ describe('routes/user/restorePassword', function () {
 						OneTimeCode.OneTimeCode.createCode({
 							email: user.email,
 							owner: user._id,
-							action: 'restorePassword'
+							action: 'restorePasswordAgain'
 						}),
 						OneTimeCode.OneTimeCode.createCode({
 							email: user.email,
@@ -748,6 +1060,122 @@ describe('routes/user/restorePassword', function () {
 				},
 				query: {
 					code: 		oneTimePasses[0].code
+				}
+			};
+			notNode.Application = {
+				inform(){},
+				report(err){},
+				getModel(name){
+					if(name === 'User'){
+						return User.User;
+					}else if(name === 'OneTimeCode'){
+						return OneTimeCode.OneTimeCode;
+					}
+				}
+			};
+		routes.getModel = ()=>{
+			return User.User;
+		};
+		routes.getModelSchema = ()=>{
+			return User.thisSchema;
+		};
+		routes.restorePassword(req, res, (err)=>{
+			if(err){
+				done(err);
+			}else{
+				expect(false).to.be.ok;
+				done();
+			}
+		});
+	});
+
+	it('restorePassword - failed, wrong code payload action', (done) => {
+		let	res = {
+			status(st){
+				this._status = st;
+				return this;
+			},
+			redirect(path){
+				expect(path).to.be.equal('/login');
+				done();
+			}
+			},
+			req = {
+				headers:{
+					'x-forwarded-for': '127.0.0.1'
+				},
+				session:{
+					save(){}
+				},
+				query: {
+					code: 		oneTimePasses[1].code
+				}
+			};
+			notNode.Application = {
+				inform(){},
+				report(err){
+					expect(err.message).to.be.equal(notLocale.say('one_time_code_not_valid'));
+				},
+				getModel(name){
+					if(name === 'User'){
+						return User.User;
+					}else if(name === 'OneTimeCode'){
+						return OneTimeCode.OneTimeCode;
+					}
+				}
+			};
+		routes.getModel = ()=>{
+			return User.User;
+		};
+		routes.getModelSchema = ()=>{
+			return User.thisSchema;
+		};
+		routes.restorePassword(req, res, (err)=>{
+			if(err){
+				done(err);
+			}else{
+				expect(false).to.be.ok;
+				done();
+			}
+		});
+	});
+
+	it('restorePassword - failed, inform throw', (done) => {
+		let	res = {
+			status(st){
+				this._status = st;
+				expect(st).to.be.equal(500);
+				return this;
+			},
+			redirect(path){
+				expect(path).to.be.equal('/restorePasswordError');
+				done();
+			}
+			},
+			req = {
+				headers:{
+					'x-forwarded-for': '127.0.0.1'
+				},
+				session:{
+					save(){}
+				},
+				query: {
+					code: 		oneTimePasses[2].code
+				}
+			};
+			notNode.Application = {
+				inform(){
+					throw new notError('Some error.');
+				},
+				report(err){
+					expect(err.message).to.be.equal('Some error.');
+				},
+				getModel(name){
+					if(name === 'User'){
+						return User.User;
+					}else if(name === 'OneTimeCode'){
+						return OneTimeCode.OneTimeCode;
+					}
 				}
 			};
 		routes.getModel = ()=>{
