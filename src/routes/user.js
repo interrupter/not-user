@@ -6,22 +6,27 @@ const log = require('not-log')(module),
 	notAuth = require('not-node').Auth,
 	validator = require('validator');
 
-/**
-*   Guest actions
-*/
-exports.register = (req, res)=>{
-	//validate input
-	//check if user with this attributes already exists
-	//create user
-	//send email confirmation
-	res.status(200).json({});
-};
 
 exports.getIP = (req)=>{
 	return req.headers['x-forwarded-for'] ||
 	req.connection.remoteAddress ||
 	req.socket.remoteAddress ||
 	req.connection.socket.remoteAddress;
+};
+
+/**
+*   Guest actions
+*/
+exports.register = (req, res)=>{
+	//validate input
+
+	//check if user with this attributes already exists
+
+	//create user
+
+	//send email confirmation
+
+	res.status(200).json({});
 };
 
 exports.login = (req, res)=>{

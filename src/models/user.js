@@ -9,6 +9,8 @@ const DEFAULT_TTL_MAX = 60; //in minutes
 exports.DEFAULT_TTL  = DEFAULT_TTL;
 exports.DEFAULT_TTL_MIN  = DEFAULT_TTL_MIN;
 exports.DEFAULT_TTL_MAX  = DEFAULT_TTL_MAX;
+exports.DEFAULT_ROLES_LIST = ['user', 'guest', 'client', 'admin', 'root', 'confirmed'];
+exports.DEFAULT_HASH_ALGO = 'sha1';
 exports.thisModelName = 'User';
 exports.keepNotExtended = false;
 
@@ -23,24 +25,52 @@ exports.thisSchema = {
 		type: String,
 		unique: true,
 		searchable: true,
-		required: true
+		required: true,
+		validate: [
+			{
+				validator: 'isLength',
+				arguments: [3, 60],
+				message: 'username_length_is_not_valid'
+			}
+		]
 	},
 	email: {
 		type: String,
 		unique: true,
 		searchable: true,
-		required: true
+		required: true,
+		validate: [
+			{
+				validator: 'isEmail',
+				message: 'email_is_not_valid'
+			}
+		]
 	},
 	emailConfirmed: {
 		type: Boolean,
 		searchable: true,
 		required: true,
-		default: false
+		default: false,
+		validate: [
+			{
+				validator(val){
+					return (val === true) || (val === false);
+				},
+				message: 'active_state_value_is_not_valid'
+			}
+		]
 	},
 	//хэш пароля
 	hashedPassword: {
 		type: String,
-		required: true
+		required: true,
+		validate: [
+			{
+				validator: 'isHash',
+				arguments: [exports.DEFAULT_HASH_ALGO],
+				message: 'hashedPassword_is_not_valid'
+			}
+		]
 	},
 	//соль для хэширования
 	salt: {
@@ -56,25 +86,64 @@ exports.thisSchema = {
 		type: [String],
 		required: true,
 		searchable: true,
-		default: ['user']
+		default: ['user'],
+		validate: [
+			{
+				validator(val){					
+					if(Array.isArray(val)){
+						let all = true;
+						val.forEach((role)=>{
+							if (!exports.DEFAULT_ROLES_LIST.includes(role)){
+								all = false;
+							}
+						});
+						return all;
+					}else{
+						return exports.DEFAULT_ROLES_LIST.includes(val);
+					}
+				},
+				message: 'user_role_is_not_valid'
+			}
+		]
 	},
 	//статус пользователя, активен или нет
 	active: {
 		type: Boolean,
 		required: true,
 		searchable: true,
-		default: true
+		default: true,
+		validate: [
+			{
+				validator(val){
+					return (val === true) || (val === false);
+				},
+				message: 'active_state_value_is_not_valid'
+			}
+		]
 	},
 	ip: {
 		type: String,
 		required: false,
-		default: ''
+		validate: [
+			{
+				validator: 'isIP',
+				message: 'ip_address_is_not_valid'
+			}
+		]
 	},
 	country:{
 		type: String,
 		required: false,
 		searchable: true,
-		default: 'ru'
+		default: 'ru',
+		validate: [
+			{
+				validator(val){
+					return val === 'ru';
+				},
+				message: 'selected_user_language_is_not_valid'
+			}
+		]
 	}
 };
 
@@ -171,7 +240,7 @@ exports.thisVirtuals = {
 
 exports.thisMethods = {
 	encryptPassword (password) {
-		return crypto.createHmac('sha1', this.salt).update(password).digest('hex');
+		return crypto.createHmac(exports.DEFAULT_HASH_ALGO, this.salt).update(password).digest('hex');
 	},
 	createNewPassword(){
 		let pass = generator.generate({
