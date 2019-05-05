@@ -490,4 +490,38 @@ describe('models/user - localy isolated in mockup without actually querying Mong
 		});
 	});
 
+	describe('validators', function () {
+		it('roles - not valid, single, an Array', (done) => {
+			let invalidRoleUser = new User.User({
+				email: 'tester312@email.com',
+				username: 'testerUser312',
+				role: ['tester'],
+				emailConfirmed: false,
+				password: 'qwertyStory'
+			});
+			invalidRoleUser.validate((err)=>{
+				if(err){
+					done();
+				}else{
+					done('No validation problem, but role is invalid');
+				}
+			})
+		});
+		it('roles - not valid, empty list', (done) => {
+			let invalidRoleUser = new User.User({
+				email: 'tester312@email.com',
+				username: 'testerUser312',
+				role: [],
+				emailConfirmed: false,
+				password: 'qwertyStory'
+			});
+			invalidRoleUser.validate((err)=>{
+				if(err){
+					done();
+				}else{
+					done('No validation problem, but role is invalid');
+				}
+			})
+		});
+	});
 });

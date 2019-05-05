@@ -89,18 +89,19 @@ exports.thisSchema = {
 		default: ['user'],
 		validate: [
 			{
-				validator(val){					
-					if(Array.isArray(val)){
-						let all = true;
-						val.forEach((role)=>{
-							if (!exports.DEFAULT_ROLES_LIST.includes(role)){
-								all = false;
-							}
-						});
-						return all;
-					}else{
-						return exports.DEFAULT_ROLES_LIST.includes(val);
+				validator(val){
+					//eslint-disable-next-line no-console
+					console.log('user roles', val);
+					if(val.length === 0){
+						return false;
 					}
+					let all = true;
+					val.forEach((role)=>{
+						if (!exports.DEFAULT_ROLES_LIST.includes(role)){
+							all = false;
+						}
+					});
+					return all;
 				},
 				message: 'user_role_is_not_valid'
 			}
