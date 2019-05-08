@@ -18,15 +18,87 @@ exports.getIP = (req)=>{
 *   Guest actions
 */
 exports.register = (req, res)=>{
+	log.debug('register');
+	let User = this.getModel('User'),
+		notApp = notNode.Application,
+		OneTimeCode = notApp.getModel('OneTimeCode'),
+		ip = exports.getIP(req),
+		newUser = new User({
+			username: req.body.username,
+			email:  req.body.email,
+			password: req.body.password,
+			ip
+		});
 	//validate input
+	newUser.validate()
+		//check if user with this attributes already exists
+		.then(User.isUnique(newUser.username, newUser.email))
+		//create user
+		.then(()=> {
+			return newUser.save();
+		})
+		//create one time code for email confirmation
+		.then(()=>{
+			return OneTimeCode.createCode(
+				{
+					email: newUser.email,
+					owner: newUser._id,
+					action: 'confirmEmail'
+				},
+				60 /* TTL == 60 minutes */
+			);
+		})
+		//send email confirmation
+		.then((oneTimeCode)=>{
+			notApp.inform({
+				to: newUser.email,
+				tags: ['userEmailConfirmationLink'],
+				link: `/api/user/confirmEmail?code=${oneTimeCode.code}&`
+			});
+		})
+		.then(()=>{
+			res.status(200).json({});
+		})
+		.catch((err)=>{
+			notApp.report(err);
+			return res.status(403).json({
+				error: err.message
+			});
+		});
+};
 
-	//check if user with this attributes already exists
-
-	//create user
-
-	//send email confirmation
-
-	res.status(200).json({});
+exports.confirmEmail = (req, res)=>{
+	log.debug('confirmEmail');
+	let User = this.getModel('User'),
+		notApp = notNode.Application,
+		OneTimeCode = notApp.getModel('OneTimeCode'),
+		code = req.query.code;
+	try{
+		OneTimeCode.findValid(code)
+			.then((oneTimeCode)=>{
+				if(oneTimeCode && oneTimeCode.payload.action === 'confirmEmail'){
+					return oneTimeCode.redeem();
+				}else{
+					throw new notError(notLocale.say('one_time_code_not_valid'));
+				}
+			})
+			.then((oneTimeCode)=>{
+				return User.findById(oneTimeCode.payload.owner);
+			})
+			.then((user)=>{
+				return user.confirmEmail();
+			})
+			.then(()=>{
+				res.redirect('/user_email_confirmed');
+			})
+			.catch((e)=>{
+				notApp.report(e);
+				res.redirect('/login');
+			});
+	}catch(e){
+		notApp.report(e);
+		res.redirect('/login');
+	}
 };
 
 exports.login = (req, res)=>{

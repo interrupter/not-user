@@ -328,8 +328,9 @@ describe('routes/user/register', function () {
 					save(){}
 				},
 				body: {
+					username: 'usernameTest',
 					email: 		'register@mail.org',
-					password: 	'register_mail.org',
+					password: 'register_mail.org',
 				}
 			};
 		routes.getModel = ()=>{
@@ -338,7 +339,199 @@ describe('routes/user/register', function () {
 		routes.getModelSchema = ()=>{
 			return User.thisSchema;
 		};
+		notNode.Application = {
+			inform(){},
+			report(){},
+			getModel(name){
+				if(name === 'User'){
+					return User.User;
+				}else if(name === 'OneTimeCode'){
+					return OneTimeCode.OneTimeCode;
+				}
+			}
+		};
 		routes.register(req, res, (err)=>{
+			if(err){
+				done(err);
+			}else{
+				expect(false).to.be.ok;
+				done();
+			}
+		});
+	});
+
+	it('register - ok, catched error', (done) => {
+		let	res = {
+				status(st){
+					this.status = st;
+					return this;
+				},
+				json(result){
+					expect(result.error).to.be.ok;
+					expect(this.status).to.be.equal(403);
+					done();
+				}
+			},
+			req = {
+				headers:{
+					'x-forwarded-for': '127.0.0.1'
+				},
+				session:{
+					save(){}
+				},
+				body: {
+					username: 'usernameTest',
+					email: 		'register@mail.org',
+					password: 'register_mail.org',
+				}
+			};
+		routes.getModel = ()=>{
+			return User.User;
+		};
+		routes.getModelSchema = ()=>{
+			return User.thisSchema;
+		};
+		notNode.Application = {
+			inform(){},
+			report(){},
+			getModel(name){
+				if(name === 'User'){
+					return User.User;
+				}else if(name === 'OneTimeCode'){
+					return undefined;
+				}
+			}
+		};
+		routes.register(req, res, (err)=>{
+			if(err){
+				done(err);
+			}else{
+				expect(false).to.be.ok;
+				done();
+			}
+		});
+	});
+});
+
+describe('routes/user/confirmEmail', function () {
+	let oneTimePasses = [];
+	before((done)=>{
+		((new User.User({
+			email: 'emailConfirmationTest1@email.com',
+			username: 'emailConfirmationTest1',
+			emailConfirmed: false,
+			password: 'emailConfirmationTest1'
+		})).save())
+			.then((user)=>{
+				return OneTimeCode.OneTimeCode.createCode({
+							email: user.email,
+							owner: user._id,
+							action: 'confirmEmail'
+						});
+			})
+			.then((code)=>{
+				oneTimePasses.push(code);
+				done();
+			})
+			.catch((e)=>{
+				done(e);
+			});
+	});
+
+	it('confirmEmail - ok', (done) => {
+		let	res = {
+				status(st){
+					this._status = st;
+					return this;
+				},
+				redirect(path){
+					expect(path).to.be.equal('/user_email_confirmed');
+					done();
+				}
+			},
+			req = {
+				headers:{
+					'x-forwarded-for': '127.0.0.1'
+				},
+				session:{
+					save(){}
+				},
+				query: {
+					code: oneTimePasses[0].code
+				}
+			};
+			notNode.Application = {
+				inform(){},
+				report(err){
+					console.log(err);
+					expect(err).to.be.not.ok;
+				},
+				getModel(name){
+					if(name === 'User'){
+						return User.User;
+					}else if(name === 'OneTimeCode'){
+						return OneTimeCode.OneTimeCode;
+					}
+				}
+			};
+		routes.getModel = ()=>{
+			return User.User;
+		};
+		routes.getModelSchema = ()=>{
+			return User.thisSchema;
+		};
+		routes.confirmEmail(req, res, (err)=>{
+			if(err){
+				done(err);
+			}else{
+				expect(false).to.be.ok;
+				done();
+			}
+		});
+	});
+
+	it('confirmEmail - failed, exception', (done) => {
+		let	res = {
+				status(st){
+					this._status = st;
+					return this;
+				},
+				redirect(path){
+					expect(path).to.be.equal('/login');
+					done();
+				}
+			},
+			req = {
+				headers:{
+					'x-forwarded-for': '127.0.0.1'
+				},
+				session:{
+					save(){}
+				},
+				query: {
+					code: oneTimePasses[0].code
+				}
+			};
+			notNode.Application = {
+				inform(){},
+				report(err){
+					expect(err.message).to.be.equal("Cannot read property 'findValid' of undefined");
+				},
+				getModel(name){
+					if(name === 'User'){
+						return User.User;
+					}else if(name === 'OneTimeCode'){
+						return undefined;
+					}
+				}
+			};
+		routes.getModel = ()=>{
+			return User.User;
+		};
+		routes.getModelSchema = ()=>{
+			return User.thisSchema;
+		};
+		routes.confirmEmail(req, res, (err)=>{
 			if(err){
 				done(err);
 			}else{

@@ -90,8 +90,6 @@ exports.thisSchema = {
 		validate: [
 			{
 				validator(val){
-					//eslint-disable-next-line no-console
-					console.log('user roles', val);
 					if(val.length === 0){
 						return false;
 					}
@@ -216,9 +214,17 @@ exports.thisStatics = {
 	},
 	getByEmail: function (email) {
 		return this.getByFieldValue('email', email);
+	},
+	isUnique: function (username, email){
+		return Promise.all([this.usernameExists(username), this.emailExists(email)])
+			.then((results)=>{
+				return ((!results[0]) && (!results[1]));
+			})
+			.catch((err)=>{
+				throw new notError(notLocale.say('user_uniqueness_verification_error')).adopt(err);
+			});
 	}
 };
-
 
 exports.thisVirtuals = {
 	'imageFile': {

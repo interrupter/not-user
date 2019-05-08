@@ -74,6 +74,17 @@ module.exports = {
 			},
 			postFix: '/:actionName'
 		},
+		confirmEmail:{
+			method: 'get',
+			data: ['record'],
+			rules:[{
+				auth: false
+			},
+			{
+				auth: true
+			}],
+			postFix: '/:actionName'
+		},
 		login:{
 			method: 'post',
 			data: ['record'],
