@@ -2,12 +2,10 @@
 const testPaths = require('./options.js'),
 	expect = require('chai').expect,
 	assert = require('chai').assert,
-	notError = require('not-error'),
+	notError = require('not-error').notError,
 	path = require('path'),
 	config = require('not-config').init(testPaths.config),
-	log = require('not-log')(testPaths.log)(module),
 	remember = require('./remember'),
-	domain = require('not-node').notDomain,
 	notNode = require('not-node'),
 	Proto = require('not-node').Proto,
 	notLocale = require('not-locale'),
@@ -18,6 +16,7 @@ const testPaths = require('./options.js'),
 	MongoMemoryServer = require('mongodb-memory-server').MongoMemoryServer,
 	mongoServer = new MongoMemoryServer();
 mongoose.Promise = Promise;
+
 
 before((done) => {
 	notLocale.fromDir(path.join(__dirname, '../src/locales'));
@@ -92,6 +91,16 @@ describe('routes/user - in memory mongoDB', function () {
 					password: 	'test_mail.org',
 				}
 			};
+			notNode.Application = {
+				inform(){
+				},
+				logger:{
+					log(){},
+					info(){},
+					debug(){},
+				},
+				log(){}
+			};
 		routes.getModel = ()=>{
 			return User.User;
 		};
@@ -138,6 +147,12 @@ describe('routes/user - in memory mongoDB', function () {
 			notNode.Application = {
 				inform(){
 				},
+				logger:{
+					log(){},
+					info(){},
+					debug(){},
+				},
+				log(){},
 				report(e){
 					expect(e.message).to.be.equal(notLocale.say('email_not_valid'));
 				}
@@ -183,6 +198,12 @@ describe('routes/user - in memory mongoDB', function () {
 			};
 		notNode.Application = {
 			inform(){},
+			logger:{
+				log(){},
+				info(){},
+				debug(){},
+			},
+			log(){},
 			report(e){
 				expect(e.message).to.be.equal(notLocale.say('password_length_not_valid'));
 			}
@@ -228,6 +249,12 @@ describe('routes/user - in memory mongoDB', function () {
 			};
 			notNode.Application = {
 				inform(){},
+				logger:{
+					log(){},
+					info(){},
+					debug(){},
+				},
+				log(){},
 				report(e){
 					expect(e.message).to.be.equal(notLocale.say('user_not_found'));
 				}
@@ -341,6 +368,12 @@ describe('routes/user/register', function () {
 		};
 		notNode.Application = {
 			inform(){},
+			log(){},
+			logger:{
+				log(){},
+				info(){},
+				debug(){},
+			},
 			report(){},
 			getModel(name){
 				if(name === 'User'){
@@ -394,6 +427,12 @@ describe('routes/user/register', function () {
 		notNode.Application = {
 			inform(){},
 			report(){},
+			logger:{
+				log(){},
+				info(){},
+				debug(){},
+			},
+			log(){},
 			getModel(name){
 				if(name === 'User'){
 					return User.User;
@@ -462,6 +501,12 @@ describe('routes/user/confirmEmail', function () {
 			};
 			notNode.Application = {
 				inform(){},
+				logger:{
+					log(){},
+					info(){},
+					debug(){},
+				},
+				log(){},
 				report(err){
 					console.log(err);
 					expect(err).to.be.not.ok;
@@ -514,6 +559,12 @@ describe('routes/user/confirmEmail', function () {
 			};
 			notNode.Application = {
 				inform(){},
+				logger:{
+					log(){},
+					info(){},
+					debug(){},
+				},
+				log(){},
 				report(err){
 					expect(err.message).to.be.equal("Cannot read property 'findValid' of undefined");
 				},
@@ -570,6 +621,12 @@ describe('routes/user/requestLoginByEmail', function () {
 		notNode.Application = {
 			inform(){},
 			report(){},
+			logger:{
+				log(){},
+				info(){},
+				debug(){},
+			},
+			log(){},
 			getModel(name){
 				if(name === 'User'){
 					return User.User;
@@ -619,6 +676,12 @@ describe('routes/user/requestLoginByEmail', function () {
 		notNode.Application = {
 			inform(){},
 			report(){},
+			logger:{
+				log(){},
+				info(){},
+				debug(){},
+			},
+			log(){},
 			getModel(name){
 				if(name === 'User'){
 					return User.User;
@@ -674,6 +737,12 @@ describe('routes/user/requestLoginByEmail', function () {
 				throw new Error('Some another error!');
 			},
 			report(){},
+			logger:{
+				log(){},
+				info(){},
+				debug(){},
+			},
+			log(){},
 			getModel(name){
 				if(name === 'User'){
 					return User.User;
@@ -724,6 +793,12 @@ describe('routes/user/requestLoginByEmail', function () {
 		notNode.Application = {
 			inform(){},
 			report(){},
+			logger:{
+				log(){},
+				info(){},
+				debug(){},
+			},
+			log(){},
 			getModel(name){
 				if(name === 'User'){
 					return User.User;
@@ -813,6 +888,12 @@ describe('routes/user/loginByEmail', function () {
 			};
 			notNode.Application = {
 				inform(){},
+				logger:{
+					log(){},
+					info(){},
+					debug(){},
+				},
+				log(){},
 				report(err){
 					expect(err).to.be.not.ok;
 				},
@@ -864,6 +945,12 @@ describe('routes/user/loginByEmail', function () {
 			};
 			notNode.Application = {
 				inform(){},
+				logger:{
+					log(){},
+					info(){},
+					debug(){},
+				},
+				log(){},
 				report(err){
 					expect(err.message).to.be.equal(notLocale.say('one_time_code_not_valid'));
 				},
@@ -915,6 +1002,12 @@ describe('routes/user/loginByEmail', function () {
 			};
 			notNode.Application = {
 				inform(){},
+				logger:{
+					log(){},
+					info(){},
+					debug(){},
+				},
+				log(){},
 				report(err){
 					expect(err.message).to.be.equal(notLocale.say('one_time_code_not_in_format'));
 				},
@@ -1007,6 +1100,12 @@ describe('routes/user/requestPasswordRestore', function () {
 			};
 			notNode.Application = {
 				inform(){},
+				logger:{
+					log(){},
+					info(){},
+					debug(){},
+				},
+				log(){},
 				report(err){
 					expect(err.message).to.be.equal(notLocale.say('one_time_code_not_in_format'));
 				},
@@ -1058,6 +1157,12 @@ describe('routes/user/requestPasswordRestore', function () {
 			};
 			notNode.Application = {
 				inform(){},
+				logger:{
+					log(){},
+					info(){},
+					debug(){},
+				},
+				log(){},
 				report(err){
 					expect(err.error).to.be.equal(notLocale.say('email_not_valid'));
 				},
@@ -1109,6 +1214,12 @@ describe('routes/user/requestPasswordRestore', function () {
 			};
 			notNode.Application = {
 				inform(){},
+				logger:{
+					log(){},
+					info(){},
+					debug(){},
+				},
+				log(){},
 				report(err){
 					expect(err.message).to.be.equal('Some vicious error!');
 				},
@@ -1166,6 +1277,12 @@ describe('routes/user/requestPasswordRestore', function () {
 				inform(){
 					throw new Error('Some vicious error again!');
 				},
+				logger:{
+					log(){},
+					info(){},
+					debug(){},
+				},
+				log(){},
 				report(err){
 					expect(err.message).to.be.equal('Some vicious error again!');
 				},
@@ -1200,10 +1317,10 @@ describe('routes/user/restorePassword', function () {
 		oneTimeUser = null;
 	before((done)=>{
 		((new User.User({
-			email: 'secondTimeTester@email.com',
-			username: 'secondTimeTester',
+			email: 'fourthTimeTester@email.com',
+			username: 'fourthTimeTester',
 			emailConfirmed: false,
-			password: 'secondTimeTester'
+			password: 'fourthTimeTester'
 		})).save())
 			.then((user)=>{
 				oneTimeUser = user;
@@ -1258,6 +1375,12 @@ describe('routes/user/restorePassword', function () {
 			notNode.Application = {
 				inform(){},
 				report(err){},
+				logger:{
+					log(){},
+					info(){},
+					debug(){},
+				},
+				log(){},
 				getModel(name){
 					if(name === 'User'){
 						return User.User;
@@ -1306,6 +1429,12 @@ describe('routes/user/restorePassword', function () {
 			};
 			notNode.Application = {
 				inform(){},
+				logger:{
+					log(){},
+					info(){},
+					debug(){},
+				},
+				log(){},
 				report(err){
 					expect(err.message).to.be.equal(notLocale.say('one_time_code_not_valid'));
 				},
@@ -1363,6 +1492,12 @@ describe('routes/user/restorePassword', function () {
 				report(err){
 					expect(err.message).to.be.equal('Some error.');
 				},
+				logger:{
+					log(){},
+					info(){},
+					debug(){},
+				},
+				log(){},
 				getModel(name){
 					if(name === 'User'){
 						return User.User;

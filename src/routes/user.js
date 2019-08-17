@@ -1,11 +1,10 @@
-const log = require('not-log')(module),
+const
 	query = require('not-filter'),
-	notError = require('not-error'),
+	notError = require('not-error').notError,
 	notLocale = require('not-locale'),
 	notNode = require('not-node'),
 	notAuth = require('not-node').Auth,
 	validator = require('validator');
-
 
 exports.getIP = (req)=>{
 	return req.headers['x-forwarded-for'] ||
@@ -18,9 +17,9 @@ exports.getIP = (req)=>{
 *   Guest actions
 */
 exports.register = (req, res)=>{
-	log.debug('register');
+	const notApp = notNode.Application;
+	notApp.logger.debug('register');
 	let User = this.getModel('User'),
-		notApp = notNode.Application,
 		OneTimeCode = notApp.getModel('OneTimeCode'),
 		ip = exports.getIP(req),
 		newUser = new User({
@@ -68,9 +67,9 @@ exports.register = (req, res)=>{
 };
 
 exports.confirmEmail = (req, res)=>{
-	log.debug('confirmEmail');
+	const notApp = notNode.Application;
+	notApp.logger.debug('confirmEmail');
 	let User = this.getModel('User'),
-		notApp = notNode.Application,
 		OneTimeCode = notApp.getModel('OneTimeCode'),
 		code = req.query.code;
 	try{
@@ -102,10 +101,10 @@ exports.confirmEmail = (req, res)=>{
 };
 
 exports.login = (req, res)=>{
-	log.debug('login');
+	const notApp = notNode.Application;
+	notApp.log('login');
 	let User = this.getModel('User'),
 		UserSchema = this.getModelSchema('User'),
-		notApp = notNode.Application,
 		email = req.body.email,
 		password = req.body.password,
 		ip = exports.getIP(req);
@@ -125,7 +124,7 @@ exports.login = (req, res)=>{
 		User.authorize(email, password)
 			.then((user)=>{
 				notAuth.setAuth(req, user._id, user.role);
-				log.info(`'${user.username}' authorized as ${req.session.user} ${req.session.role}`);
+				notApp.logger.info(`'${user.username}' authorized as ${req.session.user} ${req.session.role}`);
 				user.ip = ip;
 				req.session.save();
 				user.save();
@@ -142,11 +141,11 @@ exports.login = (req, res)=>{
 };
 
 exports.requestLoginByEmail = (req, res)=>{
-	log.debug('request login by email');
-	let User = this.getModel('User'),
-		notApp = notNode.Application,
-		OneTimeCode = notApp.getModel('OneTimeCode'),
-		email = req.body.email;
+	const notApp = notNode.Application;
+	notApp.logger.debug('request login by email');
+	const User = this.getModel('User'),
+		OneTimeCode = notApp.getModel('OneTimeCode');
+	let	email = req.body.email;
 	if(validator.isEmail(email)){
 		User.getByEmail(email)
 			.then((user)=>{
@@ -187,10 +186,10 @@ exports.requestLoginByEmail = (req, res)=>{
 };
 
 exports.loginByEmail = (req, res)=>{
-	log.debug('login by email');
+	const notApp = notNode.Application;
+	notApp.logger.debug('login by email');
 	let User = this.getModel('User'),
 		UserSchema = this.getModelSchema('User'),
-		notApp = notNode.Application,
 		OneTimeCode = notApp.getModel('OneTimeCode'),
 		code = req.query.code,
 		ip = exports.getIP(req);
@@ -207,7 +206,7 @@ exports.loginByEmail = (req, res)=>{
 		})
 		.then((user)=>{
 			notAuth.setAuth(req, user._id, user.role);
-			log.info(`'${user.username}' authorized as ${req.session.user} ${req.session.role} via emailed one-time code`);
+			notApp.logger.info(`'${user.username}' authorized as ${req.session.user} ${req.session.role} via emailed one-time code`);
 			user.ip = ip;
 			req.session.save();
 			user.save();
@@ -265,9 +264,9 @@ exports.requestPasswordRestore = (req, res)=>{
 };
 
 exports.restorePassword = (req, res)=>{
-	log.debug('restore password');
+	const notApp = notNode.Application;
+	notApp.logger.debug('restore password');
 	let User = this.getModel('User'),
-		notApp = notNode.Application,
 		OneTimeCode = notApp.getModel('OneTimeCode'),
 		code = req.query.code;
 	OneTimeCode.findValid(code)
@@ -283,7 +282,8 @@ exports.restorePassword = (req, res)=>{
 		})
 		.then((user)=>{
 			let pass = user.createNewPassword();
-			log.info(`'${user.username}' restored password as ${user._id} ${user.role} via emailed one-time code`);
+			const notApp = notNode.Application;
+			notApp.logger.info(`'${user.username}' restored password as ${user._id} ${user.role} via emailed one-time code`);
 			try{
 				notApp.inform({
 					to: user.email,

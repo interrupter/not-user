@@ -1,5 +1,5 @@
 const crypto = require('crypto'),
-	notError = require('not-error'),
+	notError = require('not-error').notError,
 	notLocale = require('not-locale'),
 	generator = require('generate-password');
 

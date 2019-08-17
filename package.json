@@ -1,6 +1,6 @@
 {
 		"name": "not-user",
-		"version": "0.1.6",
+		"version": "0.1.7",
 		"description": "not-* family user model in not- environment",
 		"main": "index.js",
 		"scripts": {
@@ -26,29 +26,29 @@
 		},
 		"homepage": "https://github.com/interrupter/not-user#readme",
 		"dependencies": {
-				"generate-password": "^1.4.1",
-				"mongoose": "*",
-				"not-config": "*",
-				"not-error": "*",
-				"not-filter": "*",
+				"generate-password": "^1.4.2",
+				"mongoose": "^5.6.9",
+				"not-config": "0.0.4",
+				"not-error": "0.0.20",
+				"not-filter": "^0.2.1",
 				"not-locale": "*",
-				"not-log": "*",
-				"not-node": "*",
+				"not-log": "0.0.14",
+				"not-node": "^3.3.37",
 				"not-one-time-code": "^0.1.1",
 				"uuidv4": "*",
-				"validator": "*"
+				"validator": "^11.1.0"
 		},
 		"devDependencies": {
-				"chai": "*",
+				"chai": "^4.2.0",
 				"chai-as-promised": "*",
-				"eslint": "*",
+				"eslint": "^6.1.0",
 				"ink-docstrap": "*",
-				"jsdoc": "*",
-				"mocha": "*",
-				"mongodb-memory-server": "^5.0.3",
+				"jsdoc": "^3.6.3",
+				"mocha": "^6.2.0",
+				"mongodb-memory-server": "^5.2.0",
 				"nyc": "^13.3.0",
-				"request": "*",
-				"retire": "*",
+				"request": "^2.88.0",
+				"retire": "^2.0.3",
 				"should": "^13.2.1"
 		},
 		"nyc": {
