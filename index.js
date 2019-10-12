@@ -27,11 +27,12 @@ let middleware = function(req, res, next){
 			})
 			.catch((err)=>{
 				App.logger.error(`Can't find user id@${req.session.user}`);
-				App.reporter.report(err).catch(App.logger.error);
+				App.report(err);
 				return next();
 			});
 	} else {
-		return next();
+		notAuth.setGuest(req);
+		req.session.save(next);
 	}
 };
 
@@ -56,7 +57,7 @@ let createRootUser = (app)=>{
 		})
 		.catch((err)=>{
 			App.logger.error(err.message);
-			App.reporter.report(err).catch(App.logger.error);
+			App.report(err);
 			App.logger.error('Can\'t create root user document');
 		});
 };
@@ -77,7 +78,7 @@ const initialize = function(app){
 			.catch((err) => {
 				App.logger.error('While searching for root user reflection in DB!');
 				App.logger.error(err);
-				App.reporter.report(err).catch(App.logger.error);
+				App.report(err);
 			});
 	}catch(e){
 		App.logger.error(e);
