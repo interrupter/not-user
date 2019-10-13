@@ -4,37 +4,38 @@ const 	Schema = require('mongoose').Schema,
 	App = require('not-node').Application,
 	config = require('not-config').readerForModule('user');
 
-let middleware = function(req, res, next){
-	let User = App.getModel('User');
-	req.user = res.locals.user = null;
-	if (!req || !req.session || !req.session) {
-		App.logger.error(`no user session data ${req.path}`);
-		return next();
-	}
-	App.logger.debug(`load user id@${req.session.id}; user@${req.session.user}; role@${req.session.role}`);
-	if (req.session && req.session.user) {
-		User.getOne(req.session.user)
-			.then((user)=>{
-				if (user) {
-					App.logger.debug(`User loaded ${user.username}`);
-					req.user = res.locals.user = user;
-					notAuth.setRole(req, user.role);
-				} else {
-					App.logger.error(`No user with such id@${req.session.user} where founded!`);
-					notAuth.cleanse(req);
-				}
+	let middleware = function(req, res, next){
+		let User = App.getModel('User');
+		req.user = res.locals.user = null;
+		if (!req || !req.session || !req.session) {
+			App.logger.error(`no user session data ${req.path}`);
+			return next();
+		}
+		App.logger.debug(`load user id@${req.session.id}; user@${req.session.user}; role@${req.session.role}`);
+		if (req.session && req.session.user) {
+			User.getOne(req.session.user)
+				.then((user)=>{
+					if (user) {
+						App.logger.debug(`User loaded ${user.username}`);
+						req.user = res.locals.user = user;
+						notAuth.setRole(req, user.role);
+					} else {
+						App.logger.error(`No user with such id@${req.session.user} where founded!`);
+						notAuth.cleanse(req);
+					}
+					next();
+				})
+				.catch((err)=>{
+					App.logger.error(`Can't find user id@${req.session.user}`);
+					App.report(err);
+					next();
+				});
+			} else {
+				notAuth.setGuest(req);
 				return next();
-			})
-			.catch((err)=>{
-				App.logger.error(`Can't find user id@${req.session.user}`);
-				App.report(err);
-				return next();
-			});
-	} else {
-		notAuth.setGuest(req);
-		req.session.save(next);
-	}
-};
+			}
+	};
+
 
 let createRootUser = (app)=>{
 	let User = App.getModel('User');
