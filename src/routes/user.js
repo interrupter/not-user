@@ -127,8 +127,10 @@ exports.login = (req, res)=>{
 				notApp.logger.info(`'${user.username}' authorized as ${req.session.user} ${req.session.role}`);
 				user.ip = ip;
 				req.session.save();
-				user.save();
-				query.return.process(req, UserSchema, user);
+				return user.save();
+			})
+			.then(()=>{
+				query.return.process(req, UserSchema, user.toObject());
 				return res.status(200).json({user});
 			})
 			.catch((err)=> {
