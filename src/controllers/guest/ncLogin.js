@@ -1,3 +1,5 @@
+import LoginVue from 'login.vue.js';
+
 class ncLogin extends notFramework.notController {
 	constructor(app, params) {
 		//notFramework.notCommon.log('init site app ', redirect, 'login');
@@ -9,7 +11,7 @@ class ncLogin extends notFramework.notController {
 		this.renderFromURL = true;
 		this.tableView = null;
 		this.form = null;
-		this.buildPage();
+		this.buildPage();		
 		return this;
 	}
 

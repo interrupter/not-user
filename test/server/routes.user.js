@@ -10,8 +10,8 @@ const testPaths = require('./options.js'),
 	Proto = require('not-node').Proto,
 	notLocale = require('not-locale'),
 	OneTimeCode = require('not-one-time-code/src/models/oneTimeCode'),
-	routes = require('../src/routes/user.js'),
-	User = require('../src/models/user.js'),
+	routes = require('../../src/routes/user.js'),
+	User = require('../../src/models/user.js'),
 	mongoose = require('mongoose'),
 	MongoMemoryServer = require('mongodb-memory-server').MongoMemoryServer,
 	mongoServer = new MongoMemoryServer();
@@ -19,7 +19,7 @@ mongoose.Promise = Promise;
 
 
 before((done) => {
-	notLocale.fromDir(path.join(__dirname, '../src/locales'));
+	notLocale.fromDir(path.join(__dirname, '../../src/locales'));
 	notLocale.fromDir(require('not-one-time-code').paths.locales);
 	mongoServer
 		.getConnectionString()
@@ -1813,4 +1813,8 @@ describe('routes/user/_update', function () {
 			}
 		});
 	});
+});
+
+after((done)=>{
+	mongoose.disconnect(done);
 });

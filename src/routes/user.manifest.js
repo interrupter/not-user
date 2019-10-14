@@ -91,6 +91,7 @@ module.exports = {
 			rules:[{
 				auth: false
 			}],
+			return: ['_id','role', 'active', 'email', 'username'],
 			postFix: '/:actionName',
 			title: 'Вход',
 			fields: {

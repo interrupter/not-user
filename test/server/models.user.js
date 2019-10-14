@@ -10,7 +10,7 @@ const testPaths = require('./options.js'),
 	notNode = require('not-node'),
 	notLocale = require('not-locale'),
 	Proto = require('not-node').Proto,
-	User = require('../src/models/user.js'),
+	User = require('../../src/models/user.js'),
 	mongoose = require('mongoose'),
 	MongoMemoryServer = require('mongodb-memory-server').MongoMemoryServer,
 	mongoServer = new MongoMemoryServer();
@@ -47,7 +47,7 @@ after((done) => {
 
 describe('models/user - localy isolated in mockup without actually querying MongoDB', function () {
 	before(function (done) {
-		notLocale.fromDir(path.join(__dirname, '../src/locales'));
+		notLocale.fromDir(path.join(__dirname, '../../src/locales'));
 		done();
 	});
 	describe('methods', function () {
