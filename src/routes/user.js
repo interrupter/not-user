@@ -343,13 +343,13 @@ exports.token = (req, res)=>{
 			tokenTTL = 3600;
 		}
 		let userInfo = {
-			username: req.session.user.username,
-			email: req.session.user.email,
-			emailConfirmed: req.session.user.emailConfirmed,
-			created: req.session.user.created,
-			role: req.session.user.role,
-			active: req.session.user.active,
-			country: req.session.user.country,
+			username: req.user.username,
+			email: req.user.email,
+			emailConfirmed: req.user.emailConfirmed,
+			created: req.user.created,
+			role: req.user.role,
+			active: req.user.active,
+			country: req.user.country,
 			exp: Date.now() / 1000 + tokenTTL
 		};
 		let tokenData = {
