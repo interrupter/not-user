@@ -72,8 +72,9 @@ describe('routes/user - in memory mongoDB', function () {
 					this.status = st;
 					return this;
 				},
-				json(result){
+				json(result){					
 					expect(result.error).to.be.undefined;
+					expect(result.user).to.be.ok;
 					expect(result.user.username).to.deep.equal('test_mail.org');
 					expect(this.status).to.be.equal(200);
 					done();
@@ -99,7 +100,10 @@ describe('routes/user - in memory mongoDB', function () {
 					info(){},
 					debug(){},
 				},
-				log(){}
+				log(){},
+				report(e){
+					done(e);
+				}
 			};
 		routes.getModel = ()=>{
 			return User.User;

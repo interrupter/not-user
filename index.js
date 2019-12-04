@@ -71,11 +71,12 @@ const initialize = function(app){
 			.then((user)=>{
 				if(user){
 					App.logger.debug(`Root user exists!`);
+					return;
 				}else{
 					App.logger.debug('Root user doesnt exists!');
 					return createRootUser(app);
 				}
-			})
+			})			
 			.catch((err) => {
 				App.logger.error('While searching for root user reflection in DB!');
 				App.logger.error(err);

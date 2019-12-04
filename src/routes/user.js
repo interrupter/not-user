@@ -1,10 +1,11 @@
 const
-	query = require('not-filter'),
+	JWT = require('jsonwebtoken'),
 	notError = require('not-error').notError,
 	notLocale = require('not-locale'),
 	notNode = require('not-node'),
 	notAuth = require('not-node').Auth,
-	validator = require('validator');
+	validator = require('validator'),
+	config = require('not-config').readerForModule('user');
 
 exports.getIP = (req)=>{
 	return req.headers['x-forwarded-for'] ||
@@ -104,7 +105,6 @@ exports.login = (req, res)=>{
 	const notApp = notNode.Application;
 	notApp.log('login');
 	let User = this.getModel('User'),
-		UserSchema = this.getModelSchema('User'),
 		email = req.body.email,
 		password = req.body.password,
 		ip = exports.getIP(req);
@@ -129,9 +129,12 @@ exports.login = (req, res)=>{
 				req.session.save();
 				return user.save();
 			})
-			.then(()=>{
-				query.return.process(req, UserSchema, user.toObject());
-				return res.status(200).json({user});
+			.then((user)=>{
+				let ret = User.clearFromUnsafe(user).toObject();
+				res.status(200).json({
+					user:	ret
+				});
+				return;
 			})
 			.catch((err)=> {
 				notApp.report(err);
@@ -191,7 +194,6 @@ exports.loginByEmail = (req, res)=>{
 	const notApp = notNode.Application;
 	notApp.logger.debug('login by email');
 	let User = this.getModel('User'),
-		UserSchema = this.getModelSchema('User'),
 		OneTimeCode = notApp.getModel('OneTimeCode'),
 		code = req.query.code,
 		ip = exports.getIP(req);
@@ -212,7 +214,6 @@ exports.loginByEmail = (req, res)=>{
 			user.ip = ip;
 			req.session.save();
 			user.save();
-			query.return.process(req, UserSchema, user);
 			res.status(200).redirect('/');
 		})
 		.catch((e)=>{
@@ -327,6 +328,35 @@ exports.update = (req, res)=>{
 
 exports.status = (req, res)=>{
 	res.status(200).json({});
+};
+
+exports.token = (req, res)=>{
+	const notApp = notNode.Application;
+	const secret = config.get('secret');
+	let tokenTTL = config.get('tokenTTL');
+	if(!secret || typeof secret === 'undefined' || secret === null || secret===''){
+		this.report(new Error('not-User: option "secret" is not set!'));
+		res.status(500).json({});
+	}else{
+		if(tokenTTL===0 || isNaN(tokenTTL)){
+			notApp.logger.log('not-User: tokenTTL is not set, using standart 3600 sec');
+			tokenTTL = 3600;
+		}
+		let userInfo = {
+			username: req.session.user.username,
+			email: req.session.user.email,
+			emailConfirmed: req.session.user.emailConfirmed,
+			created: req.session.user.created,
+			role: req.session.user.role,
+			active: req.session.user.active,
+			country: req.session.user.country,
+			exp: Date.now() / 1000 + tokenTTL
+		};
+		let tokenData = {
+			token: JWT.sign(userInfo, secret)
+		};
+		res.status(200).json(tokenData);
+	}
 };
 
 /**

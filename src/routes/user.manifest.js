@@ -190,6 +190,13 @@ module.exports = {
 			}],
 			postFix: '/:actionName'
 		},
+		token:{
+			method: 'get',
+			rules:[{
+				auth: true
+			}],
+			postFix: '/:actionName'
+		},
 		/**
 		Admin action
 		**/
