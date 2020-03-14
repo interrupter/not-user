@@ -7,5 +7,7 @@
 	"password_length_not_valid":	"Password length should be from 6 to 100 characters!",
 	"one_time_password_ttl_not_valid": "TTL of one time password should be from {min} to {max} minutes!",
 	"password_restoration_code_ttl_not_valid": "TTL of one time password should be from {min} to {max} hours!",
-	"requestLoginByLink_success": "One-time login link was emailed to you!"
+	"requestLoginByLink_success": "One-time login link was emailed to you!",
+	"user_token_secret_not_valid": "Bad 'secret' for user's tokens",
+	"user_token_ttl_not_set":"tokenTTL is not set, using standart 3600 sec"
 }

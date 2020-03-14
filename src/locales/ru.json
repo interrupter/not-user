@@ -7,5 +7,7 @@
 	"password_length_not_valid":	"Пароль должен быть длиной от 6 до 100 знаков!",
 	"one_time_password_ttl_not_valid": "Время жизни одноразового пароля должно быть от {min} до {max} минут!",
 	"password_restoration_code_ttl_not_valid": "Время жизни кода для сброса пароля должно быть от {min} до {max} часов!",
-	"requestLoginByLink_success": "Одноразовая ссылка для входа отправлена на почту"
+	"requestLoginByLink_success": "Одноразовая ссылка для входа отправлена на почту",
+	"user_token_secret_not_valid": "Плохой 'secret' для пользовательских токенов",
+	"user_token_ttl_not_set":"tokenTTL не задан, используем стандартное значение 3600 секунд"
 }

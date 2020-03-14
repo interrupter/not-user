@@ -1,7 +1,8 @@
 {
 	"modules":{
 		"user":{
-			
+			"secret": "asdfasdf",
+			"tokenTTL": 10000
 		}
 	}
 }

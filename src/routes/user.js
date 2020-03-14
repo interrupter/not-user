@@ -331,15 +331,15 @@ exports.status = (req, res)=>{
 };
 
 exports.token = (req, res)=>{
-	const notApp = notNode.Application;
+	const notApp = notNode.Application;	
 	const secret = config.get('secret');
 	let tokenTTL = config.get('tokenTTL');
-	if(!secret || typeof secret === 'undefined' || secret === null || secret===''){
-		this.report(new Error('not-User: option "secret" is not set!'));
+	if(!secret || typeof secret === 'undefined' || secret === null || secret === ''){
+		notApp.report(new Error(notLocale.say('user_token_secret_not_valid')));
 		res.status(500).json({});
 	}else{
-		if(tokenTTL===0 || isNaN(tokenTTL)){
-			notApp.logger.log('not-User: tokenTTL is not set, using standart 3600 sec');
+		if(tokenTTL === 0 || isNaN(tokenTTL)){
+			notApp.logger.log(notLocale.say('user_token_ttl_not_set'));
 			tokenTTL = 3600;
 		}
 		let userInfo = {
