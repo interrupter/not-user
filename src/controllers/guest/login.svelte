@@ -133,7 +133,7 @@
 			value: ev.target.value
 		};
 		if(validation){
-			let res = UserCommon.validateField(data.field, data.value);
+			let res = UserCommon.validateField(data.field, data.value, fields);
 			if(res === true){
 				setFieldValid(data.field);
 			}else{
@@ -163,7 +163,7 @@
 			value: ev.target.value
 		};
 		if(validation){
-			let res = UserCommon.validateField(data.field, data.value);
+			let res = UserCommon.validateField(data.field, data.value, fields);
 			if(res === true){
 				setFieldValid(data.field);
 			}else{
@@ -182,7 +182,7 @@
 			fieldsList.forEach((fieldName) => {
 				if (fields[fieldName].enabled && fields[fieldName].required){
 					let val = (freshData && (freshData.field === fieldName))?freshData.value:fields[fieldName].value;
-					if (Array.isArray(UserCommon.validateField(fieldName, val))){
+					if (Array.isArray(UserCommon.validateField(fieldName, val, fields))){
 						result = false;
 					}
 				}
