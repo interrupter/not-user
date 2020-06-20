@@ -102,7 +102,7 @@ module.exports = {
 				]
 			}
 		},
-		requestLoginByEmail:{
+		requestLoginCodeOnEmail:{
 			method: 'post',
 			data: ['record'],
 			rules:[{
@@ -117,7 +117,7 @@ module.exports = {
 				]
 			}
 		},
-		loginByEmail:{
+		loginByCode:{
 			method: 'get',
 			data: ['record'],
 			rules:[{

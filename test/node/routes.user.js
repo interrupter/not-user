@@ -46,10 +46,10 @@ before((done) => {
     });
 });
 
-after((done) => {
-  mongoose.disconnect();
-  mongoServer.stop();
-  done();
+after(async () => {
+  await mongoose.disconnect();
+  await mongoServer.stop();
+  console.log('Server stopped in routes.');
 });
 
 
@@ -133,7 +133,9 @@ describe('routes/user - in memory mongoDB', function () {
         json(result){
           expect(this.status).to.be.equal(403);
           expect(result).to.deep.equal({
-            error: notLocale.say('email_not_valid')
+            errors: {
+              email: [notLocale.say('email_not_valid')]
+            }
           });
           done();
         }
@@ -185,7 +187,9 @@ describe('routes/user - in memory mongoDB', function () {
         json(result){
           expect(this.status).to.be.equal(403);
           expect(result).to.deep.equal({
-            error: notLocale.say('password_length_not_valid')
+            errors: {
+              password: [notLocale.say('password_length_not_valid')]
+            }
           });
           done();
         }
@@ -608,7 +612,7 @@ describe('routes/user/requestLoginByEmail', function () {
           return this;
         },
         json(result){
-          expect(result.error).to.be.equal(notLocale.say('email_not_valid'));
+          expect(result.errors.email[0]).to.be.equal(notLocale.say('email_not_valid'));
           expect(this.status).to.be.equal(403);
           done();
         }
@@ -847,17 +851,17 @@ describe('routes/user/loginByEmail', function () {
             OneTimeCode.OneTimeCode.createCode({
               email: user.email,
               owner: user._id,
-              action: 'loginByEmail'
+              action: 'loginByCode'
             }),
             OneTimeCode.OneTimeCode.createCode({
               email: user.email,
               owner: user._id,
-              action: 'loginByEmail'
+              action: 'loginByCode'
             }),
             OneTimeCode.OneTimeCode.createCode({
               email: user.email,
               owner: user._id,
-              action: 'loginByEmail'
+              action: 'loginByCode'
             })
           ]
         );
@@ -869,7 +873,7 @@ describe('routes/user/loginByEmail', function () {
       .catch((e)=>{done(e);});
   });
 
-  it('loginByEmail - ok', (done) => {
+  it('loginByCode - ok', (done) => {
     let  res = {
         status(st){
           this._status = st;
@@ -917,7 +921,7 @@ describe('routes/user/loginByEmail', function () {
     routes.getModelSchema = ()=>{
       return User.thisSchema;
     };
-    routes.loginByEmail(req, res, (err)=>{
+    routes.loginByCode(req, res, (err)=>{
       if(err){
         done(err);
       }else{
@@ -927,7 +931,7 @@ describe('routes/user/loginByEmail', function () {
     });
   });
 
-  it('loginByEmail - failed, used password', (done) => {
+  it('loginByCode - failed, used password', (done) => {
     let  res = {
         status(st){
           this._status = st;
@@ -974,7 +978,7 @@ describe('routes/user/loginByEmail', function () {
     routes.getModelSchema = ()=>{
       return User.thisSchema;
     };
-    routes.loginByEmail(req, res, (err)=>{
+    routes.loginByCode(req, res, (err)=>{
       if(err){
         done(err);
       }else{
@@ -984,7 +988,7 @@ describe('routes/user/loginByEmail', function () {
     });
   });
 
-  it('loginByEmail - failed, empty password', (done) => {
+  it('loginByCode - failed, empty password', (done) => {
     let  res = {
       status(st){
         this._status = st;
@@ -1031,7 +1035,7 @@ describe('routes/user/loginByEmail', function () {
     routes.getModelSchema = ()=>{
       return User.thisSchema;
     };
-    routes.loginByEmail(req, res, (err)=>{
+    routes.loginByCode(req, res, (err)=>{
       if(err){
         done(err);
       }else{
@@ -1146,7 +1150,7 @@ describe('routes/user/requestPasswordRestore', function () {
       },
       json(data){
         expect(this._status).to.be.equal(403);
-        expect(data.error).to.be.equal(notLocale.say('email_not_valid'));
+        expect(data.errors.email[0]).to.be.equal(notLocale.say('email_not_valid'));
         done();
       }
       },
@@ -1979,9 +1983,4 @@ describe('routes/user/token', function () {
       }
     });
   });
-});
-
-
-after((done)=>{
-  mongoose.disconnect(done);
 });

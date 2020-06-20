@@ -1,35 +1,25 @@
+import UserCommon from '../user.js';
+import RegisterComponent from './register.svelte';
+
+
 class ncRegister extends notFramework.notController {
 	constructor(app, params) {
-		//notFramework.notCommon.log('init site app ', redirect, 'login');
+		notFramework.notCommon.log('init site app ', params, 'register');
 		super(app);
 		this.setModuleName('user/register');
-		this.viewsPrefix = '/client/modules/main/';
-		this.commonViewsPrefix = this.app.getOptions().commonPath;
-		this.viewsPostfix = '.html';
-		this.renderFromURL = true;
-		this.tableView = null;
-		this.form = null;
 		this.buildPage();
 		return this;
 	}
 
-	goDashboard() {
-		document.location.href = '/dashboard';
-		window.location.reload(true);
-	}
-
-	goLogin() {
-		document.location.href = '/login';
-	}
-
 	initItem() {
-		var newRecord = this.make.user({
+		return this.make.user({
 			'_id': undefined,
 			username: '',
-			email: '',
-			password: ''
+      tel: '',
+      email: '',
+      password: '',
+			password2: ''
 		});
-		return newRecord;
 	}
 
 	showError(e) {
@@ -38,30 +28,56 @@ class ncRegister extends notFramework.notController {
 		notFramework.notCommon.report(e);
 	}
 
-	buildForm() {
+	buildPage() {
 		this.item = this.initItem();
-		this.form = new notFramework.notForm({
-			data: this.item,
-			options: {
-				prefix: 'user-form-',
-				helpers: {
-					submit: (params) => {
-						params.item.$login()
-							.then(this.goDashboard.bind(this))
-							.catch(this.showError.bind(this));
-					}
-				},
-				action: 'register',
-				targetEl: document.querySelector(this.app.getOptions('modules.user.registerFormContainerSelector'))
+    this.formUI = new RegisterComponent({
+      target: document.querySelector(this.app.getOptions('modules.user.registerFormContainerSelector')),
+      props: {
+				user:   this.item,
+        login:  {
+          enabled: false,
+          required: false,
+          value: '',
+        }
 			}
+    });
+
+		this.formUI.$on('register', ({detail})=>{
+      this.item.setAttrs(detail);
+      this.formUI.setLoading();
+			this.item.$register()
+        .then((res)=>{
+          this.showResult(res);
+          if(!res.error){
+            setTimeout(() => UserCommon.goDashboard(this.app), 3000);
+          }
+        })
+				.catch(this.showResult.bind(this));
 		});
 	}
 
-	buildPage() {
-		var formParent = document.querySelector(this.app.getOptions('modules.user.registerFormContainerSelector'));
-		formParent.innerHTML = '';
-		this.buildForm();
-	}
+	showResult(res) {
+    this.formUI.resetLoading();
+    if(UserCommon.isError(res)){
+      notFramework.notCommon.report(res);
+    }else{
+      if(res.errors && Object.keys(res.errors).length > 0){
+        if (!Array.isArray(res.error)){
+          res.error = [];
+        }
+        Object.keys(res.errors).forEach((fieldName)=>{
+          this.formUI.setFieldInvalid(fieldName, res.errors[fieldName]);
+          res.error.push(...res.errors[fieldName])
+        });
+      }
+      if(res.error){
+        this.formUI.setFormError(res.error);
+      }
+      if(!res.error ){
+        this.formUI.showSuccess();
+      }
+    }
+  }
 }
 
 export default ncRegister;

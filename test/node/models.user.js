@@ -38,10 +38,10 @@ before((done) => {
 		});
 });
 
-after((done) => {
-	mongoose.disconnect();
-	mongoServer.stop();
-	done();
+after(async () => {
+	await mongoose.disconnect();
+	await mongoServer.stop();
+	console.log('Server stopped in models');
 });
 
 
@@ -50,6 +50,8 @@ describe('models/user - localy isolated in mockup without actually querying Mong
 		notLocale.fromDir(path.join(__dirname, '../../src/locales'));
 		done();
 	});
+
+
 	describe('methods', function () {
 		it('isRole', () => {
 			User.thisMethods.role = ['root'];
@@ -161,10 +163,12 @@ describe('models/user - localy isolated in mockup without actually querying Mong
 			User.User.authorize({leg:['email','password']})
 				.then(()=>{
 					expect(false).to.be.true;
+					done(new Error('wrong path'));
 				})
 				.catch((err)=>{
+					console.log('.catched');
 					expect(err).to.be.instanceof(notError);
-					expect(err.message).to.be.equal(notLocale.say('user_not_found'));
+					expect(err.message).to.be.equal(notLocale.say('email_not_valid'));
 					done();
 				});
 		});
@@ -175,7 +179,7 @@ describe('models/user - localy isolated in mockup without actually querying Mong
 				})
 				.catch((err)=>{
 					expect(err).to.be.instanceof(notError);
-					expect(err.message).to.be.equal(notLocale.say('user_not_found'));
+					expect(err.message).to.be.equal(notLocale.say('email_not_valid'));
 					done();
 				});
 		});
@@ -308,6 +312,7 @@ describe('models/user - localy isolated in mockup without actually querying Mong
 				});
 		});
 	});
+
 	describe('usernameExists', function () {
 		it('exists', (done) => {
 			User.User.usernameExists('testerUser312')
@@ -488,6 +493,8 @@ describe('models/user - localy isolated in mockup without actually querying Mong
 		});
 	});
 
+
+
 	describe('validators', function () {
 		it('roles - not valid, single, an Array', (done) => {
 			let invalidRoleUser = new User.User({
@@ -522,4 +529,5 @@ describe('models/user - localy isolated in mockup without actually querying Mong
 			})
 		});
 	});
+
 });

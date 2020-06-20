@@ -59,11 +59,45 @@ exports.register = (req, res)=>{
 		.then(()=>{
 			res.status(200).json({});
 		})
-		.catch((err)=>{
+		.catch(async(err)=>{
 			notApp.report(err);
-			return res.status(403).json({
-				error: err.message
-			});
+			if(err.message && err.message.indexOf('E11000') > -1){
+				try{
+					let existName = await User.usernameExists(newUser.username);
+					let existEmail = await User.emailExists(newUser.email);
+					if(existName || existEmail){
+						let mes = {
+							status: 'error',
+							errors: {}
+						};
+						if(existEmail){
+							mes.errors.email = [notLocale.say('email_taken')];
+						}
+						if(existName){
+							mes.errors.username = [notLocale.say('username_taken')];
+						}
+						return res.status(500).json(mes);
+					}else{
+						return res.status(500).json({
+							error: notLocale.say('some_error')
+						});
+					}
+				}catch(e){
+					if(e instanceof notError){
+						return res.status(500).json({
+							error: notError.message
+						});
+					}else{
+						return res.status(500).json({
+							error: notLocale.say('some_error')
+						});
+					}
+				}
+			}else{
+				return res.status(500).json({
+					error: notLocale.say('some_error')
+				});
+			}
 		});
 };
 
@@ -112,13 +146,17 @@ exports.login = (req, res)=>{
 		let err = new notError(notLocale.say('email_not_valid'));
 		notApp.report(err);
 		return res.status(403).json({
-			error: err.message
+			errors: {
+				email: [err.message]
+			}
 		});
-	}else if((typeof password !=='string') || (!validator.isLength(password,{min: 6, max:100}))){
+	}else if((typeof password !=='string') || (! validator.isLength(password, {min: 6, max: 100}))){
 		let err = new notError(notLocale.say('password_length_not_valid'));
 		notApp.report(err);
 		return res.status(403).json({
-			error: err.message
+			errors: {
+				password: [err.message]
+			}
 		});
 	}else{
 		User.authorize(email, password)
@@ -145,27 +183,35 @@ exports.login = (req, res)=>{
 	}
 };
 
-exports.requestLoginByEmail = (req, res)=>{
+exports.requestLoginCodeOnEmail = (req, res)=>{
 	const notApp = notNode.Application;
-	notApp.logger.debug('request login by email');
+	notApp.logger.debug('request login by code from email');
 	const User = this.getModel('User'),
 		OneTimeCode = notApp.getModel('OneTimeCode');
 	let	email = req.body.email;
 	if(validator.isEmail(email)){
 		User.getByEmail(email)
 			.then((user)=>{
-				return OneTimeCode.createCode({
-					email: user.email,
-					owner: user._id,
-					action: 'loginByEmail'
-				});
+				if(user){
+					return OneTimeCode.createCode({
+						email: user.email,
+						owner: user._id,
+						action: 'loginByCode'
+					});
+				}else{
+					res.status(403).json({
+						errors: {
+							email: [notLocale.say('user_not_found')]
+						}
+					});
+				}
 			})
 			.then((oneTimeCode)=>{
 				try{
 					notApp.inform({
 						to: email,
 						tags: ['userOneTimeLoginLink'],
-						link: `/api/user/loginByEmail?code=${oneTimeCode.code}&`
+						link: `/api/user/loginByCode?code=${oneTimeCode.code}&`
 					});
 					res.status(200).json({
 						message: notLocale.say('requestLoginByLink_success')
@@ -173,7 +219,7 @@ exports.requestLoginByEmail = (req, res)=>{
 				}catch(e){
 					notApp.report(e);
 					res.status(500).json({
-						error: e.message
+						error:  e.message
 					});
 				}
 			})
@@ -185,21 +231,23 @@ exports.requestLoginByEmail = (req, res)=>{
 			});
 	}else{
 		res.status(403).json({
-			error: notLocale.say('email_not_valid')
+			errors: {
+				email: [notLocale.say('email_not_valid')]
+			}
 		});
 	}
 };
 
-exports.loginByEmail = (req, res)=>{
+exports.loginByCode = (req, res)=>{
 	const notApp = notNode.Application;
-	notApp.logger.debug('login by email');
+	notApp.logger.debug('login by code from email or sms');
 	let User = this.getModel('User'),
 		OneTimeCode = notApp.getModel('OneTimeCode'),
 		code = req.query.code,
 		ip = exports.getIP(req);
 	OneTimeCode.findValid(code)
 		.then((oneTimeCode)=>{
-			if(oneTimeCode && oneTimeCode.payload.action === 'loginByEmail'){
+			if(oneTimeCode && oneTimeCode.payload.action === 'loginByCode'){
 				return oneTimeCode.redeem();
 			}else{
 				throw new notError(notLocale.say('one_time_code_not_valid'));
@@ -210,7 +258,7 @@ exports.loginByEmail = (req, res)=>{
 		})
 		.then((user)=>{
 			notAuth.setAuth(req, user._id, user.role);
-			notApp.logger.info(`'${user.username}' authorized as ${req.session.user} ${req.session.role} via emailed one-time code`);
+			notApp.logger.info(`'${user.username}' authorized as ${req.session.user} ${req.session.role} via emailed/smsed one-time code`);
 			user.ip = ip;
 			req.session.save();
 			user.save();
@@ -261,7 +309,9 @@ exports.requestPasswordRestore = (req, res)=>{
 			});
 	}else{
 		res.status(403).json({
-			error: notLocale.say('email_not_valid')
+			errors: {
+				email: [notLocale.say('email_not_valid')]
+			}
 		});
 	}
 };
@@ -331,7 +381,7 @@ exports.status = (req, res)=>{
 };
 
 exports.token = (req, res)=>{
-	const notApp = notNode.Application;	
+	const notApp = notNode.Application;
 	const secret = config.get('secret');
 	let tokenTTL = config.get('tokenTTL');
 	if(!secret || typeof secret === 'undefined' || secret === null || secret === ''){
@@ -346,6 +396,8 @@ exports.token = (req, res)=>{
 			username: req.user.username,
 			email: req.user.email,
 			emailConfirmed: req.user.emailConfirmed,
+			telephone: req.user.telephone,
+			telephoneConfirmed: req.user.telephoneConfirmed,
 			created: req.user.created,
 			role: req.user.role,
 			active: req.user.active,
