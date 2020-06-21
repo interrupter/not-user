@@ -1,3 +1,5 @@
+/* global notFramework */
+
 import notTable from './notTable.js';
 
 class ncUser extends notFramework.notController {
@@ -5,7 +7,7 @@ class ncUser extends notFramework.notController {
 		notFramework.notCommon.log('init site app ', params, 'list');
 		super(app);
 		this.ui = {};
-		this.setModuleName('user/list');
+		this.setModuleName('user');
 		this.buildPage();
 		return this;
 	}
@@ -22,11 +24,6 @@ class ncUser extends notFramework.notController {
 				endless: false,
 				preload: {},
 				fields: [{
-					path: ':userID',
-					title: 'ID',
-					searchable: true,
-					sortable: true
-				}, {
 					path: ':username',
 					title: 'Username',
 					searchable: true,
@@ -41,6 +38,28 @@ class ncUser extends notFramework.notController {
 					title: 'ID',
 					searchable: true,
 					sortable: true
+				},{
+					path: ':_id',
+					title: 'ID',
+					type: 'link',
+					preprocessor: (value) => {
+						return {
+							links:[
+								{
+									url: [this.getModelURL(), value, 'view'].join('/'),
+									title: 'Подробнее'
+								},
+								{
+									url: [this.getModelURL(), value, 'update'].join('/'),
+									title: 'Изменить'
+								},
+								{
+									url: [this.getModelURL(), value, 'delete'].join('/'),
+									title: 'Удалить'
+								}
+							]
+						};
+					},
 				}]
 			}
 		});

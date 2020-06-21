@@ -1,3 +1,5 @@
+/* global notFramework */
+
 import UserCommon from '../user.js';
 import RegisterComponent from './register.svelte';
 

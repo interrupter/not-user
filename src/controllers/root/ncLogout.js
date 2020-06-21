@@ -1,3 +1,5 @@
+/* global notFramework */
+
 class ncLogout extends notFramework.notController {
 	constructor(app, params) {
 		//notFramework.notCommon.log('init site app ', redirect, 'login');

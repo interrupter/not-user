@@ -1,20 +1,28 @@
 <script>
   import * as TableStores from './notTable.stores.js';
+
+  import TableLinks from './notTable.ui.links.svelte';
+  import TableButtons from './notTable.ui.buttons.svelte';
+  import TableImagess from './notTable.ui.images.svelte';
+  import TableBooleans from './notTable.ui.booleans.svelte';
+
+  import notPath from 'not-path';
   import {onMount} from 'svelte';
 
   export let id;
 
-  export let pages = [0];
-  export let currentPageIndex = 0;
-  export let pageSize = 40;
   export let helpers = {};
-
-  let fields = [];
-  let items = [];
+  export let state = {};
+  export let fields = [];
+  export let items = [];
 
   onMount(() => {
-		TableStores.get(id).filtered.subscribe(value => {
+		TableStores.get(id).refined.subscribe(value => {
 			items = value;
+		});
+
+    TableStores.get(id).state.subscribe(value => {
+			state = value;
 		});
 	});
 
@@ -31,10 +39,39 @@
     <tr>
     {#each fields as field}
       <td>
+        {#if field.type === 'link' }
+        <TableLinks values={ notPath.get(field.path, item, helpers) } />
+        {:else if field.type === 'button' }
+        <TableButtons values={ notPath.get(field.path, item, helpers) } />
+        {:else if field.type === 'image' }
+        <TableImages values={ notPath.get(field.path, item, helpers) } />
+        {:else if field.type === 'boolean' }
+        <TableBooleans values={ notPath.get(field.path, item, helpers) } />
+        {:else}
         {notPath.get(field.path, item, helpers)}
+        {/if}
       </td>
     {/each}
     </tr>
   {/each}
 </tbody>
+<tfoot>
+  <nav class="pagination is-centered" role="navigation" aria-label="pagination">
+  <a class="pagination-previous">Назад</a>
+  <a class="pagination-next">Вперед</a>
+  <ul class="pagination-list">
+    {#if state.pagination && state.pagination.pages && state.pagination.pages.list }
+    {#each state.pagination.pages.list as page}
+    <li>
+      {#if page.active}
+      <a class="pagination-link is-current" aria-label="Страница {page.index}" aria-current="page">{page.index+1}</a>
+      {:else}
+      <a class="pagination-link" aria-label="Страница {page.index}">{page.index+1}</a>
+      {/if}
+    </li>
+    {/each}
+    {/if}
+  </ul>
+</nav>
+</tfoot>
 </table>

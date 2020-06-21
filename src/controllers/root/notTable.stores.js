@@ -16,12 +16,12 @@ function get(key) {
 	}
 }
 
-function create(key, props = ['raw', 'filtered']) {
+function create(key, props = {'raw': [], 'filtered': []}) {
 	if (!exist(key)) {
-		if(Array.isArray(props)){
+		if(Object.keys(props).length > 0){
 			ALL[key] = {};
-			props.forEach((name) => {
-				ALL[key][name] = writable([]);
+			Object.keys(props).forEach((name) => {
+				ALL[key][name] = writable(props[name]);
 			});
 		}else{
 			throw new Error('store\'s props wasn\'t specified');

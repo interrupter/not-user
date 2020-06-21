@@ -1,3 +1,6 @@
+
+/* global notFramework */
+
 import UserCommon from '../user.js';
 import LoginComponent from './login.svelte';
 

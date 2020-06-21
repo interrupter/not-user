@@ -9731,6 +9731,9 @@ var notUser = (function (exports) {
 		}
 	}
 
+	/* global notFramework */
+
+
 	class ncRegister extends notFramework.notController {
 		constructor(app, params) {
 			notFramework.notCommon.log('init site app ', params, 'register');
@@ -9808,6 +9811,8 @@ var notUser = (function (exports) {
 			}
 		}
 	}
+
+	/* global notFramework */
 
 	class ncRestore extends notFramework.notController {
 		constructor(app, params) {
