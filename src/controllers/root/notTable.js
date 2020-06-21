@@ -436,7 +436,7 @@ class notTable extends EventEmitter {
 			if (this.getOptions('interface.combined', OPT_DEFAULT_COMBINED)){
 				this.loadData()
 					.then((data) => {
-						this.data.raw.update((val)=>{
+						this.stores.raw.update((val)=>{
 							val.push(...(data.list));
 							return val;
 						});
@@ -450,7 +450,7 @@ class notTable extends EventEmitter {
 			}else{
 				this.loadData()
 					.then(data => {
-						this.data.raw.update((val)=>{
+						this.stores.raw.update((val)=>{
 							val.push(...data);
 							return val;
 						});
@@ -478,12 +478,12 @@ class notTable extends EventEmitter {
         thatFilter.filterSearch !== null &&
         thatFilter.filterSearch.length > 0
 		) {
-			this.store.filtered.update((val)=> {
+			this.stores.filtered.update((val)=> {
 				val.splice(0,val.length, ...(this.data.raw.filter(this.testDataItem.bind(this))));
 				return val;
 			});
 		} else {
-			this.store.filtered.update((val)=> {
+			this.stores.filtered.update((val)=> {
 				val.splice(0,val.length, ...this.data.raw);
 				return val;
 			});
@@ -491,7 +491,7 @@ class notTable extends EventEmitter {
 		////sorter
 		let thatSorter = this.getSorter();
 		if (typeof thatSorter !== 'undefined' && thatSorter !== null) {
-			this.store.filtered.update((val)=>{
+			this.stores.filtered.update((val)=>{
 				val.sort((item1, item2) => {
   				let t1 = notPath.get(thatSorter.sortByField, item1, {}),
   					t2 = notPath.get(thatSorter.sortByField, item2, {});
