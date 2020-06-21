@@ -128,9 +128,9 @@ module.exports = {
 		requestPasswordRestore:{
 			method: 'post',
 			title: 'Восстановление пароля',
-			rules:{
+			rules:[{
 				auth: false
-			},
+			}],
 			fields: {
 				default:  [
 					'email',
@@ -142,9 +142,9 @@ module.exports = {
 		restorePassword:{
 			method: 'get',
 			title: 'Восстановление пароля',
-			rules:{
+			rules:[{
 				auth: false
-			},
+			}],
 			postFix: '/:actionName'
 		},
 		/**
@@ -152,9 +152,9 @@ module.exports = {
 		**/
 		logout:{
 			method: 'post',
-			rules:{
+			rules:[{
 				auth: true
-			},
+			}],
 			postFix: '/:actionName',
 			messages: {
 				success: 'Вы вышли!'
@@ -162,23 +162,23 @@ module.exports = {
 		},
 		changePassword:{
 			method: 'post',
-			rules:{
+			rules:[{
 				auth: true
-			},
+			}],
 			postFix: '/:actionName'
 		},
 		profile:{
 			method: 'post',
-			rules:{
+			rules:[{
 				auth: true
-			},
+			}],
 			postFix: '/:actionName'
 		},
 		update:{
 			method: 'post',
-			rules:{
+			rules:[{
 				auth: true
-			},
+			}],
 			postFix: '/:actionName'
 		},
 		status:{
@@ -203,18 +203,18 @@ module.exports = {
 		//stealing identity of user, to act from his account
 		steal:{
 			method: 'post',
-			rules:{
+			rules:[{
 				auth: true,
 				admin: true
-			},
+			}],
 			postFix: '/:record[_id]/:actionName'
 		},
 		listAndCount:{
 			method: 'get',
-			rules:{
+			rules:[{
 				auth: true,
 				admin: true
-			},
+			}],
 			postFix: '/:actionName'
 		}
 	}

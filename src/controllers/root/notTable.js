@@ -26,7 +26,7 @@ class notTable extends EventEmitter {
 		super();
 		this.id = 'table-' + Math.random();
 		this.options = Object.assign(DEFAULT_OPTIONS, input.options ? input.options : {});
-
+		this.ui = {};
 		this.data = {
 			raw:      [],
 			filtered: [],
@@ -509,6 +509,10 @@ class notTable extends EventEmitter {
 			});
 		}
 
+	}
+
+	error(){
+		notFramework.notCommon.error(...arguments);
 	}
 
 }
