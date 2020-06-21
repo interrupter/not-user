@@ -1,4 +1,20 @@
 const
+	UserActions = [],
+	AdminActions = [
+		'listAndCount',
+		'delete'
+	],
+	MODEL_NAME = 'User',
+	MODEL_OPTIONS = {
+		MODEL_NAME,
+		MODEL_TITLE: 	'Пользователь',
+		populate: {
+			listAndCount: ['key']
+		}
+	},
+	modMeta = require('not-meta');
+
+const
 	JWT = require('jsonwebtoken'),
 	notError = require('not-error').notError,
 	notLocale = require('not-locale'),
@@ -425,3 +441,7 @@ exports._list = (req, res)=>{
 exports._update = (req, res)=>{
 	res.status(200).json({});
 };
+
+
+modMeta.extend(modMeta.Route, module.exports, AdminActions, MODEL_OPTIONS, '_');
+modMeta.extend(modMeta.Route, module.exports, UserActions, MODEL_OPTIONS);

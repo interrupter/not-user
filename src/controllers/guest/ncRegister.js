@@ -15,9 +15,9 @@ class ncRegister extends notFramework.notController {
 		return this.make.user({
 			'_id': undefined,
 			username: '',
-      tel: '',
-      email: '',
-      password: '',
+			tel: '',
+			email: '',
+			password: '',
 			password2: ''
 		});
 	}
@@ -30,54 +30,54 @@ class ncRegister extends notFramework.notController {
 
 	buildPage() {
 		this.item = this.initItem();
-    this.formUI = new RegisterComponent({
-      target: document.querySelector(this.app.getOptions('modules.user.registerFormContainerSelector')),
-      props: {
+		this.formUI = new RegisterComponent({
+			target: document.querySelector(this.app.getOptions('modules.user.registerFormContainerSelector')),
+			props: {
 				user:   this.item,
-        login:  {
-          enabled: false,
-          required: false,
-          value: '',
-        }
+				login:  {
+					enabled: false,
+					required: false,
+					value: '',
+				}
 			}
-    });
+		});
 
 		this.formUI.$on('register', ({detail})=>{
-      this.item.setAttrs(detail);
-      this.formUI.setLoading();
+			this.item.setAttrs(detail);
+			this.formUI.setLoading();
 			this.item.$register()
-        .then((res)=>{
-          this.showResult(res);
-          if(!res.error){
-            setTimeout(() => UserCommon.goDashboard(this.app), 3000);
-          }
-        })
+				.then((res)=>{
+					this.showResult(res);
+					if(!res.error){
+						setTimeout(() => UserCommon.goDashboard(this.app), 3000);
+					}
+				})
 				.catch(this.showResult.bind(this));
 		});
 	}
 
 	showResult(res) {
-    this.formUI.resetLoading();
-    if(UserCommon.isError(res)){
-      notFramework.notCommon.report(res);
-    }else{
-      if(res.errors && Object.keys(res.errors).length > 0){
-        if (!Array.isArray(res.error)){
-          res.error = [];
-        }
-        Object.keys(res.errors).forEach((fieldName)=>{
-          this.formUI.setFieldInvalid(fieldName, res.errors[fieldName]);
-          res.error.push(...res.errors[fieldName])
-        });
-      }
-      if(res.error){
-        this.formUI.setFormError(res.error);
-      }
-      if(!res.error ){
-        this.formUI.showSuccess();
-      }
-    }
-  }
+		this.formUI.resetLoading();
+		if(UserCommon.isError(res)){
+			notFramework.notCommon.report(res);
+		}else{
+			if(res.errors && Object.keys(res.errors).length > 0){
+				if (!Array.isArray(res.error)){
+					res.error = [];
+				}
+				Object.keys(res.errors).forEach((fieldName)=>{
+					this.formUI.setFieldInvalid(fieldName, res.errors[fieldName]);
+					res.error.push(...res.errors[fieldName]);
+				});
+			}
+			if(res.error){
+				this.formUI.setFormError(res.error);
+			}
+			if(!res.error ){
+				this.formUI.showSuccess();
+			}
+		}
+	}
 }
 
 export default ncRegister;

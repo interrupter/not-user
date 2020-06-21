@@ -1,6 +1,6 @@
 {
 		"name": "not-user",
-		"version": "0.2.1",
+		"version": "0.2.2",
 		"description": "not-* family user model in not- environment",
 		"main": "index.js",
 		"scripts": {
@@ -17,7 +17,7 @@
 				"test:open": "_ENV_NODE_='liquid' ./node_modules/.bin/mocha --reporter spec ./test/node  --exit && npm run cypress:open",
 				"test:run": "_ENV_NODE_='liquid' ./node_modules/.bin/mocha --reporter spec ./test/node  --exit && npm run cypress:run",
 				"pretest": "./node_modules/.bin/eslint ./src/**/**.js",
-				"lint": "./node_modules/.bin/eslint ./src/**/**.js --fix",
+				"lint": "./node_modules/.bin/eslint ./src/**/**/**.js --fix",
 				"docs": "./node_modules/.bin/jsdoc -c jsdoc.json",
 				"cover": "nyc npm test",
 				"test:server": "node ./test/server/index.js"
@@ -56,7 +56,8 @@
 				"not-node": "*",
 				"not-one-time-code": "*",
 				"uuidv4": "*",
-				"validator": "^13.1.1"
+				"validator": "^13.1.1",
+				"wolfy87-eventemitter": "^5.2.9"
 		},
 		"devDependencies": {
 				"@babel/core": "^7.10.2",

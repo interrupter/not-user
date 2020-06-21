@@ -209,7 +209,7 @@ module.exports = {
 			},
 			postFix: '/:record[_id]/:actionName'
 		},
-		list:{
+		listAndCount:{
 			method: 'get',
 			rules:{
 				auth: true,
