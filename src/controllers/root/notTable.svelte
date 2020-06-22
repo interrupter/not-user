@@ -16,6 +16,7 @@
   export let fields = [];
   export let items = [];
   export let actions = [];
+  export let links = [];
 
   onMount(() => {
 		TableStores.get(id).refined.subscribe(value => {
@@ -28,6 +29,11 @@
 	});
 </script>
 
+{#if links.length}
+<div class="field is-grouped">
+  <TableLinks values={links} />
+</div>
+{/if}
 {#if actions.length}
 <div class="field is-grouped">
   <TableButtons values={actions} />

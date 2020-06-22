@@ -20,7 +20,10 @@ const OPT_DEFAULT_PAGE_SIZE = 20,
 	OPT_FIELD_NAME_PRE_PROC = 'preprocessor';
 
 
-const DEFAULT_OPTIONS = {};
+const DEFAULT_OPTIONS = {
+	links:[],
+	actions:[],
+};
 
 class notTable extends EventEmitter {
 	constructor(input = {}) {
@@ -119,13 +122,18 @@ class notTable extends EventEmitter {
 					helpers: Object.assign({}, this.getHelpers()),
 					fields: this.getOptions('fields'),
 					actions: this.getActions(),
+					links: this.getLinks(),
 				}
 			});
 		}
 	}
 
 	getActions(){
-		return this.getOptions('actions',[]);
+		return this.getOptions('actions', []);
+	}
+
+	getLinks(){
+		return this.getOptions('links', []);
 	}
 
 	getHelpers() {
@@ -544,6 +552,12 @@ class notTable extends EventEmitter {
 			val.splice(0, val.length, ...result);
 			return val;
 		});
+	}
+
+	$destroy(){
+		for(let name in this.ui){
+			this.ui[name].$destroy && this.ui[name].$destroy();
+		}
 	}
 
 }
