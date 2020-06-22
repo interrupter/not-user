@@ -519,12 +519,11 @@ exports.get = (req, res)=>{
 					});
 				}else{//если правов не имеет
 					//пише в лог с подробностями: кто кого хотел посмотреть
-					notNode.notApp.report(
+					notNode.Application.report(
 						new notError('user.get: insufficient_level_of_privilegies', {
 								userId,
 								targetId
-							},
-							e
+							}
 						)
 					);
 					//результат на лицо
@@ -536,36 +535,46 @@ exports.get = (req, res)=>{
 			}
 		})
 		.catch((e)=>{
-			notNode.notApp.report(new notError('user.get(db)', {id}, e));
+			notNode.Application.report(new notError('user.get(db)', {	userId,
+				targetId}, e));
 			res.status(500).json({ status: 'error' });
 		});
 	}catch(e){
-		notNode.notApp.report(new notError('user.get', {id}, e));
+		notNode.Application.report(new notError('user.get', {	userId,
+			targetId}, e));
 		res.status(500).json({ status: 'error' });
 	}
 
 };
 
 exports._get = async (req, res)=>{
+	console.log('root user/get');
 	try{
 		const notApp = notNode.Application;
-		let id = req.params._id,
+		let targetId = req.params._id,
+				userId = req.user._id,
 			thisModel = notApp.getModel(MODEL_NAME);
-		thisModel.getOne(id).then((data)=>{
+		thisModel.getOne(targetId).then((data)=>{
 			res.status(200).json({
 				status: 'ok',
 				result: data
 			});
 		})
 		.catch((e)=>{
-			notNode.notApp.report(new notError('user._get(db)', {id}, e));
+			notNode.Application.report(new notError('user._get(db)', {
+				userId,
+				targetId
+			}, e));
 			res.status(500).json({
 				status: 'error',
 				error: 	e.toString()
 			});
 		});
 	}catch(e){
-		notNode.notApp.report(new notError('user._get', {id}, e));
+		notNode.Application.report(new notError('user._get', {
+			userId,
+			targetId
+		}, e));
 		res.status(500).json({
 			status: 'error',
 			error: 	e.toString()

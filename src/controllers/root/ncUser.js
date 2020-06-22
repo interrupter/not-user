@@ -68,6 +68,12 @@ class ncUser extends notFramework.notController {
 		} else {
 			this.$destroyUI();
 		}
+		this.ui.create = new UserUIDetails({
+			target: this.els.main,
+			props:{
+				user: this.createDefaultUser()
+			}
+		});
 	}
 
 	runDetails(params) {
@@ -77,16 +83,16 @@ class ncUser extends notFramework.notController {
 			this.$destroyUI();
 		}
 		this.make.user({_id: params[0]}).$get().then((res)=>{
-			if(rs.status === 'ok'){
+			if(res.status === 'ok'){
 				this.ui.details = new UserUIDetails({
-					targetEl: this.main,
+					target: this.els.main,
 					props:{
 						user: res.result
 					}
 				});
 			}else{
 				this.ui.error = new UserUIErrorMessage({
-					targetEl: this.main,
+					target: this.els.main,
 					props:{
 						title: 		'Произошла ошибка',
 						message: 	res.error?res.error:ERROR_DEFAULT
@@ -94,7 +100,7 @@ class ncUser extends notFramework.notController {
 				});
 			}
 		})
-		.catch(this.error);
+		.catch(this.error.bind(this));
 	}
 
 	runUpdate(params) {
@@ -103,6 +109,25 @@ class ncUser extends notFramework.notController {
 		} else {
 			this.$destroyUI();
 		}
+		this.make.user({_id: params[0]}).$get().then((res)=>{
+			if(res.status === 'ok'){
+				this.ui.update = new UserUIUpdate({
+					target: this.els.main,
+					props:{
+						user: res.result
+					}
+				});
+			}else{
+				this.ui.error = new UserUIErrorMessage({
+					target: this.els.main,
+					props:{
+						title: 		'Произошла ошибка',
+						message: 	res.error?res.error:ERROR_DEFAULT
+					}
+				});
+			}
+		})
+		.catch(this.error.bind(this));
 	}
 
 	runDelete(params){
@@ -209,6 +234,18 @@ class ncUser extends notFramework.notController {
 
 	goList(){
 		this.app.getWorking('router').navigate('/' + this.getModelURL());
+	}
+
+	createDefaultUser(){
+		return this.make.user({
+				username: 	'',
+				email: 			'',
+				telephone: 	'',
+				password: 	'',
+				active: 		true,
+				country:		'ru',
+				role: 			['user']
+		});
 	}
 }
 

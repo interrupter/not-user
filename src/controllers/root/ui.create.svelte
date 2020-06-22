@@ -1,0 +1,396 @@
+<script>
+
+	import UserCommon from '../user.js';
+	const CLASS_ERR = UserCommon.CLASS_ERR;
+	const CLASS_OK = UserCommon.CLASS_OK;
+
+	let overlay;
+	let stage = 'filling';
+	let errorMessage = false;
+	let formErrors = false;
+	let success = false;
+
+	let validationErrors = {
+		username:      	false,
+		email:         	false,
+		tel:           	false,
+		password:      	false,
+		password2:     	false,
+    active:        	false,
+		country:       	false,
+		role: 					false
+	};
+
+	export let validation = true;
+	export const  MODES = ['create', 'update'];
+
+	export const  MODES_FIELDS = {
+		'create': ['username', 'email', 'tel', 'password', 'password2', 'active', 'country', 'role'],
+		'update': ['tel', 'password', 'password2', 'active', 'country', 'role'],
+	};
+
+	export const SUCCESS_TEXT = {
+		'create': 'Учетная запись создана',
+		'update': 'Учетная запись обновлёна'
+	};
+
+	import {createEventDispatcher} from 'svelte';
+	let dispatch = createEventDispatcher();
+
+	export let mode = 'create';
+	export let loading = false;	
+	export let formValid = false;
+
+	export let title = {
+		__enabled: true,
+		create: 'Добавление учетной записи',
+		update: 'Редактирование учетной записи',
+	};
+
+	export let description = {
+		__enabled: true,
+		create:  'Заполните пожалуйств форму',
+		update:  'Заполните пожалуйств форму',
+	};
+
+	export let resultShowtime = 5000;
+
+	export let username = UserCommon.fieldInit('username', {enabled: true});
+	export let password = UserCommon.fieldInit('password', {enabled: true});
+	export let password2 = UserCommon.fieldInit('password2', {enabled: true});
+	export let tel = UserCommon.fieldInit('tel', {enabled: true});
+	export let email = UserCommon.fieldInit('email', {enabled: true});
+	export let role = UserCommon.fieldInit('role', {enabled: true});
+	export let active = UserCommon.fieldInit('active', {enabled: true});
+	export let country = UserCommon.fieldInit('country', {enabled: true});
+
+	let fields = {username, password, tel, password2, email, active, role, country};
+
+	export let submit = {
+		caption: 'Отправить',
+		enabled: true
+	};
+
+	export let cancel = {
+		caption: 'Назад',
+		enabled: true
+	};
+
+	export let user = {};
+
+	function collectData(){
+		return {
+			tel: 				tel.enabled?			tel.value 			:undefined,
+			username: 	username.enabled?	username.value 	:undefined,
+			email: 			email.enabled?		email.value 		:undefined,
+			password: 	password.enabled?	password.value 	:undefined,
+			password2: 	password2.enabled?password2.value :undefined,
+			country: 		country.enabled?	country.value		:undefined,
+			active: 		active.enabled?		active.value		:undefined,
+			role: 			role.enabled?			role.value			:undefined,
+		};
+	}
+
+	function onChange(ev){
+		let data = {
+			field: ev.target.name,
+			value: ev.target.value
+		};
+		if(validation){
+			let res = UserCommon.validateField(data.field, data.value, fields);
+			if(res === true){
+				setFieldValid(data.field);
+			}else{
+				setFieldInvalid(data.field, res);
+			}
+			validateForm(data);
+		}else{
+			dispatch('change', data);
+		}
+	}
+
+	export function setFieldInvalid(fieldName, errors){
+		validationErrors[fieldName] = errors;
+		validationErrors = validationErrors
+		formErrors = true;
+	}
+
+	export function setFieldValid(fieldName){
+		validationErrors[fieldName] = false;
+		formErrors = Object.values(validationErrors).some((val) => {return val;});
+	}
+
+	export function fieldIsValid(fieldName){
+		return !Array.isArray(validationErrors[fieldName]);
+	}
+
+	export function fieldErrorsNotChanged(fieldName, errs){
+		let oldErrs = validationErrors[fieldName];
+		if(oldErrs === false && errs === false){
+			return true;
+		}else{
+			if(Array.isArray(oldErrs) && Array.isArray(errs)){
+				return (oldErrs.join('. ')) === (errs.join('. '));
+			}else{
+				return false;
+			}
+		}
+	}
+
+	function onInput(ev){
+		let data = {
+			field: ev.target.name,
+			input: ev.data,
+			value: ev.target.value
+		};
+		if(validation){
+			let res = UserCommon.validateField(data.field, data.value, fields);
+			if(res === true){
+				setFieldValid(data.field);
+			}else{
+				setFieldInvalid(data.field, res);
+			}
+			validateForm(data);
+		}else{
+			dispatch('input', data);
+		}
+	}
+
+	function validateForm(freshData){
+		if(MODES.indexOf(mode) > -1){
+			let fieldsList = MODES_FIELDS[mode];
+			let result = true;
+			fieldsList.forEach((fieldName) => {
+				if (fields[fieldName].enabled && fields[fieldName].required){
+					let val = (freshData && (freshData.field === fieldName))?freshData.value:fields[fieldName].value;
+					let errs = UserCommon.validateField(fieldName, val, fields);
+					if (Array.isArray(errs)){
+						result = false;
+					}
+					if(!fieldErrorsNotChanged(fieldName, errs)){
+						if(Array.isArray(errs)){
+							setFieldInvalid(fieldName, errs);
+						}else{
+							setFieldValid(fieldName);
+						}
+					}
+				}
+			});
+			formValid = result;
+			return result;
+		}else{
+			formValid = false;
+			return false;
+		}
+	}
+
+	export function setFormError(error){
+		formValid = false;
+		errorMessage = Array.isArray(error)?error.join(', '):error;
+	}
+
+	export let tryModeAction = (e)=>{
+		e && e.preventDefault();
+		errorMessage = false;
+		dispatch(mode, collectData());
+		return false;
+	};
+
+	export function showSuccess(){
+		success = true;
+	}
+
+	export let rejectRegister = ()=>{
+		loading = true;
+		dispatch('rejectForm');
+	}
+
+	export function setLoading(){
+		loading = true;
+	}
+
+	export function resetLoading(){
+		loading = false;
+	}
+
+
+	$: telHelper = validationErrors.tel?validationErrors.tel.join(', '):tel.placeholder;
+	$: telClasses = validationErrors.tel?CLASS_ERR:CLASS_OK;
+
+	$: usernameHelper = validationErrors.username?validationErrors.username.join(', '):username.placeholder;
+	$: usernameClasses = validationErrors.username?CLASS_ERR:CLASS_OK;
+
+	$: emailHelper = validationErrors.email?validationErrors.email.join(', '):email.placeholder;
+	$: emailClasses = validationErrors.email?CLASS_ERR:CLASS_OK;
+
+	$: passwordHelper = validationErrors.password?validationErrors.password.join(', '):password.placeholder;
+	$: passwordClasses = validationErrors.password?CLASS_ERR:CLASS_OK;
+
+	$: password2Helper = validationErrors.password2?validationErrors.password2.join(', '):password2.placeholder;
+	$: password2Classes = validationErrors.password2?CLASS_ERR:CLASS_OK;
+
+	$: activeHelper = validationErrors.active?validationErrors.active.join(', '):active.placeholder;
+	$: activeClasses = validationErrors.active?CLASS_ERR:CLASS_OK;
+
+	$: countryHelper = validationErrors.country?validationErrors.country.join(', '):country.placeholder;
+	$: countryClasses = validationErrors.country?CLASS_ERR:CLASS_OK;
+
+	$: roleHelper = 	validationErrors.role?	validationErrors.role.join(', ')	:role.placeholder;
+	$: roleClasses = 	validationErrors.role?	CLASS_ERR:CLASS_OK;
+
+	$: formInvalid = (formValid === false);
+
+</script>
+
+{#if success}
+<div class="notification is-success">
+	<h3 class="user-form-success-message">{SUCCESS_TEXT[mode]}</h3>
+</div>
+{:else}
+{#if title.__enabled}
+<h5 class="title">{title[mode]}</h5>
+{/if}
+{#if description.__enabled}
+<h6 class="subtitle is-6">{description[mode]}</h6>
+{/if}
+<div class="container">
+	{#if username.enabled}
+	<div class="field user-form-field user-login-form-username">
+		<label class="label">{username.label}</label>
+		<div class="control has-icons-left has-icons-right">
+			<input class="input {usernameClasses}" type="text" name="username" invalid="{validationErrors.username}" required={username.required} placeholder="{username.placeholder}" bind:value={username.value} on:change={onChange} on:input={onInput} autocomplete="username"
+				aria-controls="input-field-helper-username" aria-describedby="input-field-helper-username" />
+			<span class="icon is-small is-left"><i class="fas fa-user"></i></span>
+			{#if email.validated === true }
+			<span class="icon is-small is-right">
+				{#if username.valid}
+				<i class="fas fa-check"></i>
+				{:else}
+				<i class="fas fa-exclamation-triangle"></i>
+				{/if}
+			</span>
+			{/if}
+		</div>
+		<p class="help {usernameClasses}" id="input-field-helper-username">
+			{#if !(username.validated && username.valid) }{usernameHelper}{:else}&nbsp;{/if}
+		</p>
+	</div>
+	{/if}
+
+	{#if email.enabled}
+	<div class="user-form-field user-login-form-email field">
+		<label class="label">{email.label}</label>
+		<div class="control has-icons-left has-icons-right">
+			<input class="input {emailClasses}" bind:value={email.value} required={email.required} placeholder="{email.placeholder}" invalid="{validationErrors.email}" on:change={onChange} on:input={onInput} name="email" type="email" autocomplete="email"
+				aria-controls="input-field-helper-email" aria-describedby="input-field-helper-email" />
+			<span class="icon is-small is-left"><i class="fas fa-envelope"></i></span>
+			{#if email.validated === true }
+			<span class="icon is-small is-right">
+					{#if email.valid}
+					<i class="fas fa-check"></i>
+					{:else}
+					<i class="fas fa-exclamation-triangle"></i>
+					{/if}
+			</span>
+			{/if}
+		</div>
+
+		<p class="help {emailClasses}" id="input-field-helper-email">
+			{#if !(email.validated && email.valid) }
+			{emailHelper}
+			{:else}&nbsp;{/if}
+		</p>
+	</div>
+	{/if}
+
+	{#if password.enabled}
+	<div class="field user-form-field user-login-form-password">
+		<label class="label">{password.label}</label>
+		<div class="control has-icons-left has-icons-right">
+			<input class="input {passwordClasses}" type="password" name="password" invalid="{validationErrors.password}" required={password.required} placeholder="{password.placeholder}" bind:value={password.value} on:change={onChange} on:input={onInput}
+				autocomplete="password" aria-controls="input-field-helper-password" aria-describedby="input-field-helper-password" />
+			<span class="icon is-small is-left"><i class="fas fa-lock"></i></span>
+			{#if password.validated === true }
+			<span class="icon is-small is-right">
+				{#if password.valid}
+				<i class="fas fa-check"></i>
+				{:else}
+				<i class="fas fa-exclamation-triangle"></i>
+				{/if}
+			</span>
+			{/if}
+		</div>
+		<p class="help {passwordClasses}" id="input-field-helper-password">
+			{#if !(password.validated && password.valid) }{passwordHelper}{:else}&nbsp;{/if}
+		</p>
+	</div>
+	{/if}
+
+	{#if password2.enabled}
+	<div class="field user-form-field user-login-form-password2">
+		<label class="label">{password2.label}</label>
+		<div class="control has-icons-left has-icons-right">
+			<input class="input {password2Classes}" type="password" name="password2" invalid="{validationErrors.password2}" required={password2.required} placeholder="{password2.placeholder}" bind:value={password2.value} on:change={onChange} on:input={onInput}
+				autocomplete="password2" aria-controls="input-field-helper-password2" aria-describedby="input-field-helper-password2" />
+			<span class="icon is-small is-left"><i class="fas fa-lock"></i></span>
+			{#if password2.validated === true }
+			<span class="icon is-small is-right">
+				{#if password2.valid}
+				<i class="fas fa-check"></i>
+				{:else}
+				<i class="fas fa-exclamation-triangle"></i>
+				{/if}
+			</span>
+			{/if}
+		</div>
+		<p class="help {password2Classes}" id="input-field-helper-password2">
+			{#if !(password2.validated && password2.valid) }
+			{password2Helper}
+			{:else}&nbsp;{/if}
+		</p>
+	</div>
+	{/if}
+
+	{#if tel.enabled}
+	<div class="field user-form-field user-login-form-tel">
+		<label class="label">{tel.label}</label>
+		<div class="control has-icons-left has-icons-right">
+			<input class="input {telClasses}"
+				type="tel" name="tel" invalid="{validationErrors.tel}"
+				required={tel.required} placeholder="{tel.placeholder}"
+				bind:value={tel.value} on:change={onChange} on:input={onInput}
+				autocomplete="tel" aria-controls="input-field-helper-tel"
+				aria-describedby="input-field-helper-tel" />
+			<span class="icon is-small is-left"><i class="fas fa-phone"></i></span>
+			{#if tel.validated === true }
+			<span class="icon is-small is-right">
+				{#if tel.valid}
+				<i class="fas fa-check"></i>
+				{:else}
+				<i class="fas fa-exclamation-triangle"></i>
+				{/if}
+			</span>
+			{/if}
+		</div>
+		<p class="help {telClasses}" id="input-field-helper-tel">
+			{#if (!tel.validated || !tel.valid) }
+				{telHelper}
+			{:else}&nbsp;{/if}
+		</p>
+	</div>
+	{/if}
+	{#if errorMessage!=false }
+	<div class="user-form-error notification is-danger">{errorMessage}</div>
+	{/if}
+
+	<div class="buttons-row">
+		{#if cancel.enabled}
+		<button class="button is-outlined user-register-form-cancel" on:click={rejectRegister}>{cancel.caption}</button>
+		{/if}
+		{#if submit.enabled}
+		<button on:click={tryModeAction} disabled={formInvalid} class="button is-primary is-hovered user-register-form-submit pull-right">{submit.caption}</button>
+		{/if}
+	</div>
+
+</div>
+{/if}

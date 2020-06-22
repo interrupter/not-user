@@ -200,10 +200,10 @@ module.exports = {
 		get:{
 			method: 'get',
 			rules:[{
-				auth: true
-			},{
 				auth: true,
 				admin: true
+			},{
+				auth: true
 			}],
 			postFix: '/:record[_id]/:actionName'
 		},
@@ -223,10 +223,10 @@ module.exports = {
 			method: 'put',
 			rules:[{
 				auth: true,
-				role: 'admin'
+				admin: true
 			},{
 				auth: true,
-				admin: true
+				role: 'admin'
 			}],
 			postFix: '/:actionName'
 		},
@@ -234,10 +234,10 @@ module.exports = {
 			method: 'get',
 			rules:[{
 				auth: true,
-				role: 'admin'
+				admin: true
 			},{
 				auth: true,
-				admin: true
+				role: 'admin'
 			}],
 			postFix: '/:actionName'
 		}
