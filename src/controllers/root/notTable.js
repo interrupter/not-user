@@ -117,10 +117,15 @@ class notTable extends EventEmitter {
 				props: {
 					id: this.id,
 					helpers: Object.assign({}, this.getHelpers()),
-					fields: this.getOptions('fields')
+					fields: this.getOptions('fields'),
+					actions: this.getActions(),
 				}
 			});
 		}
+	}
+
+	getActions(){
+		return this.getOptions('actions',[]);
 	}
 
 	getHelpers() {

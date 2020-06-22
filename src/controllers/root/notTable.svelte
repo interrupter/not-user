@@ -7,7 +7,7 @@
   import TableBooleans from './notTable.ui.booleans.svelte';
 
   import notPath from 'not-path';
-  import {onMount} from 'svelte';
+  import { onMount } from 'svelte';
 
   export let id;
 
@@ -15,6 +15,7 @@
   export let state = {};
   export let fields = [];
   export let items = [];
+  export let actions = [];
 
   onMount(() => {
 		TableStores.get(id).refined.subscribe(value => {
@@ -25,9 +26,13 @@
 			state = value;
 		});
 	});
-
 </script>
 
+{#if actions.length}
+<div class="field is-grouped">
+  <TableButtons values={actions} />
+</div>
+{/if}
 <table class="table">
   <thead>
     {#each fields as field}
