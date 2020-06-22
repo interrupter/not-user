@@ -36,15 +36,9 @@ class ncUser extends notFramework.notController {
 				}, {
 					path: ':_id',
 					title: 'ID',
-					searchable: true,
-					sortable: true
-				},{
-					path: ':_id',
-					title: 'ID',
 					type: 'link',
 					preprocessor: (value) => {
-						return {
-							links:[
+						return [
 								{
 									url: [this.getModelURL(), value, 'view'].join('/'),
 									title: 'Подробнее'
@@ -55,10 +49,10 @@ class ncUser extends notFramework.notController {
 								},
 								{
 									url: [this.getModelURL(), value, 'delete'].join('/'),
+									type: 'danger',
 									title: 'Удалить'
 								}
-							]
-						};
+						];
 					},
 				}]
 			}

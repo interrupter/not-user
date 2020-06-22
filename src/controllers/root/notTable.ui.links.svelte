@@ -2,6 +2,14 @@
   export let values = [];
 </script>
 
-{#each values as item (item) }
-<button on:click="{item.action}" class="button is-link is-small">{item.title}</button>
-{/each}
+<div class="field has-addons">
+  <p class="control">
+    {#each values as item (item.url) }
+    {#if item.type === 'danger'}
+    <a href="{item.url}" class="button is-link is-small is-light is-danger">{item.title}</a>
+    {:else }
+    <a href="{item.url}" class="button is-link is-small is-light">{item.title}</a>
+    {/if}
+    {/each}
+  </p>
+</div>

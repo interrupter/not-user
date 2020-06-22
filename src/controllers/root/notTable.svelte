@@ -3,7 +3,7 @@
 
   import TableLinks from './notTable.ui.links.svelte';
   import TableButtons from './notTable.ui.buttons.svelte';
-  import TableImagess from './notTable.ui.images.svelte';
+  import TableImages from './notTable.ui.images.svelte';
   import TableBooleans from './notTable.ui.booleans.svelte';
 
   import notPath from 'not-path';
