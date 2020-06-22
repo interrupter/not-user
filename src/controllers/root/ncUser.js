@@ -1,6 +1,12 @@
 /* global notFramework */
 
+const ERROR_DEFAULT = 'Что пошло не так.';
+
 import notTable from './notTable.js';
+import UserUICreate from './ui.create.svelte';
+import UserUIUpdate from './ui.update.svelte';
+import UserUIDetails from './ui.details.svelte';
+import UserUIErrorMessage from './ui.error.svelte';
 
 class ncUser extends notFramework.notController {
 	constructor(app, params) {
@@ -70,6 +76,25 @@ class ncUser extends notFramework.notController {
 		} else {
 			this.$destroyUI();
 		}
+		this.make.user({_id: params[0]}).$get().then((res)=>{
+			if(rs.status === 'ok'){
+				this.ui.details = new UserUIDetails({
+					targetEl: this.main,
+					props:{
+						user: res.result
+					}
+				});
+			}else{
+				this.ui.error = new UserUIErrorMessage({
+					targetEl: this.main,
+					props:{
+						title: 		'Произошла ошибка',
+						message: 	res.error?res.error:ERROR_DEFAULT
+					}
+				});
+			}
+		})
+		.catch(this.error);
 	}
 
 	runUpdate(params) {
@@ -77,6 +102,18 @@ class ncUser extends notFramework.notController {
 			return;
 		} else {
 			this.$destroyUI();
+		}
+	}
+
+	runDelete(params){
+		if (confirm('Удалить пользователя?')) {
+			this.make.user({_id: params[0]}).$delete()
+				.then(()=>{
+					this.goList();
+				})
+				.catch(notFramework.notCommon.report);
+		}else{
+			this.goList();
 		}
 	}
 

@@ -197,6 +197,16 @@ module.exports = {
 			}],
 			postFix: '/:actionName'
 		},
+		get:{
+			method: 'get',
+			rules:[{
+				auth: true
+			},{
+				auth: true,
+				admin: true
+			}],
+			postFix: '/:record[_id]/:actionName'
+		},
 		/**
 		Admin action
 		**/
@@ -209,9 +219,23 @@ module.exports = {
 			}],
 			postFix: '/:record[_id]/:actionName'
 		},
+		create:{
+			method: 'put',
+			rules:[{
+				auth: true,
+				role: 'admin'
+			},{
+				auth: true,
+				admin: true
+			}],
+			postFix: '/:actionName'
+		},
 		listAndCount:{
 			method: 'get',
 			rules:[{
+				auth: true,
+				role: 'admin'
+			},{
 				auth: true,
 				admin: true
 			}],

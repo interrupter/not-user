@@ -18,7 +18,7 @@ exports.keepNotExtended = false;
 
 exports.enrich = {
 	versioning: true,
-	increment: false,
+	increment: true,
 	validators: true
 };
 

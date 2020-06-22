@@ -1,8 +1,7 @@
 const
 	UserActions = [],
 	AdminActions = [
-		'listAndCount',
-		'delete'
+		'listAndCount'
 	],
 	MODEL_NAME = 'User',
 	MODEL_OPTIONS = {
@@ -442,6 +441,137 @@ exports._update = (req, res)=>{
 	res.status(200).json({});
 };
 
+exports._delete = async (req, res)=>{
+	try{
+		const notApp = notNode.Application;
+		let id = req.params._id,
+			thisModel = notApp.getModel(MODEL_NAME);
+
+		let user = await thisModel.findOne({
+					_id: id,
+					__latest: true,
+					__closed: false
+				}).exec();
+
+		if(user._id === req.user._id ){
+			return res.status(403).json({ status: 'error', error: notLocale.say('user_cant_delete_his_own_account')});
+		}
+		//только админам и супер пользователю положено
+		if(notNode.Auth.intersect_safe(user.role, ['root', 'admin']).length === 0){
+			return res.status(405).json({
+				 status: 	'error',
+				 error: 	notLocale.say('insufficient_level_of_privilegies')
+			});
+		}
+		//только если есть превосходство над удаляемым
+		let rolesPriority = config.get('roles:priority') || ['root', 'admin', 'client', 'user', 'guest'];
+		if(notNode.Auth.checkSupremacy(req.user.role, user.role, rolesPriority)){
+			notApp.logger.log({
+				module: 'user',
+				model: 	'user',
+				action: 'delete',
+				by: 		req.user._id,
+				target: user._id
+			});
+			await user.updateOne({
+				__closed: true
+			}).exec();
+			return res.status(200).json({
+				status: 'ok'
+			});
+		}else{
+			return res.status(405).json({
+				 status: 	'error',
+				 error: 	notLocale.say('insufficient_level_of_privilegies')
+			});
+		}
+	}catch(e){
+		return res.status(500).json({
+			status: 'error'
+		});
+	}
+};
+
+exports.get = (req, res)=>{
+	try{
+		const notApp = notNode.Application;
+		let targetId = req.params._id,
+				userId = req.user._id,
+				rolesPriority = config.get('roles:priority') || ['root', 'admin', 'client', 'user', 'guest'],
+				thisModel = notApp.getModel(MODEL_NAME);
+		thisModel.getOne(targetId).then((data)=>{
+			data = thisModel.clearFromUnsafe(data);
+			//если собственные данные
+			if(targetId === userId){
+				res.status(200).json({
+					status: 'ok',
+					result: data
+				});
+			}else{//если не его данные, то
+				//но он админ и выше по уровню доступа чем цель
+				if(
+					notNode.Auth.compareRoles(req.user.role, ['admin']) &&
+					notNode.Auth.checkSupremacy(req.user.role, data.role, rolesPriority)
+				){
+					res.status(200).json({
+						status: 'ok',
+						result: data
+					});
+				}else{//если правов не имеет
+					//пише в лог с подробностями: кто кого хотел посмотреть
+					notNode.notApp.report(
+						new notError('user.get: insufficient_level_of_privilegies', {
+								userId,
+								targetId
+							},
+							e
+						)
+					);
+					//результат на лицо
+					res.status(405).json({
+						status: 'error',
+	 				 	error: 	notLocale.say('insufficient_level_of_privilegies')
+					});
+				}
+			}
+		})
+		.catch((e)=>{
+			notNode.notApp.report(new notError('user.get(db)', {id}, e));
+			res.status(500).json({ status: 'error' });
+		});
+	}catch(e){
+		notNode.notApp.report(new notError('user.get', {id}, e));
+		res.status(500).json({ status: 'error' });
+	}
+
+};
+
+exports._get = async (req, res)=>{
+	try{
+		const notApp = notNode.Application;
+		let id = req.params._id,
+			thisModel = notApp.getModel(MODEL_NAME);
+		thisModel.getOne(id).then((data)=>{
+			res.status(200).json({
+				status: 'ok',
+				result: data
+			});
+		})
+		.catch((e)=>{
+			notNode.notApp.report(new notError('user._get(db)', {id}, e));
+			res.status(500).json({
+				status: 'error',
+				error: 	e.toString()
+			});
+		});
+	}catch(e){
+		notNode.notApp.report(new notError('user._get', {id}, e));
+		res.status(500).json({
+			status: 'error',
+			error: 	e.toString()
+		});
+	}
+};
 
 modMeta.extend(modMeta.Route, module.exports, AdminActions, MODEL_OPTIONS, '_');
 modMeta.extend(modMeta.Route, module.exports, UserActions, MODEL_OPTIONS);
