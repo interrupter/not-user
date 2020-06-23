@@ -75,6 +75,8 @@ class ncUser extends notFramework.notController {
 				user: this.createDefaultUser()
 			}
 		});
+		this.ui.create.$on('create', (ev) => this.onUserCreateFormSubmit(ev.detail));
+		this.ui.create.$on('rejectForm', this.goList.bind(this));
 	}
 
 	runDetails(params) {
@@ -248,6 +250,23 @@ class ncUser extends notFramework.notController {
 			role: 			['user']
 		});
 	}
+
+	onUserCreateFormSubmit(user){
+		user.country = 'ru';
+		this.ui.create.setLoading();
+		this.make.user(user).$create()
+			.then((res)=>{
+				this.ui.create.resetLoading();
+				this.log(res);
+				this.ui.create.showSuccess();
+			})
+			.catch((e)=>{
+				this.ui.create.resetLoading();
+				this.error(e);
+			});
+	}
+
+
 }
 
 export default ncUser;

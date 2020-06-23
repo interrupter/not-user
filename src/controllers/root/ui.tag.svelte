@@ -1,4 +1,7 @@
 <script>
+
+  import {createEventDispatcher} from 'svelte';
+  let dispatch = createEventDispatcher();
   /*
   item = {
     id,        //unique
@@ -21,6 +24,7 @@
     if(item){
       items.splice(items.indexOf(item), 1);
       items = items;
+      dispatch('change', items);
     }
     return false;
   }
@@ -32,6 +36,7 @@
     if(item && (items.indexOf(item) === -1)){
       items.push(item);
       items = items;
+      dispatch('change', items);
     }
     return false;
   }

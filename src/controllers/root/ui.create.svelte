@@ -99,6 +99,7 @@
 			let res = UserCommon.validateField(data.field, data.value, fields);
 			if(res === true){
 				setFieldValid(data.field);
+				role.value = data.value;
 			}else{
 				setFieldInvalid(data.field, res);
 			}
@@ -132,7 +133,7 @@
 	function onChange(ev){
 		let data = {
 			field: ev.target.name,
-			value: ev.target.value
+			value: ev.target.type==='checkbox'?ev.target.checked:ev.target.value
 		};
 		if(validation){
 			let res = UserCommon.validateField(data.field, data.value, fields);
@@ -179,7 +180,7 @@
 		let data = {
 			field: ev.target.name,
 			input: ev.data,
-			value: ev.target.value
+			value: ev.target.type==='checkbox'?ev.target.checked:ev.target.value
 		};
 		if(validation){
 			let res = UserCommon.validateField(data.field, data.value, fields);
@@ -250,7 +251,6 @@
 	export function resetLoading(){
 		loading = false;
 	}
-
 
 	$: telHelper = validationErrors.tel?validationErrors.tel.join(', '):tel.placeholder;
 	$: telClasses = validationErrors.tel?CLASS_ERR:CLASS_OK;
@@ -427,7 +427,7 @@
 			<input
 				id="user-login-form-active-field"
 				class="switch is-rounded is-success "
-				bind:value={active.value}
+				bind:checked={active.value}
 				required={active.required}
 				placeholder="{active.placeholder}"
 				invalid="{validationErrors.active}" on:change={onChange} on:input={onInput}

@@ -57,12 +57,12 @@ export default class UserCommon{
 					errors.push('Необходимо указать список ролей');
 					break;
 				}
-				if(!validator.isLength(value, { min: 1, max: 6})){
-					errors.push('Необходимо добавить хотя бы одну роль');
+				if(!((value.length>=1) && (value.length<=6))){
+					errors.push('Необходимо добавить хотя бы одну роль (6 max)');
 				}
 				let baseRolesCount = 0;
 				value.forEach((role) => {
-					if(['admin', 'client', 'user'].indexOf(role) > -1 ){
+					if(['admin', 'client', 'user', 'root'].indexOf(role) > -1 ){
 						baseRolesCount++;
 					}
 				});
