@@ -90,6 +90,24 @@
 		});
 	}
 
+	function onRoleChange(ev){
+		let data = {
+			field: 'role',
+			value: ev.detail.map(t => t.title)
+		};
+		if(validation){
+			let res = UserCommon.validateField(data.field, data.value, fields);
+			if(res === true){
+				setFieldValid(data.field);
+			}else{
+				setFieldInvalid(data.field, res);
+			}
+			validateForm(data);
+		}else{
+			dispatch('input', data);
+		}
+	}
+
 	onMount(() => {
 		for(let t in user){
 			if(t === 'role'){
@@ -406,8 +424,6 @@
 
 	{#if active.enabled}
 	<div class="user-form-field user-login-form-active field">
-		<label class="label">{active.label}</label>
-		<div class="control">
 			<input class="switch is-rounded is-success "
 				bind:value={active.value}
 				required={active.required}
@@ -415,8 +431,7 @@
 				invalid="{validationErrors.active}" on:change={onChange} on:input={onInput}
 				name="active" type="checkbox"
 				aria-controls="input-field-helper-active" aria-describedby="input-field-helper-active" />
-		</div>
-
+		<label class="label">{active.label}</label>
 		<p class="help {activeClasses}" id="input-field-helper-active">
 			{#if !(active.validated && active.valid) }
 			{activeHelper}
@@ -429,9 +444,9 @@
 	<div class="user-form-field user-login-form-role field">
 		<label class="label">{role.label}</label>
 		<div class="control {roleClasses}">
-			<UITag variants={UserCommon.ROLES} bind:error={roleInvalid} items={userRoles} />
+			<UITag variants={UserCommon.ROLES} bind:error={roleInvalid} on:change={onRoleChange} bind:items={userRoles} />
 		</div>
-		
+
 		<p class="help {roleClasses}" id="input-field-helper-role">
 			{#if !(role.validated && role.valid) }
 			{roleHelper}

@@ -1,5 +1,4 @@
 <script>
-  let select;
   /*
   item = {
     id,        //unique
@@ -11,6 +10,9 @@
   export let items = [];
   export let variants = [];
   export let error = false;
+  export let beforeAdd = (item, list)=>{
+    return true;
+  };
 
   function remove(e){
     e && e.preventDefault();
@@ -25,7 +27,7 @@
 
   function add(e){
     e && e.preventDefault();
-    let id = parseInt(select.value);
+    let id = parseInt(e.currentTarget.parentNode.querySelector('select').value);
     let item = variants.find(el => el.id === id);
     if(item && (items.indexOf(item) === -1)){
       items.push(item);
@@ -41,13 +43,13 @@
 <div class="columns">
   <div class="column {classes}">
     {#each items as item (item.id)}
-    <span class="tag is-{item.type}">{item}<button data-id="{item.id}" class="delete is-small" on:click="{remove}"></button></span>
+    <span class="mx-1 tag is-{item.type}">{item.title}<button data-id="{item.id}" class="delete is-small" on:click="{remove}"></button></span>
     {/each}
   </div>
   <div class="column">
     <div class="control">
       <div class="select is-small">
-        <select this:bind={select}>
+        <select>
           <option value="-1" selected>Выберите из списка...</option>
           {#each variants as variant}
           <option value="{variant.id}">{variant.title}</option>
