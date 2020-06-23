@@ -424,14 +424,17 @@
 
 	{#if active.enabled}
 	<div class="user-form-field user-login-form-active field">
-			<input class="switch is-rounded is-success "
+			<input
+				id="user-login-form-active-field"
+				class="switch is-rounded is-success "
 				bind:value={active.value}
 				required={active.required}
 				placeholder="{active.placeholder}"
 				invalid="{validationErrors.active}" on:change={onChange} on:input={onInput}
 				name="active" type="checkbox"
-				aria-controls="input-field-helper-active" aria-describedby="input-field-helper-active" />
-		<label class="label">{active.label}</label>
+				aria-controls="input-field-helper-active" aria-describedby="input-field-helper-active"
+				/>
+		<label class="label" for="user-login-form-active-field">{active.label}</label>
 		<p class="help {activeClasses}" id="input-field-helper-active">
 			{#if !(active.validated && active.valid) }
 			{activeHelper}
