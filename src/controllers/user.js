@@ -47,6 +47,29 @@ export default class UserCommon{
 					errors.push('Необходимо ввести полный номер телефона из 11 цифр');
 				}
 			break;
+			case 'active':
+				if((value !== false) && (value !== true)){
+					errors.push('Необходимо ввести действительное значение автивности записи');
+				}
+			break;
+			case 'role':
+				if(!Array.isArray(value)){
+					errors.push('Необходимо указать список ролей');
+					break;
+				}
+				if(!validator.isLength(value, { min: 1, max: 6})){
+					errors.push('Необходимо добавить хотя бы одну роль');
+				}
+				let baseRolesCount = 0;
+				value.forEach((role) => {
+					if(['admin', 'client', 'user'].indexOf(role) > -1 ){
+						baseRolesCount++;
+					}
+				});
+				if(baseRolesCount !== 1){
+					errors.push('Необходимо указать ровно одну базовую (admin, client, user) роль');
+				}
+			break;
 			case 'password':
 				if (!validator.isLength(value, { min: 6})){
 					errors.push('Минимальный размер пароля 6 знаков');
@@ -73,6 +96,35 @@ export default class UserCommon{
 		fields=fields;
 		return res;
 	}
+	static ROLES = [{
+		id: 1,
+		title: 'root',
+		type: 'danger'
+	},{
+		id: 2,
+		title: 'admin',
+		type: 'warning'
+	},{
+		id: 3,
+		title: 'client',
+		type: 'success'
+	},{
+		id: 4,
+		title: 'user',
+		type: 'info'
+	},{
+		id: 5,
+		title: 'manager',
+		type: 'primary'
+	},{
+		id: 6,
+		title: 'logist',
+		type: 'primary'
+	},{
+		id: 7,
+		title: 'hr',
+		type: 'primary'
+	}]
 	static FIELDS = {
 		username:{
 			label: 'Логин',
@@ -94,6 +146,18 @@ export default class UserCommon{
 		},
 		tel:{
 			label: 'Ваш номер телефона',
+			placeholder: '',
+		},
+		active:{
+			label: 'Активна',
+			placeholder: '',
+		},
+		role:{
+			label: 'Роли в системе',
+			placeholder: '',
+		},
+		country:{
+			label: 'Основной язык',
 			placeholder: '',
 		},
 		code:{

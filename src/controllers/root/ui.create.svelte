@@ -1,8 +1,13 @@
 <script>
+	import 'bulma-switch';
+	import {onMount} from 'svelte';
 
+
+	import UITag from './ui.tag.svelte';
 	import UserCommon from '../user.js';
 	const CLASS_ERR = UserCommon.CLASS_ERR;
 	const CLASS_OK = UserCommon.CLASS_OK;
+
 
 	let overlay;
 	let stage = 'filling';
@@ -38,7 +43,7 @@
 	let dispatch = createEventDispatcher();
 
 	export let mode = 'create';
-	export let loading = false;	
+	export let loading = false;
 	export let formValid = false;
 
 	export let title = {
@@ -77,6 +82,21 @@
 	};
 
 	export let user = {};
+	export let userRoles = [];
+
+	function initUserRoles(userRoleSet){
+		userRoleSet.forEach((userRole)=>{
+			userRoles.push(UserCommon.ROLES.find(el => el.title === userRole ));
+		});
+	}
+
+	onMount(() => {
+		for(let t in user){
+			if(t === 'role'){
+				initUserRoles(user.role);
+			}
+		}
+	});
 
 	function collectData(){
 		return {
@@ -200,7 +220,7 @@
 		success = true;
 	}
 
-	export let rejectRegister = ()=>{
+	export let rejectForm = ()=>{
 		loading = true;
 		dispatch('rejectForm');
 	}
@@ -235,8 +255,9 @@
 	$: countryHelper = validationErrors.country?validationErrors.country.join(', '):country.placeholder;
 	$: countryClasses = validationErrors.country?CLASS_ERR:CLASS_OK;
 
-	$: roleHelper = 	validationErrors.role?	validationErrors.role.join(', ')	:role.placeholder;
-	$: roleClasses = 	validationErrors.role?	CLASS_ERR:CLASS_OK;
+	$: roleHelper 	= 	validationErrors.role?	validationErrors.role.join(', ')	:role.placeholder;
+	$: roleClasses 	= 	validationErrors.role?	CLASS_ERR:CLASS_OK;
+	$: roleInvalid 	= 	role.validated && !role.valid;
 
 	$: formInvalid = (formValid === false);
 
@@ -383,9 +404,45 @@
 	<div class="user-form-error notification is-danger">{errorMessage}</div>
 	{/if}
 
+	{#if active.enabled}
+	<div class="user-form-field user-login-form-active field">
+		<label class="label">{active.label}</label>
+		<div class="control">
+			<input class="switch is-rounded is-success "
+				bind:value={active.value}
+				required={active.required}
+				placeholder="{active.placeholder}"
+				invalid="{validationErrors.active}" on:change={onChange} on:input={onInput}
+				name="active" type="checkbox"
+				aria-controls="input-field-helper-active" aria-describedby="input-field-helper-active" />
+		</div>
+
+		<p class="help {activeClasses}" id="input-field-helper-active">
+			{#if !(active.validated && active.valid) }
+			{activeHelper}
+			{:else}&nbsp;{/if}
+		</p>
+	</div>
+	{/if}
+
+	{#if role.enabled}
+	<div class="user-form-field user-login-form-role field">
+		<label class="label">{role.label}</label>
+		<div class="control {roleClasses}">
+			<UITag variants={UserCommon.ROLES} bind:error={roleInvalid} items={userRoles} />
+		</div>
+		
+		<p class="help {roleClasses}" id="input-field-helper-role">
+			{#if !(role.validated && role.valid) }
+			{roleHelper}
+			{:else}&nbsp;{/if}
+		</p>
+	</div>
+	{/if}
+
 	<div class="buttons-row">
 		{#if cancel.enabled}
-		<button class="button is-outlined user-register-form-cancel" on:click={rejectRegister}>{cancel.caption}</button>
+		<button class="button is-outlined user-register-form-cancel" on:click={rejectForm}>{cancel.caption}</button>
 		{/if}
 		{#if submit.enabled}
 		<button on:click={tryModeAction} disabled={formInvalid} class="button is-primary is-hovered user-register-form-submit pull-right">{submit.caption}</button>

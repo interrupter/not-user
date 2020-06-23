@@ -1,6 +1,6 @@
 {
 		"name": "not-user",
-		"version": "0.2.12",
+		"version": "0.2.13",
 		"description": "not-* family user model in not- environment",
 		"main": "index.js",
 		"scripts": {
@@ -44,6 +44,7 @@
 				"@smui/icon-button": "^1.0.0-beta.21",
 				"@smui/paper": "^1.0.0-beta.21",
 				"@smui/textfield": "^1.0.0-beta.21",
+				"bulma-switch": "^2.0.0",
 				"express": "^4.17.1",
 				"generate-password": "^1.5.1",
 				"jsonwebtoken": "^8.5.1",

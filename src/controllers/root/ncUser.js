@@ -68,9 +68,10 @@ class ncUser extends notFramework.notController {
 		} else {
 			this.$destroyUI();
 		}
-		this.ui.create = new UserUIDetails({
+		this.ui.create = new UserUICreate({
 			target: this.els.main,
 			props:{
+				country: {enabled: false},
 				user: this.createDefaultUser()
 			}
 		});
@@ -100,7 +101,7 @@ class ncUser extends notFramework.notController {
 				});
 			}
 		})
-		.catch(this.error.bind(this));
+			.catch(this.error.bind(this));
 	}
 
 	runUpdate(params) {
@@ -127,7 +128,7 @@ class ncUser extends notFramework.notController {
 				});
 			}
 		})
-		.catch(this.error.bind(this));
+			.catch(this.error.bind(this));
 	}
 
 	runDelete(params){
@@ -238,13 +239,13 @@ class ncUser extends notFramework.notController {
 
 	createDefaultUser(){
 		return this.make.user({
-				username: 	'',
-				email: 			'',
-				telephone: 	'',
-				password: 	'',
-				active: 		true,
-				country:		'ru',
-				role: 			['user']
+			username: 	'',
+			email: 			'',
+			telephone: 	'',
+			password: 	'',
+			active: 		true,
+			country:		'ru',
+			role: 			['user']
 		});
 	}
 }
