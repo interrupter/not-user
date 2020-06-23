@@ -56,8 +56,6 @@
           {/each}
         </select>
       </div>
-    </div>
-    <div class="control">
       <button class="button is-primary is-small" on:click={add}>Добавить</button>
     </div>
   </div>
