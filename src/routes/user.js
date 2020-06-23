@@ -32,25 +32,31 @@ exports.getIP = (req)=>{
 /**
 *   Guest actions
 */
-exports.register = (req, res)=>{
+exports.register = async (req, res)=>{
 	const notApp = notNode.Application;
 	notApp.logger.debug('register');
 	let User = this.getModel('User'),
 		OneTimeCode = notApp.getModel('OneTimeCode'),
 		ip = exports.getIP(req),
+		userID = await notNode.Increment.next(MODEL_NAME),
 		newUser = new User({
+			userID,
 			username: req.body.username,
-			email:  req.body.email,
+			email:  	req.body.email,
 			password: req.body.password,
 			ip
 		});
 	//validate input
 	newUser.validate()
 		//check if user with this attributes already exists
-		.then(User.isUnique(newUser.username, newUser.email))
+		.then(()=> {return User.isUnique(newUser.username, newUser.email);})
 		//create user
-		.then(()=> {
-			return newUser.save();
+		.then((unique)=> {
+			if(unique) {
+				return User.add(newUser);
+			}else{
+				throw new notError(notLocale.say('user_uniqueness_verification_error'));
+			}
 		})
 		//create one time code for email confirmation
 		.then(()=>{
@@ -429,6 +435,128 @@ exports.token = (req, res)=>{
 /**
 *   Admin actions
 */
+
+exports._create = async (req, res)=>{
+	const notApp = notNode.Application;
+	let targetId = req.params._id,
+			userId = req.user._id;
+	try{
+		notApp.logger.debug('user._create');
+		let User = this.getModel('User'),
+			OneTimeCode = notApp.getModel('OneTimeCode'),
+			ip = exports.getIP(req),
+			userID = await notNode.Increment.next(MODEL_NAME),
+			newUser = new User({
+				userID,
+				username: 	req.body.username,
+				email:  		req.body.email,
+				password: 	req.body.password,
+				role: 			req.body.role,
+				tel: 				req.body.tel,
+				country: 		req.body.country,
+				active: 		req.body.active,
+				ip
+			});
+
+		newUser.validate()
+			//check if user with this attributes already exists
+			.then(()=> {return User.isUnique(newUser.username, newUser.email);})
+			//create user
+			.then((unique)=> {
+				if(unique) {
+					return User.add(newUser);
+				}else{
+					throw new notError('E11000');
+				}
+			})
+			//create one time code for email confirmation
+			.then((savedUser)=>{
+				console.log(savedUser);
+				notApp.logger.log({
+					module: 	'user',
+					model: 		'user',
+					action: 	'create',
+					by: 			userId,
+					target: 	savedUser._id,
+					targetID: savedUser.userID
+				});
+				return OneTimeCode.createCode(
+					{
+						email: 	newUser.email,
+						owner: 	newUser._id,
+						action: 'confirmEmail'
+					},
+					60 /* TTL == 60 minutes */
+				);
+			})
+			//send email confirmation
+			.then((oneTimeCode)=>{
+				notApp.inform({
+					to: newUser.email,
+					tags: ['userEmailConfirmationLink'],
+					link: `/api/user/confirmEmail?code=${oneTimeCode.code}&`
+				});
+			})
+			.then(()=>{
+				res.status(200).json({
+					status: 'ok',
+					result: User.clearFromUnsafe(newUser)
+				});
+			})
+			.catch(async(err)=>{
+				notApp.report(err);
+				console.error(err);
+				if(err.message && err.message.indexOf('E11000') > -1){
+					try{
+						let existName = await User.usernameExists(newUser.username);
+						let existEmail = await User.emailExists(newUser.email);
+						if(existName || existEmail){
+							let mes = {
+								status: 'error',
+								errors: {}
+							};
+							if(existEmail){
+								mes.errors.email = [notLocale.say('email_taken')];
+							}
+							if(existName){
+								mes.errors.username = [notLocale.say('username_taken')];
+							}
+							return res.status(500).json(mes);
+						}else{
+							return res.status(500).json({
+								error: notLocale.say('some_error')
+							});
+						}
+					}catch(e){
+						if(e instanceof notError){
+							return res.status(500).json({
+								error: notError.message
+							});
+						}else{
+							return res.status(500).json({
+								error: notLocale.say('some_error')
+							});
+						}
+					}
+				}else{
+					return res.status(500).json({
+						error: notLocale.say('some_error')
+					});
+				}
+			});
+	}catch(e){
+		notNode.Application.report(new notError('user._get', {
+			ip: exports.getIP(req),
+			userId,
+			targetId
+		}, e));
+		res.status(500).json({
+			status: 'error',
+			error: 	e.toString()
+		});
+	}
+}
+
 exports._steal = (req, res)=>{
 	res.status(200).json({});
 };
@@ -442,22 +570,37 @@ exports._update = (req, res)=>{
 };
 
 exports._delete = async (req, res)=>{
+	let targetId = req.params._id,
+			userId = req.user._id;
 	try{
 		const notApp = notNode.Application;
-		let id = req.params._id,
-			thisModel = notApp.getModel(MODEL_NAME);
+		let thisModel = notApp.getModel(MODEL_NAME);
 
-		let user = await thisModel.findOne({
-					_id: id,
-					__latest: true,
-					__closed: false
-				}).exec();
-
-		if(user._id === req.user._id ){
+		if(targetId === userId ){
 			return res.status(403).json({ status: 'error', error: notLocale.say('user_cant_delete_his_own_account')});
 		}
+
+		let user = await thisModel.findOne({
+				_id: targetId,
+				__latest: true,
+				__closed: false
+			}).exec();
+
+		if(!user){
+			return res.status(200).json({
+				status: 'ok'
+			});
+		}
 		//только админам и супер пользователю положено
-		if(notNode.Auth.intersect_safe(user.role, ['root', 'admin']).length === 0){
+		if(notNode.Auth.intersect_safe(req.user.role, ['root', 'admin']).length === 0){
+			notNode.Application.report(
+				new notError('user._delete: insufficient_level_of_privilegies', {
+						ip: exports.getIP(req),
+						userId,
+						targetId
+					}
+				)
+			);
 			return res.status(405).json({
 				 status: 	'error',
 				 error: 	notLocale.say('insufficient_level_of_privilegies')
@@ -470,8 +613,8 @@ exports._delete = async (req, res)=>{
 				module: 'user',
 				model: 	'user',
 				action: 'delete',
-				by: 		req.user._id,
-				target: user._id
+				by: 		userId,
+				target: targetId
 			});
 			await user.updateOne({
 				__closed: true
@@ -480,23 +623,38 @@ exports._delete = async (req, res)=>{
 				status: 'ok'
 			});
 		}else{
+			notNode.Application.report(
+				new notError('user._delete: insufficient_level_of_privilegies', {
+						ip: exports.getIP(req),
+						userId,
+						targetId
+					}
+				)
+			);
 			return res.status(405).json({
 				 status: 	'error',
 				 error: 	notLocale.say('insufficient_level_of_privilegies')
 			});
 		}
 	}catch(e){
-		return res.status(500).json({
-			status: 'error'
+		notNode.Application.report(new notError('user._get', {
+			ip: exports.getIP(req),
+			userId,
+			targetId
+		}, e));
+		res.status(500).json({
+			status: 'error',
+			error: 	e.toString()
 		});
 	}
 };
 
 exports.get = (req, res)=>{
+	let targetId = req.params._id,
+			userId = req.user._id;
 	try{
 		const notApp = notNode.Application;
-		let targetId = req.params._id,
-				userId = req.user._id,
+		let
 				rolesPriority = config.get('roles:priority') || ['root', 'admin', 'client', 'user', 'guest'],
 				thisModel = notApp.getModel(MODEL_NAME);
 		thisModel.getOne(targetId).then((data)=>{
@@ -521,6 +679,7 @@ exports.get = (req, res)=>{
 					//пише в лог с подробностями: кто кого хотел посмотреть
 					notNode.Application.report(
 						new notError('user.get: insufficient_level_of_privilegies', {
+								ip: exports.getIP(req),
 								userId,
 								targetId
 							}
@@ -540,8 +699,11 @@ exports.get = (req, res)=>{
 			res.status(500).json({ status: 'error' });
 		});
 	}catch(e){
-		notNode.Application.report(new notError('user.get', {	userId,
-			targetId}, e));
+		notNode.Application.report(new notError('user.get', {
+			ip: exports.getIP(req),
+			userId,
+			targetId
+		}, e));
 		res.status(500).json({ status: 'error' });
 	}
 
@@ -549,10 +711,11 @@ exports.get = (req, res)=>{
 
 exports._get = async (req, res)=>{
 	console.log('root user/get');
+	let targetId = req.params._id,
+			userId = req.user._id;
 	try{
 		const notApp = notNode.Application;
-		let targetId = req.params._id,
-				userId = req.user._id,
+		let
 			thisModel = notApp.getModel(MODEL_NAME);
 		thisModel.getOne(targetId).then((data)=>{
 			res.status(200).json({
@@ -562,6 +725,7 @@ exports._get = async (req, res)=>{
 		})
 		.catch((e)=>{
 			notNode.Application.report(new notError('user._get(db)', {
+				ip: exports.getIP(req),
 				userId,
 				targetId
 			}, e));
@@ -572,6 +736,7 @@ exports._get = async (req, res)=>{
 		});
 	}catch(e){
 		notNode.Application.report(new notError('user._get', {
+			ip: exports.getIP(req),
 			userId,
 			targetId
 		}, e));

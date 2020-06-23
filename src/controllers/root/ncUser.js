@@ -3,6 +3,7 @@
 const ERROR_DEFAULT = 'Что пошло не так.';
 
 import notTable from './notTable.js';
+import UserCommon from '../user.js';
 import UserUICreate from './ui.create.svelte';
 import UserUIUpdate from './ui.update.svelte';
 import UserUIDetails from './ui.details.svelte';
@@ -139,7 +140,10 @@ class ncUser extends notFramework.notController {
 				.then(()=>{
 					this.goList();
 				})
-				.catch(notFramework.notCommon.report);
+				.catch((e)=>{
+					this.error(e);
+					this.goList();
+				});
 		}else{
 			this.goList();
 		}
@@ -256,14 +260,38 @@ class ncUser extends notFramework.notController {
 		this.ui.create.setLoading();
 		this.make.user(user).$create()
 			.then((res)=>{
-				this.ui.create.resetLoading();
 				this.log(res);
-				this.ui.create.showSuccess();
+				this.showResult(this.ui.create, res);
+				if(UserCommon.isError(res)){
+					setTimeout(() => UserCommon.goDashboard(this.app), 3000);
+				}
 			})
 			.catch((e)=>{
-				this.ui.create.resetLoading();
-				this.error(e);
+				this.showResult(this.ui.create, e);
 			});
+	}
+
+	showResult(ui, res) {
+		ui.resetLoading();
+		if(UserCommon.isError(res)){
+			notFramework.notCommon.report(res);
+		}else{
+			if(res.errors && Object.keys(res.errors).length > 0){
+				if (!Array.isArray(res.error)){
+					res.error = [];
+				}
+				Object.keys(res.errors).forEach((fieldName)=>{
+					ui.setFieldInvalid(fieldName, res.errors[fieldName]);
+					res.error.push(...res.errors[fieldName]);
+				});
+			}
+			if(res.error){
+				ui.setFormError(res.error);
+			}
+			if(!res.error ){
+				ui.showSuccess();
+			}
+		}
 	}
 
 

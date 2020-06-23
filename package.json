@@ -1,6 +1,6 @@
 {
 		"name": "not-user",
-		"version": "0.2.17",
+		"version": "0.2.18",
 		"description": "not-* family user model in not- environment",
 		"main": "index.js",
 		"scripts": {

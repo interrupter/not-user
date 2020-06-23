@@ -230,6 +230,17 @@ module.exports = {
 			}],
 			postFix: '/:actionName'
 		},
+		delete:{
+			method: 'delete',
+			rules:[{
+				auth: true,
+				admin: true
+			},{
+				auth: true,
+				role: 'admin'
+			}],
+			postFix: '/:actionName'
+		},
 		listAndCount:{
 			method: 'get',
 			rules:[{

@@ -18,7 +18,7 @@ exports.keepNotExtended = false;
 
 exports.enrich = {
 	versioning: true,
-	increment: true,
+	increment: false,
 	validators: true
 };
 
@@ -115,13 +115,19 @@ exports.thisSchema = {
 				if (val.length === 0) {
 					return false;
 				}
-				let all = true;
+				if (val.length > 6) {
+					return false;
+				}
+				let count = 0;
 				val.forEach((role) => {
-					if (!exports.DEFAULT_ROLES_LIST.includes(role)) {
-						all = false;
+					if (exports.DEFAULT_ROLES_LIST.includes(role)) {
+						count++;
 					}
 				});
-				return all;
+				if(count !== 1){
+					return false;
+				}
+				return true;
 			},
 			message: 'user_role_is_not_valid'
 		}]
