@@ -14,6 +14,7 @@ class ncProfile extends notFramework.notController {
 		this.els = {};
 		this.setModuleName('user');
 		this.buildFrame();
+		this.route();
 		return this;
 	}
 
@@ -57,7 +58,7 @@ class ncProfile extends notFramework.notController {
 					}
 				});
 				this.ui.update.$on('update', (ev) => {this.onUserUpdateFormSubmit(ev.detail);});
-				this.ui.update.$on('rejectForm', this.goList.bind(this));
+				this.ui.update.$on('rejectForm', ()=> UserCommon.goDashboard(this.app));
 			}else{
 				this.ui.error = new UserUIErrorMessage({
 					target: this.els.main,
@@ -74,11 +75,13 @@ class ncProfile extends notFramework.notController {
 	$destroyUI() {
 		for (let name in this.ui) {
 			this.ui[name].$destroy && this.ui[name].$destroy();
+			delete this.ui[name];
 		}
 	}
 
 	goProfile(){
-		this.app.getWorking('router').navigate('/profile');
+		this.$destroyUI();
+		this.route();
 	}
 
 	onUserUpdateFormSubmit(user){
@@ -88,8 +91,8 @@ class ncProfile extends notFramework.notController {
 			.then((res)=>{
 				this.log(res);
 				this.showResult(this.ui.update, res);
-				if(UserCommon.isError(res)){
-					setTimeout(() => UserCommon.goDashboard(this.app), 3000);
+				if(!UserCommon.isError(res) && !res.error){
+					setTimeout(() => this.goProfile(), 3000);
 				}
 			})
 			.catch((e)=>{

@@ -4,9 +4,12 @@ const ERROR_DEFAULT = 'Что пошло не так.';
 
 import notTable from '../common/notTable.js';
 import UserCommon from '../common/user.js';
+import UserUIBreadcrumbs from '../common/ui.breadcrumbs.svelte';
 import UserUIEdit from '../common/ui.edit.svelte';
 import UserUIDetails from '../common/ui.details.svelte';
 import UserUIErrorMessage from '../common/ui.error.svelte';
+
+const BREADCRUMBS = [{title: 'Пользователи', url: '/user'}];
 
 class ncUser extends notFramework.notController {
 	constructor(app, params) {
@@ -18,6 +21,22 @@ class ncUser extends notFramework.notController {
 		this.buildFrame();
 		this.route(params);
 		return this;
+	}
+
+	setBreadcrumbs(tail){
+		let crumbs = [].push(BREADCRUMBS, ...tail);
+		if(this.breadcrumbs){
+			this.breadcrumbs.$set({
+				items: crumbs
+			});
+		}else{
+			this.breadcrumbs = new UserUIBreadcrumbs({
+				target: this.els.top,
+				props:{
+					items: crumbs
+				}
+			});
+		}
 	}
 
 	buildFrame() {
@@ -63,6 +82,13 @@ class ncUser extends notFramework.notController {
 	}
 
 	runCreate(params) {
+		this.setBreadcrumbs([
+			{
+				title: 'Добавление нового',
+				url: '/user/create'
+			}
+		]);
+
 		if (this.ui.create) {
 			return;
 		} else {
@@ -80,6 +106,13 @@ class ncUser extends notFramework.notController {
 	}
 
 	runDetails(params) {
+		this.setBreadcrumbs([
+			{
+				title: 'Просмотр пользователя',
+				url: `/user/${params[0]}`
+			}
+		]);
+
 		if (this.ui.details) {
 			return;
 		} else {
@@ -107,6 +140,13 @@ class ncUser extends notFramework.notController {
 	}
 
 	runUpdate(params) {
+		this.setBreadcrumbs([
+			{
+				title: 'Редактирование данных',
+				url: `/user/${params[0]}/update`
+			}
+		]);
+
 		if (this.ui.update) {
 			return;
 		} else {
@@ -114,6 +154,13 @@ class ncUser extends notFramework.notController {
 		}
 		this.make.user({_id: params[0]}).$get().then((res)=>{
 			if(res.status === 'ok'){
+				this.setBreadcrumbs([
+					{
+						title: `Редактирование данных ${res.result.userId}#${res.result.username}`,
+						url: `/user/${params[0]}/update`
+					}
+				]);
+
 				this.ui.update = new UserUIEdit({
 					target: this.els.main,
 					props:{
@@ -137,6 +184,13 @@ class ncUser extends notFramework.notController {
 	}
 
 	runDelete(params){
+		this.setBreadcrumbs([
+			{
+				title: 'Удаление',
+				url: `/user/${params[0]}/delete`
+			}
+		]);
+
 		if (confirm('Удалить пользователя?')) {
 			this.make.user({_id: params[0]}).$delete()
 				.then(()=>{
@@ -152,6 +206,13 @@ class ncUser extends notFramework.notController {
 	}
 
 	runList(params) {
+		this.setBreadcrumbs([
+			{
+				title: 'Список',
+				url: `/user`
+			}
+		]);
+
 		if (this.ui.list) {
 			return;
 		} else {
@@ -227,6 +288,7 @@ class ncUser extends notFramework.notController {
 	$destroyUI() {
 		for (let name in this.ui) {
 			this.ui[name].$destroy && this.ui[name].$destroy();
+			delete this.ui[name];
 		}
 	}
 

@@ -394,7 +394,7 @@ exports.changePassword = (req, res) => {
 };
 
 exports.profile = (req, res) => {
-	notNode.Application.debug('user/profile');
+	notNode.Application.logger.debug('user/profile');
 	let targetId = req.user._id,
 		userId = req.user._id;
 	try {

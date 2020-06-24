@@ -4,11 +4,15 @@
 
 </script>
 
+
 <nav class="breadcrumb" aria-label="breadcrumbs">
   <ul>
-    <li><a href="#">Bulma</a></li>
-    <li><a href="#">Documentation</a></li>
-    <li><a href="#">Components</a></li>
-    <li class="is-active"><a href="#" aria-current="page">Breadcrumb</a></li>
+    {#each links as link, index}
+    {#if (links.length === (index+1)) }
+    <li class="is-active"><a href="{link.url}" aria-current="page">{link.title}</a></li>
+    {:else }
+    <li><a href="{link.url}">{link.title}</a></li>
+    {/if}
+    {/each}
   </ul>
 </nav>
