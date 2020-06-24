@@ -17,10 +17,7 @@ let manifest = {
 	},
 	menu:[{
 		title: 	'Пользователи',
-		items:[{
-			title: 'Список',
-			url: '/user'
-		}]
+		url: 		'/user'
 	}],
 	templates: {},
 	paths: {}

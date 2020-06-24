@@ -470,7 +470,7 @@ exports.update = async (req, res) => {
 			}
 		}
 		//rights is ok
-		await user.Update(req.user.role);
+		await thisModel.Update(req.body, req.user.role, userId);
 		//if no errors
 		return res.status(200).json({
 			status: 'ok'
@@ -672,7 +672,7 @@ exports._update = async (req, res) => {
 				error: notLocale.say('user_not_found')
 			});
 		}
-		await user.Update(req.user.role);
+		await thisModel.Update(req.body, req.user.role, userId);
 		return res.status(200).json({
 			status: 'ok'
 		});

@@ -269,8 +269,8 @@ class ncUser extends notFramework.notController {
 			.then((res)=>{
 				this.log(res);
 				this.showResult(this.ui.create, res);
-				if(UserCommon.isError(res)){
-					setTimeout(() => UserCommon.goDashboard(this.app), 3000);
+				if(!UserCommon.isError(res) && !res.error){
+					setTimeout(() => this.goList(this.app), 3000);
 				}
 			})
 			.catch((e)=>{
@@ -283,10 +283,9 @@ class ncUser extends notFramework.notController {
 		this.ui.update.setLoading();
 		this.make.user(user).$update()
 			.then((res)=>{
-				this.log(res);
 				this.showResult(this.ui.update, res);
-				if(UserCommon.isError(res)){
-					setTimeout(() => UserCommon.goDashboard(this.app), 3000);
+				if(!UserCommon.isError(res) && !res.error){
+					setTimeout(() => this.goList(this.app), 3000);
 				}
 			})
 			.catch((e)=>{

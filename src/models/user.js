@@ -311,13 +311,14 @@ exports.thisStatics = {
 			});
 	},
 
-	Update(data, roles, system = false) {
+	Update(data, roles, actorId, system = false) {
 		if (!Object.prototype.hasOwnProperty.call(data, '_id')) {
-			throw new Error('No user _id');
+			throw new Error('No data _id');
 		}
-		let safeData = this.extractSafeFields('update', data, roles, system);
+		let safeData = this.extractSafeFields('update', data, roles, actorId, system);
 		//может быть пусто, то гда не тратим время
 		if(Object.keys(safeData).length === 0) throw new notError(notLocale.say('insufficient_level_of_privilegies'));
+		console.log('safeData',safeData);
 		if (exports.enrich.versioning) {
 			return this.findOneAndUpdate({
 				_id: data._id,
@@ -344,8 +345,8 @@ exports.thisStatics = {
 		}
 	},
 
-	extractSafeFields(action, data, roles, system = false) {
-		let fields = this.getSafeFieldsForRoleAction(action, roles, this.isOwner(data), system);
+	extractSafeFields(action, data, roles, actorId, system = false) {
+		let fields = this.getSafeFieldsForRoleAction(action, roles, this.isOwner(data, actorId), system);
 		let result = {};
 		fields.forEach((field) => {
 			if (Object.prototype.hasOwnProperty.call(data, field)) {
@@ -384,6 +385,9 @@ exports.thisStatics = {
 		return fields;
 	},
 	isOwner(data, user_id) {
+		if(typeof user_id==='undefined' || user_id === 0){
+			return false;
+		}
 		return (Object.prototype.hasOwnProperty.call(data, '_id') && data._id.toString() === user_id.toString());
 	}
 };
@@ -468,8 +472,8 @@ exports.thisMethods = {
 		this.registerAs('confirmed');
 		return this;
 	},
-	Update(roles, system = false) {
-		return exports[exports.thisModelName].Update(this.toObject(), roles, system);
+	Update(roles, actorId, system = false) {
+		return exports[exports.thisModelName].Update(this.toObject(), roles, actorId, system);
 	},
 	isOwner(user_id) {
 		return exports[exports.thisModelName].isOwner(this.toObject(), user_id);
