@@ -1,6 +1,5 @@
-import ncLogout from './ncLogout';
-import ncProfile from './ncProfile';
-
+import ncLogout from '../common/ncLogout';
+import ncProfile from '../common/ncProfile';
 
 let manifest = {
 	router: {

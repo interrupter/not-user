@@ -1,20 +1,20 @@
 /* global notFramework */
 
 class ncLogout extends notFramework.notController {
-	constructor(app, params) {
+	constructor(app) {
 		//notFramework.notCommon.log('init site app ', redirect, 'login');
 		super(app);
-		this.setModuleName('user/logout');
-		if(confirm('Хотите выйти?')){
+		this.setModuleName('user');
+		if (confirm('Хотите выйти?')) {
 			this.make.user({}).$logout()
-				.then((result)=>{
+				.then(() => {
 					document.location.href = '/login';
 				})
-				.catch((err)=>{
+				.catch((err) => {
 					notFramework.notCommon.report(err);
 				});
-		}else{
-			 window.history.back();
+		} else {
+			window.history.back();
 		}
 		return this;
 	}

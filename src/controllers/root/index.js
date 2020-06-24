@@ -1,6 +1,7 @@
 import 'bulma';
 import ncUser from './ncUser.js';
-import ncLogout from './ncLogout';
+import ncLogout from '../common/ncLogout';
+import ncProfile from '../common/ncProfile';
 
 let manifest = {
 	router: {
@@ -12,10 +13,17 @@ let manifest = {
 			{
 				paths: ['user\/([^\/]+)\/([^\/]+)', 'user\/([^\/]+)', 'user'],
 				controller: ncUser
+			},
+			{
+				paths: ['profie'],
+				controller: ncProfile
 			}
 		]
 	},
 	menu:[{
+		title: 	'Аккаунт',
+		url: 		'/profile'
+	},{
 		title: 	'Пользователи',
 		url: 		'/user'
 	}],
