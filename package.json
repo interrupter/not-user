@@ -1,6 +1,6 @@
 {
 		"name": "not-user",
-		"version": "0.2.18",
+		"version": "0.2.19",
 		"description": "not-* family user model in not- environment",
 		"main": "index.js",
 		"scripts": {
@@ -16,8 +16,8 @@
 				"cypress:open": "NODE_ENV=test TEST_TYPE=open node ./test/cypress.env.js",
 				"test:open": "_ENV_NODE_='liquid' ./node_modules/.bin/mocha --reporter spec ./test/node  --exit && npm run cypress:open",
 				"test:run": "_ENV_NODE_='liquid' ./node_modules/.bin/mocha --reporter spec ./test/node  --exit && npm run cypress:run",
-				"pretest": "./node_modules/.bin/eslint ./src/**/**.js",
-				"lint": "./node_modules/.bin/eslint ./src/**/**/**.js --fix",
+				"pretest": "./node_modules/.bin/eslint ./src/**.js",
+				"lint": "./node_modules/.bin/eslint ./src --fix",
 				"docs": "./node_modules/.bin/jsdoc -c jsdoc.json",
 				"cover": "nyc npm test",
 				"test:server": "node ./test/server/index.js"

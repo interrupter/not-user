@@ -4899,12 +4899,12 @@ var notUser = (function (exports) {
 						errors.push('Необходимо указать список ролей');
 						break;
 					}
-					if(!validator.isLength(value, { min: 1, max: 6})){
-						errors.push('Необходимо добавить хотя бы одну роль');
+					if(!((value.length>=1) && (value.length<=6))){
+						errors.push('Необходимо добавить хотя бы одну роль (6 max)');
 					}
 					let baseRolesCount = 0;
 					value.forEach((role) => {
-						if(['admin', 'client', 'user'].indexOf(role) > -1 ){
+						if(['admin', 'client', 'user', 'root'].indexOf(role) > -1 ){
 							baseRolesCount++;
 						}
 					});
@@ -7429,7 +7429,7 @@ var notUser = (function (exports) {
 		constructor(app, params) {
 			notFramework.notCommon.log('init site app ', params, 'login');
 			super(app);
-			this.setModuleName('user/login');
+			this.setModuleName('user');
 			this.buildPage();
 			return this;
 		}
@@ -8392,7 +8392,7 @@ var notUser = (function (exports) {
 		let p_class_value;
 		let mounted;
 		let dispose;
-		let if_block0 = /*email*/ ctx[4].validated === true && create_if_block_15$1(ctx);
+		let if_block0 = /*username*/ ctx[0].validated === true && create_if_block_15$1(ctx);
 
 		function select_block_type_6(ctx, dirty) {
 			if (!(/*username*/ ctx[0].validated && /*username*/ ctx[0].valid)) return create_if_block_14$1;
@@ -8483,7 +8483,7 @@ var notUser = (function (exports) {
 					set_input_value(input, /*username*/ ctx[0].value);
 				}
 
-				if (/*email*/ ctx[4].validated === true) {
+				if (/*username*/ ctx[0].validated === true) {
 					if (if_block0) {
 						if_block0.p(ctx, dirty);
 					} else {
@@ -8522,7 +8522,7 @@ var notUser = (function (exports) {
 		};
 	}
 
-	// (313:6) {#if email.validated === true }
+	// (313:6) {#if username.validated === true }
 	function create_if_block_15$1(ctx) {
 		let span;
 
@@ -9802,7 +9802,7 @@ var notUser = (function (exports) {
 		constructor(app, params) {
 			notFramework.notCommon.log('init site app ', params, 'register');
 			super(app);
-			this.setModuleName('user/register');
+			this.setModuleName('user');
 			this.buildPage();
 			return this;
 		}
@@ -9882,7 +9882,7 @@ var notUser = (function (exports) {
 		constructor(app, params) {
 			//notFramework.notCommon.log('init site app ', redirect, 'login');
 			super(app);
-			this.setModuleName('user/restore');
+			this.setModuleName('user');
 			this.viewsPrefix = '/client/modules/main/';
 			this.commonViewsPrefix = this.app.getOptions().commonPath;
 			this.viewsPostfix = '.html';

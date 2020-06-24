@@ -2,12 +2,11 @@
 
 const ERROR_DEFAULT = 'Что пошло не так.';
 
-import notTable from './notTable.js';
-import UserCommon from '../user.js';
-import UserUICreate from './ui.create.svelte';
-import UserUIUpdate from './ui.update.svelte';
-import UserUIDetails from './ui.details.svelte';
-import UserUIErrorMessage from './ui.error.svelte';
+import notTable from '../common/notTable.js';
+import UserCommon from '../common/user.js';
+import UserUIEdit from '../common/ui.edit.svelte';
+import UserUIDetails from '../common/ui.details.svelte';
+import UserUIErrorMessage from '../common/ui.error.svelte';
 
 class ncUser extends notFramework.notController {
 	constructor(app, params) {
@@ -69,14 +68,14 @@ class ncUser extends notFramework.notController {
 		} else {
 			this.$destroyUI();
 		}
-		this.ui.create = new UserUICreate({
+		this.ui.create = new UserUIEdit({
 			target: this.els.main,
 			props:{
 				country: {enabled: false},
 				user: this.createDefaultUser()
 			}
 		});
-		this.ui.create.$on('create', (ev) => this.onUserCreateFormSubmit(ev.detail));
+		this.ui.create.$on('create', (ev) => {this.onUserCreateFormSubmit(ev.detail);});
 		this.ui.create.$on('rejectForm', this.goList.bind(this));
 	}
 
@@ -91,7 +90,7 @@ class ncUser extends notFramework.notController {
 				this.ui.details = new UserUIDetails({
 					target: this.els.main,
 					props:{
-						user: res.result
+						user: notFramework.notCommon.stripProxy(res.result)
 					}
 				});
 			}else{
@@ -115,12 +114,15 @@ class ncUser extends notFramework.notController {
 		}
 		this.make.user({_id: params[0]}).$get().then((res)=>{
 			if(res.status === 'ok'){
-				this.ui.update = new UserUIUpdate({
+				this.ui.update = new UserUIEdit({
 					target: this.els.main,
 					props:{
-						user: res.result
+						mode: 			'update',
+						user: 			notFramework.notCommon.stripProxy(res.result)
 					}
 				});
+				this.ui.update.$on('update', (ev) => {this.onUserUpdateFormSubmit(ev.detail);});
+				this.ui.update.$on('rejectForm', this.goList.bind(this));
 			}else{
 				this.ui.error = new UserUIErrorMessage({
 					target: this.els.main,
@@ -169,6 +171,11 @@ class ncUser extends notFramework.notController {
 					action: this.goCreate.bind(this)
 				}],
 				fields: [{
+					path: ':userID',
+					title: 'ID',
+					searchable: true,
+					sortable: true
+				},{
 					path: ':username',
 					title: 'Username',
 					searchable: true,
@@ -244,7 +251,7 @@ class ncUser extends notFramework.notController {
 	}
 
 	createDefaultUser(){
-		return this.make.user({
+		return {
 			username: 	'',
 			email: 			'',
 			telephone: 	'',
@@ -252,7 +259,7 @@ class ncUser extends notFramework.notController {
 			active: 		true,
 			country:		'ru',
 			role: 			['user']
-		});
+		};
 	}
 
 	onUserCreateFormSubmit(user){
@@ -268,6 +275,22 @@ class ncUser extends notFramework.notController {
 			})
 			.catch((e)=>{
 				this.showResult(this.ui.create, e);
+			});
+	}
+
+	onUserUpdateFormSubmit(user){
+		user.country = 'ru';
+		this.ui.update.setLoading();
+		this.make.user(user).$update()
+			.then((res)=>{
+				this.log(res);
+				this.showResult(this.ui.update, res);
+				if(UserCommon.isError(res)){
+					setTimeout(() => UserCommon.goDashboard(this.app), 3000);
+				}
+			})
+			.catch((e)=>{
+				this.showResult(this.ui.update, e);
 			});
 	}
 

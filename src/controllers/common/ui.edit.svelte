@@ -4,10 +4,9 @@
 
 
 	import UITag from './ui.tag.svelte';
-	import UserCommon from '../user.js';
+	import UserCommon from './user.js';
 	const CLASS_ERR = UserCommon.CLASS_ERR;
 	const CLASS_OK = UserCommon.CLASS_OK;
-
 
 	let overlay;
 	let stage = 'filling';
@@ -30,8 +29,8 @@
 	export const  MODES = ['create', 'update'];
 
 	export const  MODES_FIELDS = {
-		'create': ['username', 'email', 'tel', 'password', 'password2', 'active', 'country', 'role'],
-		'update': ['tel', 'password', 'password2', 'active', 'country', 'role'],
+		'create': ['username', 'email', 'tel', 'password', 'password2', 'active', 'role'],
+		'update': ['active', 'role'],
 	};
 
 	export const SUCCESS_TEXT = {
@@ -113,21 +112,29 @@
 		for(let t in user){
 			if(t === 'role'){
 				initUserRoles(user.role);
+			}else if(Object.prototype.hasOwnProperty.call(fields, t)){
+				fields[t].value = user[t];
 			}
 		}
+		for(let t in fields){
+			if (MODES_FIELDS[mode].indexOf(t) === -1){
+				fields[t].enabled = false;
+			}
+		}
+		fields = fields;
 	});
 
 	function collectData(){
-		return {
-			tel: 				tel.enabled?			tel.value 			:undefined,
-			username: 	username.enabled?	username.value 	:undefined,
-			email: 			email.enabled?		email.value 		:undefined,
-			password: 	password.enabled?	password.value 	:undefined,
-			password2: 	password2.enabled?password2.value :undefined,
-			country: 		country.enabled?	country.value		:undefined,
-			active: 		active.enabled?		active.value		:undefined,
-			role: 			role.enabled?			role.value			:undefined,
-		};
+		let result = {};
+		MODES_FIELDS[mode].forEach((fieldname)=>{
+			if(Object.prototype.hasOwnProperty.call(fields, fieldname) && fields[fieldname].enabled){
+				result[fieldname]	 = fields[fieldname].value;
+			}
+		});
+		if (mode==='update'){
+			result._id = user._id;
+		}
+		return result;
 	}
 
 	function onChange(ev){
@@ -287,22 +294,22 @@
 </div>
 {:else}
 {#if title.__enabled}
-<h5 class="title">{title[mode]}</h5>
+<h5 class="title">{title[mode]} {#if mode==='update'}{user.userID}#{user.username}{/if}</h5>
 {/if}
 {#if description.__enabled}
 <h6 class="subtitle is-6">{description[mode]}</h6>
 {/if}
 <div class="container">
-	{#if username.enabled}
+	{#if fields.username.enabled}
 	<div class="field user-form-field user-login-form-username">
-		<label class="label">{username.label}</label>
+		<label class="label">{fields.username.label}</label>
 		<div class="control has-icons-left has-icons-right">
-			<input class="input {usernameClasses}" type="text" name="username" invalid="{validationErrors.username}" required={username.required} placeholder="{username.placeholder}" bind:value={username.value} on:change={onChange} on:input={onInput} autocomplete="username"
+			<input class="input {usernameClasses}" type="text" name="username" invalid="{validationErrors.username}" required={fields.username.required} placeholder="{fields.username.placeholder}" bind:value={fields.username.value} on:change={onChange} on:input={onInput} autocomplete="username"
 				aria-controls="input-field-helper-username" aria-describedby="input-field-helper-username" />
 			<span class="icon is-small is-left"><i class="fas fa-user"></i></span>
-			{#if email.validated === true }
+			{#if fields.username.validated === true }
 			<span class="icon is-small is-right">
-				{#if username.valid}
+				{#if fields.username.valid}
 				<i class="fas fa-check"></i>
 				{:else}
 				<i class="fas fa-exclamation-triangle"></i>
@@ -311,21 +318,21 @@
 			{/if}
 		</div>
 		<p class="help {usernameClasses}" id="input-field-helper-username">
-			{#if !(username.validated && username.valid) }{usernameHelper}{:else}&nbsp;{/if}
+			{#if !(fields.username.validated && fields.username.valid) }{usernameHelper}{:else}&nbsp;{/if}
 		</p>
 	</div>
 	{/if}
 
-	{#if email.enabled}
+	{#if fields.email.enabled}
 	<div class="user-form-field user-login-form-email field">
-		<label class="label">{email.label}</label>
+		<label class="label">{fields.email.label}</label>
 		<div class="control has-icons-left has-icons-right">
-			<input class="input {emailClasses}" bind:value={email.value} required={email.required} placeholder="{email.placeholder}" invalid="{validationErrors.email}" on:change={onChange} on:input={onInput} name="email" type="email" autocomplete="email"
+			<input class="input {emailClasses}" bind:value={fields.email.value} required={fields.email.required} placeholder="{fields.email.placeholder}" invalid="{validationErrors.email}" on:change={onChange} on:input={onInput} name="email" type="email" autocomplete="email"
 				aria-controls="input-field-helper-email" aria-describedby="input-field-helper-email" />
 			<span class="icon is-small is-left"><i class="fas fa-envelope"></i></span>
-			{#if email.validated === true }
+			{#if fields.email.validated === true }
 			<span class="icon is-small is-right">
-					{#if email.valid}
+					{#if fields.email.valid}
 					<i class="fas fa-check"></i>
 					{:else}
 					<i class="fas fa-exclamation-triangle"></i>
@@ -335,23 +342,29 @@
 		</div>
 
 		<p class="help {emailClasses}" id="input-field-helper-email">
-			{#if !(email.validated && email.valid) }
+			{#if !(fields.email.validated && fields.email.valid) }
 			{emailHelper}
 			{:else}&nbsp;{/if}
 		</p>
 	</div>
 	{/if}
 
-	{#if password.enabled}
+	{#if fields.password.enabled}
 	<div class="field user-form-field user-login-form-password">
-		<label class="label">{password.label}</label>
+		<label class="label">{fields.password.label}</label>
 		<div class="control has-icons-left has-icons-right">
-			<input class="input {passwordClasses}" type="password" name="password" invalid="{validationErrors.password}" required={password.required} placeholder="{password.placeholder}" bind:value={password.value} on:change={onChange} on:input={onInput}
-				autocomplete="password" aria-controls="input-field-helper-password" aria-describedby="input-field-helper-password" />
+			<input class="input {passwordClasses}" type="password" name="password"
+				invalid="{validationErrors.password}"
+				required={fields.password.required}
+				placeholder="{fields.password.placeholder}"
+				bind:value={fields.password.value}
+				on:change={onChange} on:input={onInput}
+				autocomplete="password" aria-controls="input-field-helper-password" aria-describedby="input-field-helper-password"
+				/>
 			<span class="icon is-small is-left"><i class="fas fa-lock"></i></span>
-			{#if password.validated === true }
+			{#if fields.password.validated === true }
 			<span class="icon is-small is-right">
-				{#if password.valid}
+				{#if fields.password.valid}
 				<i class="fas fa-check"></i>
 				{:else}
 				<i class="fas fa-exclamation-triangle"></i>
@@ -360,21 +373,24 @@
 			{/if}
 		</div>
 		<p class="help {passwordClasses}" id="input-field-helper-password">
-			{#if !(password.validated && password.valid) }{passwordHelper}{:else}&nbsp;{/if}
+			{#if !(fields.password.validated && fields.password.valid) }{passwordHelper}{:else}&nbsp;{/if}
 		</p>
 	</div>
 	{/if}
 
-	{#if password2.enabled}
+	{#if fields.password2.enabled}
 	<div class="field user-form-field user-login-form-password2">
-		<label class="label">{password2.label}</label>
+		<label class="label">{fields.password2.label}</label>
 		<div class="control has-icons-left has-icons-right">
-			<input class="input {password2Classes}" type="password" name="password2" invalid="{validationErrors.password2}" required={password2.required} placeholder="{password2.placeholder}" bind:value={password2.value} on:change={onChange} on:input={onInput}
-				autocomplete="password2" aria-controls="input-field-helper-password2" aria-describedby="input-field-helper-password2" />
+			<input class="input {password2Classes}" type="password" name="password2" invalid="{validationErrors.password2}"
+			required={fields.password2.required} placeholder="{fields.password2.placeholder}"
+			bind:value={fields.password2.value} on:change={onChange} on:input={onInput}
+				autocomplete="password2" aria-controls="input-field-helper-password2" aria-describedby="input-field-helper-password2"
+				/>
 			<span class="icon is-small is-left"><i class="fas fa-lock"></i></span>
-			{#if password2.validated === true }
+			{#if fields.password2.validated === true }
 			<span class="icon is-small is-right">
-				{#if password2.valid}
+				{#if fields.password2.valid}
 				<i class="fas fa-check"></i>
 				{:else}
 				<i class="fas fa-exclamation-triangle"></i>
@@ -383,27 +399,27 @@
 			{/if}
 		</div>
 		<p class="help {password2Classes}" id="input-field-helper-password2">
-			{#if !(password2.validated && password2.valid) }
+			{#if !(fields.password2.validated && fields.password2.valid) }
 			{password2Helper}
 			{:else}&nbsp;{/if}
 		</p>
 	</div>
 	{/if}
 
-	{#if tel.enabled}
+	{#if fields.tel.enabled}
 	<div class="field user-form-field user-login-form-tel">
-		<label class="label">{tel.label}</label>
+		<label class="label">{fields.tel.label}</label>
 		<div class="control has-icons-left has-icons-right">
 			<input class="input {telClasses}"
 				type="tel" name="tel" invalid="{validationErrors.tel}"
-				required={tel.required} placeholder="{tel.placeholder}"
-				bind:value={tel.value} on:change={onChange} on:input={onInput}
+				required={fields.tel.required} placeholder="{fields.tel.placeholder}"
+				bind:value={fields.tel.value} on:change={onChange} on:input={onInput}
 				autocomplete="tel" aria-controls="input-field-helper-tel"
 				aria-describedby="input-field-helper-tel" />
 			<span class="icon is-small is-left"><i class="fas fa-phone"></i></span>
-			{#if tel.validated === true }
+			{#if fields.tel.validated === true }
 			<span class="icon is-small is-right">
-				{#if tel.valid}
+				{#if fields.tel.valid}
 				<i class="fas fa-check"></i>
 				{:else}
 				<i class="fas fa-exclamation-triangle"></i>
@@ -412,7 +428,7 @@
 			{/if}
 		</div>
 		<p class="help {telClasses}" id="input-field-helper-tel">
-			{#if (!tel.validated || !tel.valid) }
+			{#if (!fields.tel.validated || !fields.tel.valid) }
 				{telHelper}
 			{:else}&nbsp;{/if}
 		</p>
@@ -422,36 +438,36 @@
 	<div class="user-form-error notification is-danger">{errorMessage}</div>
 	{/if}
 
-	{#if active.enabled}
+	{#if fields.active.enabled}
 	<div class="user-form-field user-login-form-active field">
 			<input
 				id="user-login-form-active-field"
 				class="switch is-rounded is-success "
-				bind:checked={active.value}
-				required={active.required}
-				placeholder="{active.placeholder}"
+				bind:checked={fields.active.value}
+				required={fields.active.required}
+				placeholder="{fields.active.placeholder}"
 				invalid="{validationErrors.active}" on:change={onChange} on:input={onInput}
 				name="active" type="checkbox"
 				aria-controls="input-field-helper-active" aria-describedby="input-field-helper-active"
 				/>
-		<label class="label" for="user-login-form-active-field">{active.label}</label>
+		<label class="label" for="user-login-form-active-field">{fields.active.label}</label>
 		<p class="help {activeClasses}" id="input-field-helper-active">
-			{#if !(active.validated && active.valid) }
+			{#if !(fields.active.validated && fields.active.valid) }
 			{activeHelper}
 			{:else}&nbsp;{/if}
 		</p>
 	</div>
 	{/if}
 
-	{#if role.enabled}
+	{#if fields.role.enabled}
 	<div class="user-form-field user-login-form-role field">
-		<label class="label">{role.label}</label>
+		<label class="label">{fields.role.label}</label>
 		<div class="control {roleClasses}">
 			<UITag variants={UserCommon.ROLES} bind:error={roleInvalid} on:change={onRoleChange} bind:items={userRoles} />
 		</div>
 
 		<p class="help {roleClasses}" id="input-field-helper-role">
-			{#if !(role.validated && role.valid) }
+			{#if !(fields.role.validated && fields.role.valid) }
 			{roleHelper}
 			{:else}&nbsp;{/if}
 		</p>

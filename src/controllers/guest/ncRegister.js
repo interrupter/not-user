@@ -1,6 +1,6 @@
 /* global notFramework */
 
-import UserCommon from '../user.js';
+import UserCommon from '../common/user.js';
 import RegisterComponent from './register.svelte';
 
 
@@ -8,7 +8,7 @@ class ncRegister extends notFramework.notController {
 	constructor(app, params) {
 		notFramework.notCommon.log('init site app ', params, 'register');
 		super(app);
-		this.setModuleName('user/register');
+		this.setModuleName('user');
 		this.buildPage();
 		return this;
 	}

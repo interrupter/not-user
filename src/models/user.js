@@ -1,6 +1,7 @@
 const crypto = require('crypto'),
 	notError = require('not-error').notError,
 	notLocale = require('not-locale'),
+	Auth = require('not-node').Auth,
 	generator = require('generate-password'),
 	Schema = require('mongoose').Schema,
 	validator = require('validator');
@@ -18,7 +19,7 @@ exports.keepNotExtended = false;
 
 exports.enrich = {
 	versioning: true,
-	increment: false,
+	increment: true,
 	validators: true
 };
 
@@ -37,7 +38,10 @@ exports.thisSchema = {
 				return !validator.isEmail(val);
 			},
 			message: 'username_cant_be_email'
-		}]
+		}],
+		safe: {
+			read: '*'
+		}
 	},
 	email: {
 		type: String,
@@ -47,7 +51,11 @@ exports.thisSchema = {
 		validate: [{
 			validator: 'isEmail',
 			message: 'email_is_not_valid'
-		}]
+		}],
+		safe: {
+			update: ['@owner', 'root', 'admin'],
+			read: ['@owner', 'root', 'admin']
+		}
 	},
 	emailConfirmed: {
 		type: Boolean,
@@ -59,7 +67,11 @@ exports.thisSchema = {
 				return (val === true) || (val === false);
 			},
 			message: 'active_state_value_is_not_valid'
-		}]
+		}],
+		safe: {
+			update: ['@owner', 'root', 'admin'],
+			read: ['@owner', 'root', 'admin']
+		}
 	},
 	telephone: {
 		type: String,
@@ -71,7 +83,11 @@ exports.thisSchema = {
 				return /\+\d{1}-\d{3}-\d{3}-\d{4}/.test(val);
 			},
 			message: 'telephone_value_is_not_valid'
-		}]
+		}],
+		safe: {
+			update: ['@owner', 'root', 'admin'],
+			read: ['@owner', 'root', 'admin']
+		}
 	},
 	telephoneConfirmed: {
 		type: Boolean,
@@ -83,7 +99,11 @@ exports.thisSchema = {
 				return (val === true) || (val === false);
 			},
 			message: 'active_state_value_is_not_valid'
-		}]
+		}],
+		safe: {
+			update: ['@owner', 'root', 'admin'],
+			read: ['@owner', 'root', 'admin']
+		}
 	},
 	//хэш пароля
 	hashedPassword: {
@@ -103,7 +123,11 @@ exports.thisSchema = {
 	//дата создания
 	created: {
 		type: Date,
-		default: Date.now
+		default: Date.now,
+		safe: {
+			update: '*',
+			read: '*'
+		}
 	},
 	role: {
 		type: [String],
@@ -124,13 +148,17 @@ exports.thisSchema = {
 						count++;
 					}
 				});
-				if(count !== 1){
+				if (count !== 1) {
 					return false;
 				}
 				return true;
 			},
 			message: 'user_role_is_not_valid'
-		}]
+		}],
+		safe: {
+			update: ['root', 'admin'],
+			read: ['@owner', 'root', 'admin']
+		}
 	},
 	//статус пользователя, активен или нет
 	active: {
@@ -143,7 +171,11 @@ exports.thisSchema = {
 				return (val === true) || (val === false);
 			},
 			message: 'active_state_value_is_not_valid'
-		}]
+		}],
+		safe: {
+			update: ['@system', 'root', 'admin'],
+			read: ['@owner', 'root', 'admin']
+		}
 	},
 	ip: {
 		type: String,
@@ -151,7 +183,11 @@ exports.thisSchema = {
 		validate: [{
 			validator: 'isIP',
 			message: 'ip_address_is_not_valid'
-		}]
+		}],
+		safe: {
+			update: ['@system'],
+			read: ['@owner', 'root', 'admin']
+		}
 	},
 	country: {
 		type: String,
@@ -163,12 +199,19 @@ exports.thisSchema = {
 				return val === 'ru';
 			},
 			message: 'selected_user_language_is_not_valid'
-		}]
+		}],
+		safe: {
+			update: ['@system', '@owner', 'root', 'admin'],
+			read: '*'
+		}
 	},
-	counfirm: {
+	confirm: {
 		type: Schema.Types.Mixed,
 		required: false,
-		searchable: true
+		searchable: true,
+		safe: {
+			update: ['@system', 'root', 'admin']
+		}
 	}
 };
 
@@ -223,12 +266,12 @@ exports.thisStatics = {
 				});
 		});
 	},
-	clearFromUnsafe: function(user) {
+	clearFromUnsafe: function(data) {
 		var unsafeList = ['hashedPassword', 'salt'];
 		for (let i of unsafeList) {
-			delete user[i];
+			delete data[i];
 		}
-		return user;
+		return data;
 	},
 	fieldValueExists: function(key, val) {
 		return this.findOne({
@@ -266,6 +309,82 @@ exports.thisStatics = {
 			.catch((err) => {
 				throw new notError(notLocale.say('user_uniqueness_verification_error')).adopt(err);
 			});
+	},
+
+	Update(data, roles, system = false) {
+		if (!Object.prototype.hasOwnProperty.call(data, '_id')) {
+			throw new Error('No user _id');
+		}
+		let safeData = this.extractSafeFields('update', data, roles, system);
+		//может быть пусто, то гда не тратим время
+		if(Object.keys(safeData).length === 0) throw new notError(notLocale.say('insufficient_level_of_privilegies'));
+		if (exports.enrich.versioning) {
+			return this.findOneAndUpdate({
+				_id: data._id,
+				__latest: true
+			},
+			safeData, {
+				new: true
+			}
+			).exec()
+				.then(async(item) => {
+					if (typeof item !== 'undefined' && item !== null) {
+						await this.saveVersion(item._id);
+						return item;
+					} else {
+						throw new notError('-version not saved, empty response', { _id: data._id, safeData });
+					}
+				});
+		} else {
+			return this.findOneAndUpdate({
+				_id: data._id
+			}, safeData, {
+				new: true
+			}).exec();
+		}
+	},
+
+	extractSafeFields(action, data, roles, system = false) {
+		let fields = this.getSafeFieldsForRoleAction(action, roles, this.isOwner(data), system);
+		let result = {};
+		fields.forEach((field) => {
+			if (Object.prototype.hasOwnProperty.call(data, field)) {
+				result[field] = data[field];
+			}
+		});
+		return result;
+	},
+	getSafeFieldsForRoleAction(action, roles, owner, system) {
+		let fields = [];
+		let special = [];
+		if (owner) {
+			special.push('@owner');
+		}
+		if (system) {
+			special.push('@system');
+		}
+		for (let t in exports.thisSchema) {
+			let field = exports.thisSchema[t];
+			if (Object.prototype.hasOwnProperty.call(field, 'safe')) {
+				if (Object.prototype.hasOwnProperty.call(field.safe, action)) {
+					if (field.safe[action] === '*') {
+						fields.push(t);
+					} else if (Array.isArray(field.safe[action])) {
+						if ( //если роли пользователя в списке
+							Auth.intersect_safe(roles, field.safe[action]) ||
+              //или он в спец группе (владелец, система)
+              Auth.intersect_safe(special, field.safe[action])
+						) {
+							fields.push(t);
+						}
+					}
+				}
+			}
+		}
+		return fields;
+	},
+	isOwner(data, user_id) {
+		return (Object.prototype.hasOwnProperty.call(data, '_id') && data._id.toString() === user_id.toString());
 	}
 };
 
@@ -348,5 +467,11 @@ exports.thisMethods = {
 		this.confirm = '';
 		this.registerAs('confirmed');
 		return this;
+	},
+	Update(roles, system = false) {
+		return exports[exports.thisModelName].Update(this.toObject(), roles, system);
+	},
+	isOwner(user_id) {
+		return exports[exports.thisModelName].isOwner(this.toObject(), user_id);
 	}
 };

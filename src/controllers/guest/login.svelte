@@ -1,5 +1,5 @@
 <script>
-	import UserCommon from '../user.js';
+	import UserCommon from '../common/user.js';
 	const CLASS_ERR = UserCommon.CLASS_ERR;
 	const CLASS_OK = UserCommon.CLASS_OK;
 

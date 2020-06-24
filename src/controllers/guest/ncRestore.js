@@ -4,7 +4,7 @@ class ncRestore extends notFramework.notController {
 	constructor(app, params) {
 		//notFramework.notCommon.log('init site app ', redirect, 'login');
 		super(app);
-		this.setModuleName('user/restore');
+		this.setModuleName('user');
 		this.viewsPrefix = '/client/modules/main/';
 		this.commonViewsPrefix = this.app.getOptions().commonPath;
 		this.viewsPostfix = '.html';

@@ -1,6 +1,5 @@
 <script>
   import * as TableStores from './notTable.stores.js';
-
   import TableLinks from './notTable.ui.links.svelte';
   import TableButtons from './notTable.ui.buttons.svelte';
   import TableImages from './notTable.ui.images.svelte';

@@ -177,9 +177,16 @@ module.exports = {
 		update:{
 			method: 'post',
 			rules:[{
+				auth: true,
+				admin: true
+			},{
+				auth: true,
+				role: ['admin']
+			},{
 				auth: true
 			}],
-			postFix: '/:actionName'
+			data: ['record'],
+			postFix: '/:record[_id]/:actionName'
 		},
 		status:{
 			method: 'get',
@@ -228,8 +235,10 @@ module.exports = {
 				auth: true,
 				role: 'admin'
 			}],
+			data: ['record'],
 			postFix: '/:actionName'
 		},
+
 		delete:{
 			method: 'delete',
 			rules:[{
@@ -239,7 +248,8 @@ module.exports = {
 				auth: true,
 				role: 'admin'
 			}],
-			postFix: '/:actionName'
+			data: ['record'],
+			postFix: '/:record[_id]/:actionName'
 		},
 		listAndCount:{
 			method: 'get',

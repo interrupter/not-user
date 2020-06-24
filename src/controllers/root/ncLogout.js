@@ -4,7 +4,7 @@ class ncLogout extends notFramework.notController {
 	constructor(app, params) {
 		//notFramework.notCommon.log('init site app ', redirect, 'login');
 		super(app);
-		this.setModuleName('user/logout');
+		this.setModuleName('user');
 		if(confirm('Хотите выйти?')){
 			this.make.user({}).$logout()
 				.then((result)=>{

@@ -1,5 +1,5 @@
 <script>
-	import UserCommon from '../user.js';
+	import UserCommon from '../common/user.js';
 	const CLASS_ERR = UserCommon.CLASS_ERR;
 	const CLASS_OK = UserCommon.CLASS_OK;
 
@@ -310,7 +310,7 @@
 						<input class="input {usernameClasses}" type="text" name="username" invalid="{validationErrors.username}" required={username.required} placeholder="{username.placeholder}" bind:value={username.value} on:change={onChange} on:input={onInput} autocomplete="username"
 						  aria-controls="input-field-helper-username" aria-describedby="input-field-helper-username" />
 						<span class="icon is-small is-left"><i class="fas fa-user"></i></span>
-						{#if email.validated === true }
+						{#if username.validated === true }
 						<span class="icon is-small is-right">
 							{#if username.valid}
 							<i class="fas fa-check"></i>
