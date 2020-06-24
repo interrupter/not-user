@@ -9,7 +9,7 @@ let manifest = {
 				controller: ncLogout
 			},
 			{
-				paths: ['profie'],
+				paths: ['profile'],
 				controller: ncProfile
 			}
 		]

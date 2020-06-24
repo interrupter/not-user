@@ -15,7 +15,7 @@ let manifest = {
 				controller: ncUser
 			},
 			{
-				paths: ['profie'],
+				paths: ['profile'],
 				controller: ncProfile
 			}
 		]
