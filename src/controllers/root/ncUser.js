@@ -24,7 +24,10 @@ class ncUser extends notFramework.notController {
 	}
 
 	setBreadcrumbs(tail){
-		let crumbs = [].push(BREADCRUMBS, ...tail);
+		let crumbs = [];
+		crumbs.push(...BREADCRUMBS)
+		crumbs.push(...tail);
+
 		if(this.breadcrumbs){
 			this.breadcrumbs.$set({
 				items: crumbs
@@ -33,7 +36,8 @@ class ncUser extends notFramework.notController {
 			this.breadcrumbs = new UserUIBreadcrumbs({
 				target: this.els.top,
 				props:{
-					items: crumbs
+					items: 	crumbs,
+					go:			url => this.app.getWorking('router').navigate(url)
 				}
 			});
 		}
