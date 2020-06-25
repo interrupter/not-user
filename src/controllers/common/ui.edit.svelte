@@ -480,7 +480,7 @@
 		<div class="control">
 			<div class="select  {countryClasses}">
 				<select bind:value={fields.country.value} on:change={onChange} on:input={onInput}>
-					{#each UserCommon.COUNTRIES as vairiant}
+					{#each UserCommon.COUNTRIES as variant}
 					<option value="{variant.id}">{variant.title}</option>
 					{/each}
 				</select>

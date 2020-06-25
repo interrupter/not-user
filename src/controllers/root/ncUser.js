@@ -327,8 +327,7 @@ class ncUser extends notFramework.notController {
 		};
 	}
 
-	onUserCreateFormSubmit(user){
-		user.country = 'ru';
+	onUserCreateFormSubmit(user){		
 		this.ui.create.setLoading();
 		this.make.user(user).$create()
 			.then((res)=>{
@@ -344,7 +343,6 @@ class ncUser extends notFramework.notController {
 	}
 
 	onUserUpdateFormSubmit(user){
-		user.country = 'ru';
 		this.ui.update.setLoading();
 		this.make.user(user).$update()
 			.then((res)=>{

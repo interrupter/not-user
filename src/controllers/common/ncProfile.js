@@ -108,7 +108,6 @@ class ncProfile extends notFramework.notController {
 	}
 
 	onUserUpdateFormSubmit(user){
-		user.country = 'ru';
 		this.ui.update.setLoading();
 		this.make.user(user).$update()
 			.then((res)=>{
