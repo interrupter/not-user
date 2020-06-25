@@ -230,6 +230,7 @@ class ncUser extends notFramework.notController {
 				},
 				endless: false,
 				preload: {},
+				sorter: { userID: -1 },
 				actions: [{
 					title: 'Создать',
 					action: this.goCreate.bind(this)
@@ -327,7 +328,7 @@ class ncUser extends notFramework.notController {
 		};
 	}
 
-	onUserCreateFormSubmit(user){		
+	onUserCreateFormSubmit(user){
 		this.ui.create.setLoading();
 		this.make.user(user).$create()
 			.then((res)=>{

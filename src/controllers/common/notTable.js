@@ -79,9 +79,24 @@ class notTable extends EventEmitter {
 			});
 		}
 
-		this.resetPager();
-		this.resetFilter();
-		this.resetSorter();
+		if(this.options.pager){
+			this.setPager(this.options.pager);
+		}else{
+			this.resetPager();
+		}
+
+		if(this.options.filter){
+			this.setFilter(this.options.filter);
+		}else{
+			this.resetFilter();
+		}
+
+		if(this.options.sorter){
+			this.setSorter(this.options.sorter);
+		}else{
+			this.resetSorter();
+		}
+
 		this.render();
 		this.updateData();
 		return this;
@@ -557,6 +572,7 @@ class notTable extends EventEmitter {
 	$destroy(){
 		for(let name in this.ui){
 			this.ui[name].$destroy && this.ui[name].$destroy();
+			delete this.ui[name];
 		}
 	}
 
