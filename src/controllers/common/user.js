@@ -183,4 +183,10 @@ export default class UserCommon{
 		}
 		return field;
 	}
+	static COUNTRIES = [
+		{
+			id: 		'ru',
+			title: 	'Россия'
+		}
+	];
 };

@@ -5025,6 +5025,12 @@ var notUser = (function (exports) {
 			}
 			return field;
 		}
+		static COUNTRIES = [
+			{
+				id: 		'ru',
+				title: 	'Россия'
+			}
+		];
 	}
 
 	function noop() { }

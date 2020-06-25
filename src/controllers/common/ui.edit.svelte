@@ -29,8 +29,8 @@
 	export const  MODES = ['create', 'update'];
 
 	export const  MODES_FIELDS = {
-		'create': ['username', 'email', 'tel', 'password', 'password2', 'active', 'role'],
-		'update': ['active', 'role'],
+		'create': ['username', 'email', 'tel', 'password', 'password2', 'active', 'country', 'role'],
+		'update': ['active', 'country', 'role'],
 	};
 
 	export const SUCCESS_TEXT = {
@@ -469,6 +469,26 @@
 		<p class="help {roleClasses}" id="input-field-helper-role">
 			{#if !(fields.role.validated && fields.role.valid) }
 			{roleHelper}
+			{:else}&nbsp;{/if}
+		</p>
+	</div>
+	{/if}
+
+	{#if fields.country.enabled}
+	<div class="user-form-field user-login-form-country field">
+		<label class="label">{fields.country.label}</label>
+		<div class="control">
+			<div class="select  {countryClasses}">
+				<select bind:value={fields.country.value} on:change={onChange} on:input={onInput}>
+					{#each UserCommon.COUNTRIES as vairiant}
+					<option value="{variant.id}">{variant.title}</option>
+					{/each}
+				</select>
+			</div>
+		</div>
+		<p class="help {countryClasses}" id="input-field-helper-country">
+			{#if !(fields.country.validated && fields.country.valid) }
+			{countryHelper}
 			{:else}&nbsp;{/if}
 		</p>
 	</div>

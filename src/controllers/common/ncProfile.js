@@ -5,6 +5,9 @@ const ERROR_DEFAULT = 'Что пошло не так.';
 import UserCommon from '../common/user.js';
 import UserUIEdit from '../common/ui.edit.svelte';
 import UserUIErrorMessage from '../common/ui.error.svelte';
+import UserUIBreadcrumbs from '../common/ui.breadcrumbs.svelte';
+
+const BREADCRUMBS = [{ title: 'Аккаунт', url: '/profile' }];
 
 class ncProfile extends notFramework.notController {
 	constructor(app, params) {
@@ -16,6 +19,26 @@ class ncProfile extends notFramework.notController {
 		this.buildFrame();
 		this.route();
 		return this;
+	}
+
+	setBreadcrumbs(tail){
+		let crumbs = [];
+		crumbs.push(...BREADCRUMBS);
+		crumbs.push(...tail);
+
+		if(this.breadcrumbs){
+			this.breadcrumbs.$set({
+				items: crumbs
+			});
+		}else{
+			this.breadcrumbs = new UserUIBreadcrumbs({
+				target: this.els.top,
+				props:{
+					items: 	crumbs,
+					go:			url => this.app.getWorking('router').navigate(url)
+				}
+			});
+		}
 	}
 
 	buildFrame() {
@@ -37,8 +60,8 @@ class ncProfile extends notFramework.notController {
 		el.appendChild(this.els.bottom);
 	}
 
-
 	route(params = []) {
+		this.setBreadcrumbs([]);
 		return this.runUpdate(params);
 	}
 

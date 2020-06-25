@@ -1,7 +1,7 @@
 User capabilities for site
 
-	-	register
-	-	validate first factor
+	+	register
+	+	validate first factor
 	+	login
 	+	one-time password login via email
 	+	logout
@@ -9,7 +9,7 @@ User capabilities for site
 	+	restore pass
 	-	second factor auth API
 	-	auth by external service
-	-	user profile editor
-	-	user session
+	+	user profile editor
+	+	user session
 	-	user fake session
 	-	user status

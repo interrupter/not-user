@@ -1,7 +1,7 @@
 /* global notFramework */
 
 class ncLoginByEmail extends notFramework.notController {
-	constructor(app, params) {
+	constructor(app) {
 		//notFramework.notCommon.log('init site app ', redirect, 'login');
 		super(app);
 		this.setModuleName('user');

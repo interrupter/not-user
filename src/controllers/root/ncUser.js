@@ -85,7 +85,7 @@ class ncUser extends notFramework.notController {
 		return this.runList(params);
 	}
 
-	runCreate(params) {
+	runCreate() {
 		this.setBreadcrumbs([
 			{
 				title: 'Добавление нового',
@@ -101,7 +101,6 @@ class ncUser extends notFramework.notController {
 		this.ui.create = new UserUIEdit({
 			target: this.els.main,
 			props:{
-				country: {enabled: false},
 				user: this.createDefaultUser()
 			}
 		});
