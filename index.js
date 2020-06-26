@@ -43,7 +43,7 @@ let createRootUser = async (app)=>{
 	App.logger.info(`Installing...`);
 	let rootUser = config.get('root'),
 		root  = new User({
-			'userId':					await notNode.Increment.next('User'),
+			'userID':					await notNode.Increment.next('User'),
 			'email': 					rootUser.email,
 			'username': 			rootUser.username,
 			'password': 			rootUser.password,
