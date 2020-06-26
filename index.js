@@ -1,6 +1,7 @@
 const 	Schema = require('mongoose').Schema,
 	path = require('path'),
 	notAuth = require('not-node').Auth,
+	notNode = require('not-node'),
 	App = require('not-node').Application,
 	config = require('not-config').readerForModule('user');
 
@@ -37,11 +38,12 @@ const 	Schema = require('mongoose').Schema,
 	};
 
 
-let createRootUser = (app)=>{
+let createRootUser = async (app)=>{
 	let User = App.getModel('User');
 	App.logger.info(`Installing...`);
 	let rootUser = config.get('root'),
 		root  = new User({
+			'userId':					await notNode.Increment.next('User'),
 			'email': 					rootUser.email,
 			'username': 			rootUser.username,
 			'password': 			rootUser.password,
@@ -76,7 +78,7 @@ const initialize = function(app){
 					App.logger.debug('Root user doesnt exists!');
 					return createRootUser(app);
 				}
-			})			
+			})
 			.catch((err) => {
 				App.logger.error('While searching for root user reflection in DB!');
 				App.logger.error(err);

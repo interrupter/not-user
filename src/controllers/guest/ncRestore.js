@@ -1,71 +1,66 @@
 /* global notFramework */
 
+import UserCommon from '../common/user.js';
+import RestoreComponent from './restore.svelte';
+
 class ncRestore extends notFramework.notController {
-	constructor(app, params) {
-		//notFramework.notCommon.log('init site app ', redirect, 'login');
+	constructor(app) {
+		notFramework.notCommon.log('init site app ', redirect, 'restore');
 		super(app);
 		this.setModuleName('user');
-		this.viewsPrefix = '/client/modules/main/';
-		this.commonViewsPrefix = this.app.getOptions().commonPath;
-		this.viewsPostfix = '.html';
-		this.renderFromURL = true;
-		this.tableView = null;
-		this.form = null;
 		this.buildPage();
 		return this;
 	}
 
-	goDashboard() {
-		document.location.href = '/dashboard';
-		window.location.reload(true);
-	}
-
-	goLogin() {
-		document.location.href = '/login';
-	}
-
 	initItem() {
-		var newRecord = this.make.user({
+		return {
 			email: ''
-		});
-		return newRecord;
+		};
 	}
 
-	showError(e) {
-		this.item.error = true;
-		this.item.message = e.error;
-		notFramework.notCommon.report(e);
-	}
-
-	buildForm() {
-		this.item = this.initItem();
-		this.form = new notFramework.notForm({
-			data: this.item,
-			options: {
-				prefix: 'user-form-',
-				helpers: {
-					submit: (params) => {
-						params.item.$requestPasswordRestore()
-							.then(this.successRequestMessage.bind(this))
-							.catch(this.showError.bind(this));
-					}
-				},
-				action: 'requestPasswordRestore',
-				targetEl: document.querySelector(this.app.getOptions('modules.user.restoreFormContainerSelector'))
+	showResult(res) {
+		this.formUI.resetLoading();
+		if(UserCommon.isError(res)){
+			notFramework.notCommon.report(res);
+		}else{
+			if(res.errors && Object.keys(res.errors).length > 0){
+				if (!Array.isArray(res.error)){
+					res.error = [];
+				}
+				Object.keys(res.errors).forEach((fieldName)=>{
+					this.formUI.setFieldInvalid(fieldName, res.errors[fieldName]);
+					res.error.push(...res.errors[fieldName]);
+				});
 			}
-		});
+			if(res.error){
+				this.formUI.setFormError(res.error);
+			}
+			if(!res.error ){
+				this.formUI.showSuccess();
+			}
+		}
 	}
 
 	buildPage() {
-		var formParent = document.querySelector(this.app.getOptions('modules.user.restoreFormContainerSelector'));
-		formParent.innerHTML = '';
-		this.buildForm();
-	}
-
-	successRequestMessage(){
-		var formParent = document.querySelector(this.app.getOptions('modules.user.restoreFormContainerSelector'));
-		formParent.innerHTML = '';
-		this.buildForm();
+		this.item = this.initItem();
+		this.formUI = new RestoreComponent({
+			target: document.querySelector(this.app.getOptions('modules.user.loginFormContainerSelector')),
+			props: {
+				user:   this.item
+			}
+		});
+		this.formUI.$on('login', ({detail})=>{
+			this.item.setAttrs(detail);
+			this.formUI.setLoading();
+			this.item.$login()
+				.then((res)=>{
+					this.showResult(res);
+					if(!res.error){
+						setTimeout(() => UserCommon.goDashboard(this.app), 3000);
+					}
+				})
+				.catch(this.showResult.bind(this));
+		});
 	}
 }
 

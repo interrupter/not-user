@@ -1,9 +1,38 @@
 <script>
-	let stage = 'filling';
-	let errorMessage = '';
+	import UserCommon from '../common/user.js';
+	import LockBlockComponent from './lock.block.svelte';
 
 	import {createEventDispatcher} from 'svelte';
 	let dispatch = createEventDispatcher();
+
+	const CLASS_ERR = UserCommon.CLASS_ERR;
+	const CLASS_OK = UserCommon.CLASS_OK;
+
+
+	let overlay;
+	let stage = 'filling';
+	let errorMessage = false;
+	let formErrors = false;
+	let success = false;
+
+	export let mode = 'restore';
+	export let loading = false;
+	export let user = {};
+	export let formValid = false;
+	export let validation = true;
+	export const  MODES = ['restore'];
+	export const  MODES_FIELDS = {
+		'restore': ['email'],
+	};
+
+	export const SUCCESS_TEXT = {
+		'restore': 'Для завершения восстановления следуйте высланным вам инструкциям.'
+	};
+
+	let validationErrors = {
+		email: false
+	};
+
 
 	export let title = 'Вход';
 	export let description = '';
@@ -82,7 +111,8 @@
 		}, resultShowtime);
 	}
 
-	$: usernameHelper = validationErrors.username?validationErrors.username.join(', '):username.placeholder;
+	$: emailHelper = validationErrors.username?validationErrors.email.join(', '):email.placeholder;
+
 </script>
 
 <style>
