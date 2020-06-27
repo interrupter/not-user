@@ -263,16 +263,20 @@ class ncUser extends notFramework.notController {
 					preprocessor: (value) => {
 						return [{
 							action: this.goDetails.bind(this, value),
-							title: 'Подробнее'
+							title: 'Подробнее',
+							size: 'small'
 						},
 						{
 							action: this.goUpdate.bind(this, value),
-							title: 'Изменить'
+							title: 'Изменить',
+							size: 'small'
 						},
 						{
 							action: this.goDelete.bind(this, value),
 							type: 'danger',
-							title: 'Удалить'
+							title: 'Удалить',
+							size: 'small',
+							style: 'outlined'
 						}
 						];
 					},
