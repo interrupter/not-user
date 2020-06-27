@@ -4,10 +4,15 @@ const ERROR_DEFAULT = 'Что пошло не так.';
 
 import UserCommon from '../common/user.js';
 import UserUIEdit from '../common/ui.edit.svelte';
-import UserUIErrorMessage from '../common/ui.error.svelte';
-import UserUIBreadcrumbs from '../common/ui.breadcrumbs.svelte';
+import {
+	UIError,
+	Breadcrumbs
+} from 'not-bulma';
 
-const BREADCRUMBS = [{ title: 'Аккаунт', url: '/profile' }];
+const BREADCRUMBS = [{
+	title: 'Аккаунт',
+	url: '/profile'
+}];
 
 class ncProfile extends notFramework.notController {
 	constructor(app, params) {
@@ -17,29 +22,17 @@ class ncProfile extends notFramework.notController {
 		this.els = {};
 		this.setModuleName('user');
 		this.buildFrame();
+		Breadcrumbs.setHead(BREADCRUMBS).render({
+			root: app.getOptions('router:root'),
+			target: this.els.top,
+			navigate: (url) => app.getWorking('router').navigate(url)
+		});
 		this.route();
 		return this;
 	}
-
-	setBreadcrumbs(tail){
-		let crumbs = [];
-		crumbs.push(...BREADCRUMBS);
-		crumbs.push(...tail);
-
-		if(this.breadcrumbs){
-			this.breadcrumbs.$set({
-				items: crumbs
-			});
-		}else{
-			this.breadcrumbs = new UserUIBreadcrumbs({
-				target: this.els.top,
-				props:{
-					items: 	crumbs,
-					go:			url => this.app.getWorking('router').navigate(url)
-				}
-			});
-		}
-	}
+setBreadcrumbs(tail) {
+	Breadcrumbs.setTail(tail).update();
+}
 
 	buildFrame() {
 		let el = document.querySelector(this.app.getOptions('crud.containerSelector', 'body'));
@@ -71,27 +64,31 @@ class ncProfile extends notFramework.notController {
 		} else {
 			this.$destroyUI();
 		}
-		this.make.user({_id: params[0]}).$profile().then((res)=>{
-			if(res.status === 'ok'){
-				this.ui.update = new UserUIEdit({
-					target: this.els.main,
-					props:{
-						mode: 			'update',
-						user: 			notFramework.notCommon.stripProxy(res.result)
-					}
-				});
-				this.ui.update.$on('update', (ev) => {this.onUserUpdateFormSubmit(ev.detail);});
-				this.ui.update.$on('rejectForm', ()=> UserCommon.goDashboard(this.app));
-			}else{
-				this.ui.error = new UserUIErrorMessage({
-					target: this.els.main,
-					props:{
-						title: 		'Произошла ошибка',
-						message: 	res.error?res.error:ERROR_DEFAULT
-					}
-				});
-			}
-		})
+		this.make.user({
+				_id: params[0]
+			}).$profile().then((res) => {
+				if (res.status === 'ok') {
+					this.ui.update = new UserUIEdit({
+						target: this.els.main,
+						props: {
+							mode: 'update',
+							user: notFramework.notCommon.stripProxy(res.result)
+						}
+					});
+					this.ui.update.$on('update', (ev) => {
+						this.onUserUpdateFormSubmit(ev.detail);
+					});
+					this.ui.update.$on('rejectForm', () => UserCommon.goDashboard(this.app));
+				} else {
+					this.ui.error = new UIError({
+						target: this.els.main,
+						props: {
+							title: 'Произошла ошибка',
+							message: res.error ? res.error : ERROR_DEFAULT
+						}
+					});
+				}
+			})
 			.catch(this.error.bind(this));
 	}
 
@@ -102,44 +99,44 @@ class ncProfile extends notFramework.notController {
 		}
 	}
 
-	goProfile(){
+	goProfile() {
 		this.$destroyUI();
 		this.route();
 	}
 
-	onUserUpdateFormSubmit(user){
+	onUserUpdateFormSubmit(user) {
 		this.ui.update.setLoading();
 		this.make.user(user).$update()
-			.then((res)=>{
+			.then((res) => {
 				this.log(res);
 				this.showResult(this.ui.update, res);
-				if(!UserCommon.isError(res) && !res.error){
+				if (!UserCommon.isError(res) && !res.error) {
 					setTimeout(() => this.goProfile(), 3000);
 				}
 			})
-			.catch((e)=>{
+			.catch((e) => {
 				this.showResult(this.ui.update, e);
 			});
 	}
 
 	showResult(ui, res) {
 		ui.resetLoading();
-		if(UserCommon.isError(res)){
+		if (UserCommon.isError(res)) {
 			notFramework.notCommon.report(res);
-		}else{
-			if(res.errors && Object.keys(res.errors).length > 0){
-				if (!Array.isArray(res.error)){
+		} else {
+			if (res.errors && Object.keys(res.errors).length > 0) {
+				if (!Array.isArray(res.error)) {
 					res.error = [];
 				}
-				Object.keys(res.errors).forEach((fieldName)=>{
+				Object.keys(res.errors).forEach((fieldName) => {
 					ui.setFieldInvalid(fieldName, res.errors[fieldName]);
 					res.error.push(...res.errors[fieldName]);
 				});
 			}
-			if(res.error){
+			if (res.error) {
 				ui.setFormError(res.error);
 			}
-			if(!res.error ){
+			if (!res.error) {
 				ui.showSuccess();
 			}
 		}

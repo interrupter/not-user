@@ -2,12 +2,15 @@
 
 const ERROR_DEFAULT = 'Что пошло не так.';
 
-import notTable from '../common/notTable.js';
+import {
+	Table as notTable,
+	Breadcrumbs,
+	UIError
+} from 'not-bulma';
+
 import UserCommon from '../common/user.js';
-import UserUIBreadcrumbs from '../common/ui.breadcrumbs.svelte';
 import UserUIEdit from '../common/ui.edit.svelte';
 import UserUIDetails from '../common/ui.details.svelte';
-import UserUIErrorMessage from '../common/ui.error.svelte';
 
 const BREADCRUMBS = [{title: 'Пользователи', url: '/user'}];
 
@@ -19,28 +22,17 @@ class ncUser extends notFramework.notController {
 		this.els = {};
 		this.setModuleName('user');
 		this.buildFrame();
+		Breadcrumbs.setHead(BREADCRUMBS).render({
+      root: app.getOptions('router:root'),
+      target: this.els.top,
+      navigate: (url) => app.getWorking('router').navigate(url)
+    });
 		this.route(params);
 		return this;
 	}
 
-	setBreadcrumbs(tail){
-		let crumbs = [];
-		crumbs.push(...BREADCRUMBS)
-		crumbs.push(...tail);
-
-		if(this.breadcrumbs){
-			this.breadcrumbs.$set({
-				items: crumbs
-			});
-		}else{
-			this.breadcrumbs = new UserUIBreadcrumbs({
-				target: this.els.top,
-				props:{
-					items: 	crumbs,
-					go:			url => this.app.getWorking('router').navigate(url)
-				}
-			});
-		}
+	setBreadcrumbs(tail) {
+	  Breadcrumbs.setTail(tail).update();
 	}
 
 	buildFrame() {
@@ -130,7 +122,7 @@ class ncUser extends notFramework.notController {
 					}
 				});
 			}else{
-				this.ui.error = new UserUIErrorMessage({
+				this.ui.error = new UIError({
 					target: this.els.main,
 					props:{
 						title: 		'Произошла ошибка',
@@ -174,7 +166,7 @@ class ncUser extends notFramework.notController {
 				this.ui.update.$on('update', (ev) => {this.onUserUpdateFormSubmit(ev.detail);});
 				this.ui.update.$on('rejectForm', this.goList.bind(this));
 			}else{
-				this.ui.error = new UserUIErrorMessage({
+				this.ui.error = new UIError({
 					target: this.els.main,
 					props:{
 						title: 		'Произошла ошибка',

@@ -4,8 +4,8 @@ import UserCommon from '../common/user.js';
 import RestoreComponent from './restore.svelte';
 
 class ncRestore extends notFramework.notController {
-	constructor(app) {
-		notFramework.notCommon.log('init site app ', redirect, 'restore');
+	constructor(app, params) {
+		notFramework.notCommon.log('init site app ', params, 'restore');
 		super(app);
 		this.setModuleName('user');
 		this.buildPage();

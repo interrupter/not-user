@@ -3,7 +3,7 @@
 	import {onMount} from 'svelte';
 
 
-	import UITag from './ui.tag.svelte';
+	import {UITag} from 'not-bulma';
 	import UserCommon from './user.js';
 	const CLASS_ERR = UserCommon.CLASS_ERR;
 	const CLASS_OK = UserCommon.CLASS_OK;
@@ -56,8 +56,6 @@
 		create:  'Заполните пожалуйств форму',
 		update:  'Заполните пожалуйств форму',
 	};
-
-	export let resultShowtime = 5000;
 
 	export let username = UserCommon.fieldInit('username', {enabled: true});
 	export let password = UserCommon.fieldInit('password', {enabled: true});
@@ -479,7 +477,7 @@
 		<label class="label">{fields.country.label}</label>
 		<div class="control">
 			<div class="select  {countryClasses}">
-				<select bind:value={fields.country.value} on:change={onChange} on:input={onInput}>
+				<select bind:value={fields.country.value} on:blur={onChange} on:input={onInput}>
 					{#each UserCommon.COUNTRIES as variant}
 					<option value="{variant.id}">{variant.title}</option>
 					{/each}
