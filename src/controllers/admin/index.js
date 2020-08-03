@@ -16,12 +16,25 @@ let manifest = {
 	},
 	templates: {},
 	paths: {},
-	menu:[
-		{
-			title: 	'Аккаунт',
-			url: 		'/profile'
+	menu: {
+		top: {
+			sections: [{
+				id: 		'account',
+				title: 	'Аккаунт'
+			}],
+			items: [{
+				section: 'account',
+				title: 	'Профиль',
+				url: 		'/profile'
+			},{
+				break: true,
+				section: 'account',
+				priority: -100,
+				title: 'Выход',
+				url: 		'/logout'
+			}]
 		}
-	]
+	},
 };
 
 export {ncLogout, manifest};

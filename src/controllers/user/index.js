@@ -28,6 +28,7 @@ let manifest = {
 				url: 		'/profile'
 			},{
 				break: true,
+				section: 'account',
 				priority: -100,
 				title: 'Выход',
 				url: 		'/logout'
