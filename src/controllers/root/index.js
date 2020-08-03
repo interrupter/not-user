@@ -20,13 +20,39 @@ let manifest = {
 			}
 		]
 	},
-	menu:[{
-		title: 	'Аккаунт',
-		url: 		'/profile'
-	},{
-		title: 	'Пользователи',
-		url: 		'/user'
-	}],
+	menu: {
+		top: {
+			sections: [{
+				id: 		'system.state',
+				title: 	'Система'
+			},{
+				id: 		'account',
+				title: 	'Аккаунт',
+				priority: -100
+			}],
+			items: [{
+				section: 'account',
+				title: 	'Профиль',
+				url: 		'/profile'
+			},{
+				break: true,
+				section: 'account',
+				priority: -100,
+				title: 'Выход',
+				url: 		'/logout'
+			}]
+		},
+		side:{
+			sections: [{
+				id: 		'system',
+				title: 	'Система'
+			}],
+			items:		[{
+				title: 	'Пользователи',
+				url: 		'/user'
+			}]
+		}
+	},
 	templates: {},
 	paths: {}
 };

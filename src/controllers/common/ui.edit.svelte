@@ -3,7 +3,7 @@
 	import {onMount} from 'svelte';
 
 
-	import {UITag} from 'not-bulma';
+	import { UITag } from 'not-bulma';
 	import UserCommon from './user.js';
 	const CLASS_ERR = UserCommon.CLASS_ERR;
 	const CLASS_OK = UserCommon.CLASS_OK;

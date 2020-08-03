@@ -758,7 +758,7 @@ exports._delete = async (req, res) => {
 			});
 		}
 	} catch (e) {
-		notNode.Application.report(new notError('user._get', {
+		notNode.Application.report(new notError('user._delete', {
 			ip: exports.getIP(req),
 			userId,
 			targetId
