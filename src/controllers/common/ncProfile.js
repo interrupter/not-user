@@ -5,6 +5,10 @@ const ERROR_DEFAULT = 'Что пошло не так.';
 import UserCommon from '../common/user.js';
 import UserUIEdit from '../common/ui.edit.svelte';
 import {
+	notController,
+	notCommon
+} from 'not-framework';
+import {
 	UIError,
 	Breadcrumbs
 } from 'not-bulma';
@@ -14,9 +18,9 @@ const BREADCRUMBS = [{
 	url: '/profile'
 }];
 
-class ncProfile extends notFramework.notController {
+class ncProfile extends notController {
 	constructor(app, params) {
-		notFramework.notCommon.log('init site app ', params, 'profile');
+		notCommon.log('init site app ', params, 'profile');
 		super(app);
 		this.ui = {};
 		this.els = {};
@@ -72,7 +76,7 @@ setBreadcrumbs(tail) {
 						target: this.els.main,
 						props: {
 							mode: 'update',
-							user: notFramework.notCommon.stripProxy(res.result)
+							user: notCommon.stripProxy(res.result)
 						}
 					});
 					this.ui.update.$on('update', (ev) => {
@@ -122,7 +126,7 @@ setBreadcrumbs(tail) {
 	showResult(ui, res) {
 		ui.resetLoading();
 		if (UserCommon.isError(res)) {
-			notFramework.notCommon.report(res);
+			notCommon.report(res);
 		} else {
 			if (res.errors && Object.keys(res.errors).length > 0) {
 				if (!Array.isArray(res.error)) {

@@ -1,12 +1,15 @@
-/* global notFramework */
+import {
+	notController,
+	notCommon
+} from 'not-framework';
 
 import UserCommon from '../common/user.js';
 import RegisterComponent from './register.svelte';
 
 
-class ncRegister extends notFramework.notController {
+class ncRegister extends notController {
 	constructor(app, params) {
-		notFramework.notCommon.log('init site app ', params, 'register');
+		notCommon.log('init site app ', params, 'register');
 		super(app);
 		this.setModuleName('user');
 		this.buildPage();
@@ -27,7 +30,7 @@ class ncRegister extends notFramework.notController {
 	showError(e) {
 		this.item.error = true;
 		this.item.message = e.error;
-		notFramework.notCommon.report(e);
+		notCommon.report(e);
 	}
 
 	buildPage() {
@@ -61,7 +64,7 @@ class ncRegister extends notFramework.notController {
 	showResult(res) {
 		this.formUI.resetLoading();
 		if(UserCommon.isError(res)){
-			notFramework.notCommon.report(res);
+			notCommon.report(res);
 		}else{
 			if(res.errors && Object.keys(res.errors).length > 0){
 				if (!Array.isArray(res.error)){
