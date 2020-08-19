@@ -1,7 +1,7 @@
 import {
 	notController,
 	notCommon
-} from 'not-framework';
+} from 'not-bulma';
 
 class ncLogout extends notController {
 	constructor(app) {

@@ -1,14 +1,12 @@
-import {
-	notController,
-	notCommon
-} from 'not-framework';
 
 const ERROR_DEFAULT = 'Что пошло не так.';
 
 import {
 	Table as notTable,
 	Breadcrumbs,
-	UIError
+	UIError,
+	notController,
+	notCommon
 } from 'not-bulma';
 
 import UserCommon from '../common/user.js';

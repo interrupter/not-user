@@ -1,7 +1,7 @@
 import {
 	notController,
 	notCommon
-} from 'not-framework';
+} from 'not-bulma';
 
 import UserCommon from '../common/user.js';
 import RegisterComponent from './register.svelte';

@@ -4,13 +4,12 @@ const ERROR_DEFAULT = 'Что пошло не так.';
 
 import UserCommon from '../common/user.js';
 import UserUIEdit from '../common/ui.edit.svelte';
-import {
-	notController,
-	notCommon
-} from 'not-framework';
+
 import {
 	UIError,
-	Breadcrumbs
+	Breadcrumbs,
+	notController,
+	notCommon
 } from 'not-bulma';
 
 const BREADCRUMBS = [{
