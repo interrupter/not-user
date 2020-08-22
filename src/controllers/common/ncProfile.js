@@ -1,5 +1,3 @@
-/* global notFramework */
-
 const ERROR_DEFAULT = 'Что пошло не так.';
 
 import UserCommon from '../common/user.js';
