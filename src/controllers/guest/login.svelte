@@ -264,9 +264,11 @@
 				{#if mode=='login'}
 				{#if email.enabled}
 				<div class="user-form-field user-login-form-email field">
-					<label class="label">{email.label}</label>
+					<label class="label" for="user-login-form-email">{email.label}</label>
   				<div class="control has-icons-left has-icons-right">
-    				<input class="input {emailClasses}"
+    				<input
+							id="user-login-form-email"
+							class="input {emailClasses}"
 							bind:value={email.value}
 							required={email.required}
 							placeholder="{email.placeholder}"
@@ -291,9 +293,11 @@
 				{/if}
 				{#if username.enabled}
 				<div class="field user-form-field user-login-form-username">
-  				<label class="label">{username.label}</label>
+  				<label class="label" for="user-login-form-username">{username.label}</label>
   				<div class="control has-icons-left has-icons-right">
-    				<input class="input {usernameClasses}"
+    				<input
+							id="user-login-form-username"
+							class="input {usernameClasses}"
 							type="text"
 							name="username"
 							invalid="{validationErrors.username}"
@@ -320,9 +324,11 @@
 				{/if}
 				{#if password.enabled}
 				<div class="field user-form-field user-login-form-password">
-  				<label class="label">{password.label}</label>
+  				<label class="label" for="user-login-form-password">{password.label}</label>
   				<div class="control has-icons-left has-icons-right">
-    				<input class="input {passwordClasses}"
+    				<input
+							id="user-login-form-password"
+							class="input {passwordClasses}"
 							type="password"
 							name="password"
 							invalid="{validationErrors.password}"
@@ -343,9 +349,11 @@
 				{/if}
 				{#if mode=='requestLoginCodeOnEmail'}
 				<div class="field user-form-field user-login-form-email">
-  				<label class="label">{email.label}</label>
+  				<label class="label" for="user-login-form-email">{email.label}</label>
   				<div class="control has-icons-left has-icons-right">
-    				<input class="input {emailClasses}"
+    				<input
+							id="user-login-form-email"
+							class="input {emailClasses}"
 							type="email"
 							name="email"
 							invalid="{validationErrors.email}"
@@ -373,9 +381,11 @@
 
 				{#if mode=='requestLoginCodeOnTelephone'}
 				<div class="field user-form-field user-login-form-tel">
-  				<label class="label">{tel.label}</label>
+  				<label class="label" for="user-login-form-tel">{tel.label}</label>
   				<div class="control has-icons-left has-icons-right">
-    				<input class="input {telClasses}"
+    				<input
+							id="user-login-form-tel"
+							class="input {telClasses}"
 							type="tel"
 							name="tel"
 							invalid="{validationErrors.tel}"
@@ -403,9 +413,11 @@
 
 				{#if mode=='loginByCode'}
 				<div class="field user-form-field user-login-form-code">
-  				<label class="label">{code.label}</label>
+  				<label class="label" for="user-login-form-code">{code.label}</label>
   				<div class="control has-icons-left has-icons-right">
-    				<input class="input {codeClasses}"
+    				<input
+							id="user-login-form-code"
+							class="input {codeClasses}"
 							type="text"
 							name="code"
 							invalid="{validationErrors.code}"
