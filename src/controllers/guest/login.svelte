@@ -50,7 +50,7 @@
 
 	export let mode = 'login';
 	export let loading = false;
-	export let user = {};
+	//export let user = {};
 	export let formValid = false;
 
 	export let title = {

@@ -35,7 +35,7 @@
 
 	export let mode = 'register';
 	export let loading = false;
-	export let user = {};
+	//export let user = {};
 	export let formValid = false;
 
 	export let title = {
@@ -48,12 +48,12 @@
 		register:  'Заполните пожалуйств форму',
 	};
 
-	export let closeOnClick = true;
-	export let closeButton = false;
-	export let resultShowtime = 5000;
+	//export let closeOnClick = true;
+	//export let closeButton = false;
+	//export let resultShowtime = 5000;
 
-	export let redirectSuccess = false;
-	export let redirectFailure = false;
+	//export let redirectSuccess = false;
+	//export let redirectFailure = false;
 
 	export let username = UserCommon.fieldInit('username');
 	export let password = UserCommon.fieldInit('password');
@@ -250,9 +250,10 @@
 
 				{#if tel.enabled}
 				<div class="field user-form-field user-login-form-tel">
-					<label class="label">{tel.label}</label>
+					<label class="label" for="user-login-form-tel">{tel.label}</label>
 					<div class="control has-icons-left has-icons-right">
 						<input class="input {telClasses}"
+							id="user-login-form-tel"
 							type="tel" name="tel" invalid="{validationErrors.tel}"
 							required={tel.required} placeholder="{tel.placeholder}"
 							bind:value={tel.value} on:change={onChange} on:input={onInput}
@@ -279,9 +280,10 @@
 
 				{#if email.enabled}
 				<div class="user-form-field user-login-form-email field">
-					<label class="label">{email.label}</label>
+					<label class="label" for="user-login-form-email">{email.label}</label>
 					<div class="control has-icons-left has-icons-right">
-						<input class="input {emailClasses}" bind:value={email.value} required={email.required} placeholder="{email.placeholder}" invalid="{validationErrors.email}" on:change={onChange} on:input={onInput} name="email" type="email" autocomplete="email"
+						<input id="user-login-form-email"
+						class="input {emailClasses}" bind:value={email.value} required={email.required} placeholder="{email.placeholder}" invalid="{validationErrors.email}" on:change={onChange} on:input={onInput} name="email" type="email" autocomplete="email"
 						  aria-controls="input-field-helper-email" aria-describedby="input-field-helper-email" />
 						<span class="icon is-small is-left"><i class="fas fa-envelope"></i></span>
 						{#if email.validated === true }
@@ -305,9 +307,10 @@
 
 				{#if username.enabled}
 				<div class="field user-form-field user-login-form-username">
-					<label class="label">{username.label}</label>
+					<label class="label" for="user-login-form-username">{username.label}</label>
 					<div class="control has-icons-left has-icons-right">
-						<input class="input {usernameClasses}" type="text" name="username" invalid="{validationErrors.username}" required={username.required} placeholder="{username.placeholder}" bind:value={username.value} on:change={onChange} on:input={onInput} autocomplete="username"
+						<input id="user-login-form-username"
+						class="input {usernameClasses}" type="text" name="username" invalid="{validationErrors.username}" required={username.required} placeholder="{username.placeholder}" bind:value={username.value} on:change={onChange} on:input={onInput} autocomplete="username"
 						  aria-controls="input-field-helper-username" aria-describedby="input-field-helper-username" />
 						<span class="icon is-small is-left"><i class="fas fa-user"></i></span>
 						{#if username.validated === true }
@@ -328,9 +331,10 @@
 
 				{#if password.enabled}
 				<div class="field user-form-field user-login-form-password">
-					<label class="label">{password.label}</label>
+					<label class="label" for="user-login-form-password">{password.label}</label>
 					<div class="control has-icons-left has-icons-right">
-						<input class="input {passwordClasses}" type="password" name="password" invalid="{validationErrors.password}" required={password.required} placeholder="{password.placeholder}" bind:value={password.value} on:change={onChange} on:input={onInput}
+						<input id="user-login-form-password"
+						class="input {passwordClasses}" type="password" name="password" invalid="{validationErrors.password}" required={password.required} placeholder="{password.placeholder}" bind:value={password.value} on:change={onChange} on:input={onInput}
 						  autocomplete="password" aria-controls="input-field-helper-password" aria-describedby="input-field-helper-password" />
 						<span class="icon is-small is-left"><i class="fas fa-lock"></i></span>
 						{#if password.validated === true }
@@ -351,9 +355,9 @@
 
 				{#if password2.enabled}
 				<div class="field user-form-field user-login-form-password2">
-					<label class="label">{password2.label}</label>
+					<label class="label" for="user-login-form-password2">{password2.label}</label>
 					<div class="control has-icons-left has-icons-right">
-						<input class="input {password2Classes}" type="password" name="password2" invalid="{validationErrors.password2}" required={password2.required} placeholder="{password2.placeholder}" bind:value={password2.value} on:change={onChange} on:input={onInput}
+						<input id="user-login-form-password2" class="input {password2Classes}" type="password" name="password2" invalid="{validationErrors.password2}" required={password2.required} placeholder="{password2.placeholder}" bind:value={password2.value} on:change={onChange} on:input={onInput}
 						  autocomplete="password2" aria-controls="input-field-helper-password2" aria-describedby="input-field-helper-password2" />
 						<span class="icon is-small is-left"><i class="fas fa-lock"></i></span>
 						{#if password2.validated === true }

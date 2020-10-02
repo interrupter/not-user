@@ -300,9 +300,9 @@
 <div class="container">
 	{#if fields.username.enabled}
 	<div class="field user-form-field user-login-form-username">
-		<label class="label">{fields.username.label}</label>
+		<label class="label" for="user-login-form-username">{fields.username.label}</label>
 		<div class="control has-icons-left has-icons-right">
-			<input class="input {usernameClasses}" type="text" name="username" invalid="{validationErrors.username}" required={fields.username.required} placeholder="{fields.username.placeholder}" bind:value={fields.username.value} on:change={onChange} on:input={onInput} autocomplete="username"
+			<input id="user-login-form-username" class="input {usernameClasses}" type="text" name="username" invalid="{validationErrors.username}" required={fields.username.required} placeholder="{fields.username.placeholder}" bind:value={fields.username.value} on:change={onChange} on:input={onInput} autocomplete="username"
 				aria-controls="input-field-helper-username" aria-describedby="input-field-helper-username" />
 			<span class="icon is-small is-left"><i class="fas fa-user"></i></span>
 			{#if fields.username.validated === true }
@@ -323,9 +323,9 @@
 
 	{#if fields.email.enabled}
 	<div class="user-form-field user-login-form-email field">
-		<label class="label">{fields.email.label}</label>
+		<label class="label" for="user-login-form-email">{fields.email.label}</label>
 		<div class="control has-icons-left has-icons-right">
-			<input class="input {emailClasses}" bind:value={fields.email.value} required={fields.email.required} placeholder="{fields.email.placeholder}" invalid="{validationErrors.email}" on:change={onChange} on:input={onInput} name="email" type="email" autocomplete="email"
+			<input id="user-login-form-email" class="input {emailClasses}" bind:value={fields.email.value} required={fields.email.required} placeholder="{fields.email.placeholder}" invalid="{validationErrors.email}" on:change={onChange} on:input={onInput} name="email" type="email" autocomplete="email"
 				aria-controls="input-field-helper-email" aria-describedby="input-field-helper-email" />
 			<span class="icon is-small is-left"><i class="fas fa-envelope"></i></span>
 			{#if fields.email.validated === true }
@@ -349,9 +349,10 @@
 
 	{#if fields.password.enabled}
 	<div class="field user-form-field user-login-form-password">
-		<label class="label">{fields.password.label}</label>
+		<label for="user-login-form-password" class="label">{fields.password.label}</label>
 		<div class="control has-icons-left has-icons-right">
-			<input class="input {passwordClasses}" type="password" name="password"
+			<input id="user-login-form-password"
+				class="input {passwordClasses}" type="password" name="password"
 				invalid="{validationErrors.password}"
 				required={fields.password.required}
 				placeholder="{fields.password.placeholder}"
@@ -378,9 +379,10 @@
 
 	{#if fields.password2.enabled}
 	<div class="field user-form-field user-login-form-password2">
-		<label class="label">{fields.password2.label}</label>
+		<label class="label" for="user-login-form-password2">{fields.password2.label}</label>
 		<div class="control has-icons-left has-icons-right">
-			<input class="input {password2Classes}" type="password" name="password2" invalid="{validationErrors.password2}"
+			<input id="user-login-form-password2"
+			class="input {password2Classes}" type="password" name="password2" invalid="{validationErrors.password2}"
 			required={fields.password2.required} placeholder="{fields.password2.placeholder}"
 			bind:value={fields.password2.value} on:change={onChange} on:input={onInput}
 				autocomplete="password2" aria-controls="input-field-helper-password2" aria-describedby="input-field-helper-password2"
@@ -406,9 +408,10 @@
 
 	{#if fields.tel.enabled}
 	<div class="field user-form-field user-login-form-tel">
-		<label class="label">{fields.tel.label}</label>
+		<label class="label" for="user-login-form-tel">{fields.tel.label}</label>
 		<div class="control has-icons-left has-icons-right">
-			<input class="input {telClasses}"
+			<input id="user-login-form-tel"
+				class="input {telClasses}"
 				type="tel" name="tel" invalid="{validationErrors.tel}"
 				required={fields.tel.required} placeholder="{fields.tel.placeholder}"
 				bind:value={fields.tel.value} on:change={onChange} on:input={onInput}
@@ -459,8 +462,8 @@
 
 	{#if fields.role.enabled}
 	<div class="user-form-field user-login-form-role field">
-		<label class="label">{fields.role.label}</label>
-		<div class="control {roleClasses}">
+		<label class="label" for="user-login-form-role">{fields.role.label}</label>
+		<div class="control {roleClasses}" id="user-login-form-role">
 			<UITag variants={UserCommon.ROLES} bind:error={roleInvalid} on:change={onRoleChange} bind:items={userRoles} />
 		</div>
 
@@ -474,10 +477,10 @@
 
 	{#if fields.country.enabled}
 	<div class="user-form-field user-login-form-country field">
-		<label class="label">{fields.country.label}</label>
+		<label class="label" for="user-login-form-country">{fields.country.label}</label>
 		<div class="control">
 			<div class="select  {countryClasses}">
-				<select bind:value={fields.country.value} on:blur={onChange} on:input={onInput}>
+				<select id="user-login-form-country" bind:value={fields.country.value} on:blur={onChange} on:input={onInput}>
 					{#each UserCommon.COUNTRIES as variant}
 					<option value="{variant.id}">{variant.title}</option>
 					{/each}

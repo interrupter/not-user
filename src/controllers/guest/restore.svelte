@@ -1,4 +1,5 @@
 <script>
+/*
 	import UserCommon from '../common/user.js';
 	import LockBlockComponent from './lock.block.svelte';
 
@@ -74,10 +75,13 @@
 			dispatch('resolve', data);
 		};
 
+
 	export let rejectLogin = () => {
 			overlay.$destroy();
 			dispatch('reject', {});
 		};
+
+
 
 	function onSuccess(res){
 		stage = 'success';
@@ -112,7 +116,7 @@
 	}
 
 	$: emailHelper = validationErrors.username?validationErrors.email.join(', '):email.placeholder;
-
+*/
 </script>
 
 <style>
