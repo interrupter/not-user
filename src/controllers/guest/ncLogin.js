@@ -67,7 +67,12 @@ class ncLogin extends notController {
 		this.formUI.$on('login', ({detail})=>{
 			this.item.setAttrs(detail);
 			this.formUI.setLoading();
-			this.item.$login()
+			this.item.$login({
+				username: detail.username,
+				password: detail.password,
+				email: detail.email,
+				tel: detail.tel,
+			})
 				.then((res)=>{
 					this.showResult(res);
 					if(!res.error){
