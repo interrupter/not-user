@@ -43,8 +43,8 @@ export default class UserCommon{
 				}
 			break;
 			case 'tel':
-				if(!validator.isLength(value, { min: 11})){
-					errors.push('Необходимо ввести полный номер телефона из 11 цифр');
+				if(!validator.isMobilePhone(value.replace(/\D/g, ''))){
+					errors.push('Необходимо ввести номер мобильного телефона.');
 				}
 			break;
 			case 'active':
@@ -189,4 +189,24 @@ export default class UserCommon{
 			title: 	'Россия'
 		}
 	];
+
+	static formatPhone(val){
+	  //starting from 11 digits in phone number
+	  const slots = [1, 2, 2, 2, 3, 3, 3, 4, 4, 5, 5];
+	  let digits = val.replace(/\D/g, '');
+	  //if there are more, move them to country code slot
+	  if(digits.length > 11){
+	    let d = digits.length - 11;
+	    while(d > 0){
+	      d--;
+	      slots.unshift(1);
+	    }
+	  }
+	  let stack = ['', '', '', '', ''];
+	  Array.from(digits).forEach((digit, index) => {
+	    let slot = slots[index];
+	    stack[slot - 1] = (stack[slot - 1] + digit);
+	  });
+	  return `+${stack[0]} (${stack[1]}) ${stack[2]}-${stack[3]}-${stack[4]}`;
+	}
 };

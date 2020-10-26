@@ -1,4 +1,3 @@
-import 'bulma';
 import ncUser from './ncUser.js';
 import ncLogout from '../common/ncLogout';
 import ncProfile from '../common/ncProfile';

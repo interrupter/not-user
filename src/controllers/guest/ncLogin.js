@@ -8,10 +8,9 @@ import UserCommon from '../common/user.js';
 import LoginComponent from './login.svelte';
 
 class ncLogin extends notController {
-	constructor(app, params) {
-		notCommon.log('init site app ', params, 'login');
-		super(app);
-		this.setModuleName('user');
+	constructor(app) {
+		super(app, 'User.Login');
+		this.setModelName('user');
 		this.buildPage();
 		return this;
 	}

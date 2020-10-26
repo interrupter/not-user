@@ -20,6 +20,7 @@ const
 	notNode = require('not-node'),
 	notAuth = require('not-node').Auth,
 	validator = require('validator'),
+	Log = require('not-log')(module, 'User/Routes'),
 	config = require('not-config').readerForModule('user');
 
 exports.getIP = (req) => {
@@ -34,9 +35,9 @@ exports.getIP = (req) => {
  */
 exports.register = async (req, res) => {
 	const notApp = notNode.Application;
-	notApp.logger.debug('register');
+	Log.debug('register');
 	let User = this.getModel('User'),
-		OneTimeCode = notApp.getModel('OneTimeCode'),
+		OneTimeCode = this.getModel('OneTimeCode'),
 		ip = exports.getIP(req),
 		userID = await notNode.Increment.next(MODEL_NAME),
 		newUser = new User({
@@ -57,7 +58,7 @@ exports.register = async (req, res) => {
 			if (unique) {
 				return User.add(newUser);
 			} else {
-				throw new notError(notLocale.say('user_uniqueness_verification_error'));
+				throw new notError(notLocale.say('user_uniqueness_verification_error'), {username: newUser.username, email: newUser.email});
 			}
 		})
 		//create one time code for email confirmation
@@ -82,6 +83,7 @@ exports.register = async (req, res) => {
 			res.status(200).json({});
 		})
 		.catch(async (err) => {
+			Log.error(err);
 			notApp.report(err);
 			if (err.message && err.message.indexOf('E11000') > -1) {
 				try {
@@ -125,7 +127,7 @@ exports.register = async (req, res) => {
 
 exports.confirmEmail = (req, res) => {
 	const notApp = notNode.Application;
-	notApp.logger.debug('confirmEmail');
+	Log.debug('confirmEmail');
 	let User = this.getModel('User'),
 		OneTimeCode = notApp.getModel('OneTimeCode'),
 		code = req.query.code;
@@ -343,7 +345,7 @@ exports.requestPasswordRestore = (req, res) => {
 
 exports.restorePassword = (req, res) => {
 	const notApp = notNode.Application;
-	notApp.logger.debug('restore password');
+	Log.debug('restore password');
 	let User = this.getModel('User'),
 		OneTimeCode = notApp.getModel('OneTimeCode'),
 		code = req.query.code;
@@ -394,7 +396,7 @@ exports.changePassword = (req, res) => {
 };
 
 exports.profile = (req, res) => {
-	notNode.Application.logger.debug('user/profile');
+	Log.debug('user/profile');
 	let targetId = req.user._id,
 		userId = req.user._id;
 	try {
@@ -564,7 +566,6 @@ exports._create = async (req, res) => {
 			})
 			//create one time code for email confirmation
 			.then((savedUser) => {
-				console.log(savedUser);
 				notApp.logger.log({
 					module: 'user',
 					model: 'user',
@@ -597,7 +598,6 @@ exports._create = async (req, res) => {
 			})
 			.catch(async (err) => {
 				notApp.report(err);
-				console.error(err);
 				if (err.message && err.message.indexOf('E11000') > -1) {
 					try {
 						let existName = await User.usernameExists(newUser.username);
@@ -644,7 +644,7 @@ exports._create = async (req, res) => {
 		}, e));
 		res.status(500).json({
 			status: 'error',
-			error: e.toString()
+			error: 	e.toString()
 		});
 	}
 };
@@ -836,7 +836,7 @@ exports.get = (req, res) => {
 };
 
 exports._get = async (req, res) => {
-	console.log('root user/get');
+	Log.log('root user/get');
 	let targetId = req.params._id,
 		userId = req.user._id;
 	try {

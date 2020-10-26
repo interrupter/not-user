@@ -13,13 +13,12 @@ const
   cors = require('cors'),
   notNode = require('not-node'),
   notAppConstructor = notNode.notApp,
-  notErrorReporter = require('not-error').notErrorReporter,
   log = require('not-log')(module),
   notWSServer = require('not-ws').notWSServer,
   notWSRouter = require('not-ws').notWSRouter,
   notWSMessenger = require('not-ws').notWSMessenger,
   jwt = require('jsonwebtoken'),
-  config = require('not-config').reader;
+  config = require('not-config').createReader();
 
 var expressApp,
   notApp,
@@ -43,7 +42,6 @@ let initServerApp = function() {
   notApp = new notAppConstructor({
     mongoose: mongoose
   });
-  notApp.reporter = notErrorReporter;
   notApp.setEnv('appPath', __dirname);
   if (Array.isArray(config.get('importModulesFromNPM'))) {
     config.get('importModulesFromNPM').forEach((modName) => {
@@ -67,11 +65,11 @@ let initMongoose = function(input) {
   mongoServer = new MongoMemoryServer();
   log.info('Starting MongoMemoryServer');
   return mongoServer
-    .getConnectionString()
+    .getUri()
     .then((mongoUri) => {
       log.info('Setting up mongoose connection... ' + mongoUri);
       mongoose.Promise = global.Promise;
-      return mongoose.connect(mongoUri);
+      return mongoose.connect(mongoUri, {useCreateIndex: true,useNewUrlParser: true, useUnifiedTopology: true});
     })
     .then(()=>{
       log.info('Mongoose connected...');
@@ -288,5 +286,6 @@ module.exports = async () => {
   startup();
   initWSServer();
 //initializing test environment
-  await require('./testEnv')();
+  setTimeout(require('./testEnv'), 1000);
+
 };

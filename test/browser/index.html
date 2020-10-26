@@ -8,6 +8,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mocha/2.1.0/mocha.min.css">
         <script type="module" src="/fetch.xhr.js"></script>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+            <link rel="stylesheet" href="/assets/not-bulma/notBulma.css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/2.1.0/mocha.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/expect.js/0.2.0/expect.min.js"></script>
     </head>
@@ -16,10 +18,10 @@
     <script>
     mocha.setup('bdd');
     </script>
-    <script src="/js/not-framework.min.js"></script>
-        <script src="/assets/user/notUser.guest.js"></script>
-        <script src="/index.js"></script>
-        <script>
+    	<script src="/assets/not-bulma/notBulma.js"></script>
+    <script src="/assets/user/notUser.guest.js"></script>
+    <script src="/index.js"></script>
+    <script>
     mocha.checkLeaks();
     mocha.run();
     </script>

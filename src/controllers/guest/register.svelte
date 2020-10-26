@@ -1,4 +1,5 @@
 <script>
+
 	import UserCommon from '../common/user.js';
 	const CLASS_ERR = UserCommon.CLASS_ERR;
 	const CLASS_OK = UserCommon.CLASS_OK;
@@ -88,9 +89,14 @@
 	}
 
 	function onChange(ev){
+		let val = ev.target.value;
+		if(ev.target.name === 'tel'){
+			val = UserCommon.formatPhone(val);
+			ev.target.value = val;
+		}
 		let data = {
 			field: ev.target.name,
-			value: ev.target.value
+			value: val
 		};
 		if(validation){
 			let res = UserCommon.validateField(data.field, data.value, fields);
@@ -134,10 +140,16 @@
 	}
 
 	function onInput(ev){
+		let res = true;
+		let val = ev.target.value;
+		if(ev.target.name === 'tel'){
+			tel.value = UserCommon.formatPhone(val);
+			res = false;
+		}
 		let data = {
 			field: ev.target.name,
 			input: ev.data,
-			value: ev.target.value
+			value: val
 		};
 		if(validation){
 			let res = UserCommon.validateField(data.field, data.value, fields);
@@ -150,6 +162,7 @@
 		}else{
 			dispatch('input', data);
 		}
+		return res;
 	}
 
 	function validateForm(freshData){
@@ -254,7 +267,7 @@
 					<div class="control has-icons-left has-icons-right">
 						<input class="input {telClasses}"
 							id="user-login-form-tel"
-							type="tel" name="tel" invalid="{validationErrors.tel}"
+							type="tel" name="tel" pattern="\+[0-9]{1}-[0-9]{3}-[0-9]{3}-[0-9]{2}-[0-9]{2}" invalid="{validationErrors.tel}"
 							required={tel.required} placeholder="{tel.placeholder}"
 							bind:value={tel.value} on:change={onChange} on:input={onInput}
 							autocomplete="tel" aria-controls="input-field-helper-tel"
@@ -377,11 +390,9 @@
 					</p>
 				</div>
 				{/if}
-
 				{#if errorMessage!=false }
 				<div class="user-form-error notification is-danger">{errorMessage}</div>
 				{/if}
-
 				<div class="buttons-row">
 					{#if cancel.enabled}
 					<button class="button is-outlined user-register-form-cancel" on:click={rejectRegister}>{cancel.caption}</button>

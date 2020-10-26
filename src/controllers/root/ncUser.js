@@ -24,10 +24,10 @@ class ncUser extends notController {
 		this.setModuleName('user');
 		this.buildFrame();
 		Breadcrumbs.setHead(BREADCRUMBS).render({
-      root: app.getOptions('router:root'),
-      target: this.els.top,
-      navigate: (url) => app.getWorking('router').navigate(url)
-    });
+			root: app.getOptions('router:root'),
+			target: this.els.top,
+			navigate: (url) => app.getWorking('router').navigate(url)
+		});
 		this.route(params);
 		return this;
 	}

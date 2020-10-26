@@ -1,4 +1,4 @@
 module.exports = {
-	config: './config/index.json',
+	config: './config',
 	log: './logs/log',
 };

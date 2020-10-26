@@ -128,9 +128,14 @@
 	}
 
 	function onChange(ev){
+		let val = ev.target.value;
+		if(ev.target.name === 'tel'){
+			val = UserCommon.formatPhone(val);
+			ev.target.value = val;
+		}
 		let data = {
 			field: ev.target.name,
-			value: ev.target.value
+			value: val
 		};
 		if(validation){
 			let res = UserCommon.validateField(data.field, data.value, fields);
@@ -157,10 +162,17 @@
 	}
 
 	function onInput(ev){
+		let res = true;
+		let val = ev.target.value;
+		if(ev.target.name === 'tel'){
+			ev.preventDefault();
+			tel.value = UserCommon.formatPhone(val);
+			res = false;
+		}
 		let data = {
 			field: ev.target.name,
 			input: ev.data,
-			value: ev.target.value
+			value: val
 		};
 		if(validation){
 			let res = UserCommon.validateField(data.field, data.value, fields);
@@ -173,6 +185,7 @@
 		}else{
 			dispatch('input', data);
 		}
+		return res;
 	}
 
 	function validateForm(freshData){
@@ -197,7 +210,6 @@
 
 	export function setFormError(error){
 		formValid = false;
-		console.log('form error', error);
 		errorMessage = Array.isArray(error)?error.join(', '):error;
 	}
 

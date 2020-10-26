@@ -31,9 +31,9 @@ class ncProfile extends notController {
 		this.route();
 		return this;
 	}
-setBreadcrumbs(tail) {
-	Breadcrumbs.setTail(tail).update();
-}
+	setBreadcrumbs(tail) {
+		Breadcrumbs.setTail(tail).update();
+	}
 
 	buildFrame() {
 		let el = document.querySelector(this.app.getOptions('crud.containerSelector', 'body'));
@@ -66,30 +66,30 @@ setBreadcrumbs(tail) {
 			this.$destroyUI();
 		}
 		this.make.user({
-				_id: params[0]
-			}).$profile().then((res) => {
-				if (res.status === 'ok') {
-					this.ui.update = new UserUIEdit({
-						target: this.els.main,
-						props: {
-							mode: 'update',
-							user: notCommon.stripProxy(res.result)
-						}
-					});
-					this.ui.update.$on('update', (ev) => {
-						this.onUserUpdateFormSubmit(ev.detail);
-					});
-					this.ui.update.$on('rejectForm', () => UserCommon.goDashboard(this.app));
-				} else {
-					this.ui.error = new UIError({
-						target: this.els.main,
-						props: {
-							title: 'Произошла ошибка',
-							message: res.error ? res.error : ERROR_DEFAULT
-						}
-					});
-				}
-			})
+			_id: params[0]
+		}).$profile().then((res) => {
+			if (res.status === 'ok') {
+				this.ui.update = new UserUIEdit({
+					target: this.els.main,
+					props: {
+						mode: 'update',
+						user: notCommon.stripProxy(res.result)
+					}
+				});
+				this.ui.update.$on('update', (ev) => {
+					this.onUserUpdateFormSubmit(ev.detail);
+				});
+				this.ui.update.$on('rejectForm', () => UserCommon.goDashboard(this.app));
+			} else {
+				this.ui.error = new UIError({
+					target: this.els.main,
+					props: {
+						title: 'Произошла ошибка',
+						message: res.error ? res.error : ERROR_DEFAULT
+					}
+				});
+			}
+		})
 			.catch(this.error.bind(this));
 	}
 

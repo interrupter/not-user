@@ -13,9 +13,11 @@ exports.DEFAULT_TTL = DEFAULT_TTL;
 exports.DEFAULT_TTL_MIN = DEFAULT_TTL_MIN;
 exports.DEFAULT_TTL_MAX = DEFAULT_TTL_MAX;
 
-exports.DEFAULT_ROLES_LIST = [
-	'user', 'guest', 'client', 'admin', 'root', 'confirmed'
-];
+
+const DEFAULT_ROLES_LIST = ['user', 'guest', 'client', 'admin', 'root'];
+exports.DEFAULT_ROLES_LIST = DEFAULT_ROLES_LIST;
+const EXTRA_ROLES_LIST = ['confirmed'];
+exports.EXTRA_ROLES_LIST = EXTRA_ROLES_LIST;
 
 exports.DEFAULT_HASH_ALGO = 'sha1';
 exports.thisModelName = 'User';
@@ -79,12 +81,12 @@ exports.thisSchema = {
 	},
 	telephone: {
 		type: String,
-		unique: true,
+		unique: false,
 		searchable: true,
 		required: false,
 		validate: [{
 			validator(val) {
-				return /\+\d{1}-\d{3}-\d{3}-\d{4}/.test(val);
+				return validator.isMobilePhone(val.replace(/\D/g, ''));
 			},
 			message: 'telephone_value_is_not_valid'
 		}],
@@ -147,12 +149,18 @@ exports.thisSchema = {
 					return false;
 				}
 				let count = 0;
+				let extraIsInvalid = false;
 				val.forEach((role) => {
 					if (exports.DEFAULT_ROLES_LIST.includes(role)) {
 						count++;
+					}else if(! exports.EXTRA_ROLES_LIST.includes(role)){
+						extraIsInvalid = true;
 					}
 				});
 				if (count !== 1) {
+					return false;
+				}
+				if(extraIsInvalid){
 					return false;
 				}
 				return true;
@@ -218,6 +226,12 @@ exports.thisSchema = {
 		}
 	}
 };
+
+
+exports.indexes = [
+	[{__latest: 1, __closed: 1, username:1 }, 	{ unique: true }],
+	[{__latest: 1, __closed: 1, email:1 }, 		{ unique: true }]
+];
 
 exports.thisStatics = {
 	authorize: function(email, password) {

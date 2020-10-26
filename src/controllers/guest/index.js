@@ -1,4 +1,3 @@
-import 'bulma';
 import ncLogin from './ncLogin';
 import ncRegister from './ncRegister';
 import ncRestore from './ncRestore';
