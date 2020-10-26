@@ -17,11 +17,10 @@ const BREADCRUMBS = [{
 
 class ncProfile extends notController {
 	constructor(app, params) {
-		notCommon.log('init site app ', params, 'profile');
-		super(app);
+		super(app, 'User.Profile');
 		this.ui = {};
 		this.els = {};
-		this.setModuleName('user');
+		this.setModelName('user');
 		this.buildFrame();
 		Breadcrumbs.setHead(BREADCRUMBS).render({
 			root: app.getOptions('router:root'),

@@ -9,9 +9,8 @@ import RegisterComponent from './register.svelte';
 
 class ncRegister extends notController {
 	constructor(app, params) {
-		notCommon.log('init site app ', params, 'register');
-		super(app);
-		this.setModuleName('user');
+		super(app, 'User.Register');
+		this.setModelName('user');
 		this.buildPage();
 		return this;
 	}

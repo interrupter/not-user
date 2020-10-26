@@ -8,9 +8,8 @@ import RestoreComponent from './restore.svelte';
 
 class ncRestore extends notController {
 	constructor(app, params) {
-		notCommon.log('init site app ', params, 'restore');
-		super(app);
-		this.setModuleName('user');
+		super(app, 'User.Restore');
+		this.setModelName('user');
 		this.buildPage();
 		return this;
 	}

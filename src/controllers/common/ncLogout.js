@@ -5,8 +5,8 @@ import {
 
 class ncLogout extends notController {
 	constructor(app) {
-		super(app);
-		this.setModuleName('user');
+		super(app, 'User.logout');
+		this.setModelName('user');
 		if (confirm('Хотите выйти?')) {
 			this.make.user({}).$logout()
 				.then(() => {
