@@ -46,7 +46,7 @@ exports.thisSchema = {
 			message: 'username_cant_be_email'
 		}],
 		safe: {
-			read: '*'
+			read: ['*']
 		}
 	},
 	email: {
@@ -131,8 +131,8 @@ exports.thisSchema = {
 		type: Date,
 		default: Date.now,
 		safe: {
-			update: '*',
-			read: '*'
+			update: ['*'],
+			read: ['*']
 		}
 	},
 	role: {
@@ -214,7 +214,7 @@ exports.thisSchema = {
 		}],
 		safe: {
 			update: ['@system', '@owner', 'root', 'admin'],
-			read: '*'
+			read: ['*']
 		}
 	},
 	confirm: {
@@ -334,9 +334,8 @@ exports.thisStatics = {
 			throw new Error('No data _id');
 		}
 		let safeData = this.extractSafeFields('update', data, roles, actorId, system);
-		//может быть пусто, то гда не тратим время
+		//может быть пусто, тогда не тратим время
 		if(Object.keys(safeData).length === 0) throw new notError(notLocale.say('insufficient_level_of_privilegies'));
-		console.log('safeData',safeData);
 		if (exports.enrich.versioning) {
 			return this.findOneAndUpdate({
 				_id: data._id,
@@ -362,7 +361,6 @@ exports.thisStatics = {
 			}).exec();
 		}
 	},
-
 	extractSafeFields(action, data, roles, actorId, system = false) {
 		let fields = this.getSafeFieldsForRoleAction(action, roles, this.isOwner(data, actorId), system);
 		let result = {};
@@ -403,7 +401,7 @@ exports.thisStatics = {
 		return fields;
 	},
 	isOwner(data, user_id) {
-		if(typeof user_id==='undefined' || user_id === 0){
+		if(typeof user_id === 'undefined' || user_id === 0){
 			return false;
 		}
 		return (Object.prototype.hasOwnProperty.call(data, '_id') && data._id.toString() === user_id.toString());

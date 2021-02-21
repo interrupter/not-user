@@ -178,7 +178,7 @@ module.exports = {
 			method: 'post',
 			rules:[{
 				auth: true,
-				admin: true
+				root: true
 			},{
 				auth: true,
 				role: ['admin']
@@ -208,7 +208,7 @@ module.exports = {
 			method: 'get',
 			rules:[{
 				auth: true,
-				admin: true
+				root: true
 			},{
 				auth: true
 			}],
@@ -222,7 +222,7 @@ module.exports = {
 			method: 'post',
 			rules:[{
 				auth: true,
-				admin: true
+				root: true
 			}],
 			postFix: '/:record[_id]/:actionName'
 		},
@@ -230,7 +230,7 @@ module.exports = {
 			method: 'put',
 			rules:[{
 				auth: true,
-				admin: true
+				root: true
 			},{
 				auth: true,
 				role: 'admin'
@@ -243,7 +243,7 @@ module.exports = {
 			method: 'delete',
 			rules:[{
 				auth: true,
-				admin: true
+				root: true
 			},{
 				auth: true,
 				role: 'admin'
@@ -255,7 +255,7 @@ module.exports = {
 			method: 'get',
 			rules:[{
 				auth: true,
-				admin: true
+				root: true
 			},{
 				auth: true,
 				role: 'admin'

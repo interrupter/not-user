@@ -21,7 +21,7 @@ describe('notUser.Guest', function() {
     cy.get('input[type="email"]').type('{selectall}{del}invalid@email.ru');
     cy.get('.user-login-form-submit').should('be.enabled');
     cy.get('.user-login-form-submit').click();
-    cy.get('.user-form-error').should('exist');
+    cy.get('article.message.is-danger').should('exist');
   });
 
   it('Login by login/password - valid', function() {
@@ -31,8 +31,8 @@ describe('notUser.Guest', function() {
     cy.get('.user-login-form-submit').should('be.enabled');
     cy.get('.user-login-form-submit').click();
     cy.get('.user-login-form-email .is-danger').should('not.exist');
-    cy.get('.user-form-error').should('not.exist');
-    cy.get('.user-form-success-message').should('exist');
+    cy.get('article.message.is-danger').should('not.exist');
+    cy.get('article.message.is-success').should('exist');
     cy.location('pathname', {timeout: 10000}).should('include', '/dashboard.html');
   });
 
@@ -54,7 +54,7 @@ describe('notUser.Guest', function() {
     cy.get('.user-login-form-submit').should('be.enabled');
     cy.get('.user-login-form-submit').click();
     cy.get('.user-login-form-email .is-danger').should('exist');
-    cy.get('.user-form-error').should('exist');
+    cy.get('article.message.is-danger').should('exist');
     cy.get('.user-login-form-submit').should('be.disabled');
   });
 
@@ -65,9 +65,9 @@ describe('notUser.Guest', function() {
     cy.get('input[type="email"]').type('vasya@pupkin.hacker');
     cy.get('.user-login-form-submit').should('be.enabled');
     cy.get('.user-login-form-submit').click();
-    cy.get('.user-form-error').should('not.exist');
+    cy.get('article.message.is-danger').should('not.exist');
     cy.get('.user-login-form-submit').should('not.exist');
-    cy.get('h3.user-form-success-message').should('exist');
+    cy.get('article.message.is-success').should('exist');
   });
 
   it('Login by email link - not valid', function() {

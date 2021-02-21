@@ -1,7 +1,8 @@
 <script>
 	import UserCommon from '../common/user.js';
-	const CLASS_ERR = UserCommon.CLASS_ERR;
-	const CLASS_OK = UserCommon.CLASS_OK;
+	import {UICommon, UIError, UISuccess} from 'not-bulma';
+	const CLASS_ERR = UICommon.CLASS_ERR;
+	const CLASS_OK = UICommon.CLASS_OK;
 
 	import LockBlockComponent from './lock.block.svelte';
 	import {createEventDispatcher} from 'svelte';
@@ -100,7 +101,7 @@
 	});
 
 	export let redirectSuccess = '/';
-	export let resultShowtime = 5000;
+	export let resultShowtime = UICommon.DEFAULT_REDIRECT_TIMEOUT;
 
 	export let validation = true;
 
@@ -262,9 +263,7 @@
 	<!--<LockBlockComponent bind:enable={loading}></LockBlockComponent>-->
 	<div class="tile user-login-form-paper">
 			{#if success}
-			<div class="notification is-success">
-  			<h3 class="user-form-success-message">{SUCCESS_TEXT[mode]}</h3>
-			</div>
+			<UISuccess title="" message={SUCCESS_TEXT[mode]}></UISuccess>
 			{:else}
 			<div class="user-login-form">
 				{#if title.__enabled}
@@ -456,7 +455,7 @@
 				{/if}
 
 				{#if errorMessage!=false }
-				<div class="user-form-error notification is-danger">{errorMessage}</div>
+				<UIError title="" message={errorMessage}></UIError>
 				{/if}
 
 				<div class="buttons-row">
