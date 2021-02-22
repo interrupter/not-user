@@ -7,7 +7,7 @@ import UserCommon from '../common/user.js';
 import RestoreComponent from './restore.svelte';
 
 class ncRestore extends notController {
-	constructor(app, params) {
+	constructor(app) {
 		super(app, 'User.Restore');
 		this.setModelName('user');
 		this.buildPage();

@@ -27,7 +27,7 @@ class ncProfile extends notController {
 			target: this.els.top,
 			navigate: (url) => app.getWorking('router').navigate(url)
 		});
-		this.route();
+		this.route(params);
 		return this;
 	}
 	setBreadcrumbs(tail) {

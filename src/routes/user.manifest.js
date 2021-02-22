@@ -2,58 +2,7 @@ module.exports = {
 	model: 'user',
 	url: '/api/:modelName',
 	showMessages: true,
-	fields: {
-		fName: {
-			type: 'text',
-			placeholder: 'Фамилия'
-		},
-		iName: {
-			type: 'text',
-			placeholder: 'Имя'
-		},
-		oName: {
-			type: 'text',
-			placeholder: 'Отчество'
-		},
-		dateOfBirth: {
-			type: 'date',
-			placeholder: 'Дата рождения'
-		},
-		phone: {
-			type: 'tel',
-			placeholder: 'Телефон'
-		},
-		username: {
-			type: 'text',
-			placeholder: 'Имя пользователя'
-		},
-		email: {
-			type: 'email',
-			label: 'Email',
-			placeholder: 'Email'
-		},
-		password: {
-			type: 'password',
-			name: 'Пароль',
-			placeholder: 'Пароль'
-		},
-		password2: {
-			type: 'password',
-			placeholder: 'Подтверждение пароля'
-		},
-		photo: {
-			type: 'file',
-			placeholder: 'Фото'
-		},
-		status: {
-			type: 'status',
-			label: 'Статус'
-		},
-		submit: {
-			type: 'submit',
-			target: 'footer'
-		},
-	},
+	fields: {},
 	actions:{
 		/**
 		Guest action

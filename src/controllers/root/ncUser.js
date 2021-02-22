@@ -1,4 +1,3 @@
-
 const ERROR_DEFAULT = 'Что пошло не так.';
 
 import {
@@ -13,7 +12,10 @@ import UserCommon from '../common/user.js';
 import UserUIEdit from '../common/ui.edit.svelte';
 import UserUIDetails from '../common/ui.details.svelte';
 
-const BREADCRUMBS = [{title: 'Пользователи', url: '/user'}];
+const BREADCRUMBS = [{
+	title: 'Пользователи',
+	url: '/user'
+}];
 
 class ncUser extends notController {
 	constructor(app, params) {
@@ -21,7 +23,8 @@ class ncUser extends notController {
 		super(app);
 		this.ui = {};
 		this.els = {};
-		this.setModuleName('user');
+		this.setModuleName('');
+		this.setModelName('user');
 		this.buildFrame();
 		Breadcrumbs.setHead(BREADCRUMBS).render({
 			root: app.getOptions('router:root'),
@@ -33,7 +36,7 @@ class ncUser extends notController {
 	}
 
 	setBreadcrumbs(tail) {
-	  Breadcrumbs.setTail(tail).update();
+		Breadcrumbs.setTail(tail).update();
 	}
 
 	buildFrame() {
@@ -79,12 +82,10 @@ class ncUser extends notController {
 	}
 
 	runCreate() {
-		this.setBreadcrumbs([
-			{
-				title: 'Добавление нового',
-				url: '/user/create'
-			}
-		]);
+		this.setBreadcrumbs([{
+			title: 'Добавление нового',
+			url: this.getModelActionURL(false, 'create')
+		}]);
 
 		if (this.ui.create) {
 			return;
@@ -93,41 +94,48 @@ class ncUser extends notController {
 		}
 		this.ui.create = new UserUIEdit({
 			target: this.els.main,
-			props:{
+			props: {
 				user: this.createDefaultUser()
 			}
 		});
-		this.ui.create.$on('create', (ev) => {this.onUserCreateFormSubmit(ev.detail);});
+		this.ui.create.$on('create', (ev) => {
+			this.onUserCreateFormSubmit(ev.detail);
+		});
 		this.ui.create.$on('rejectForm', this.goList.bind(this));
 	}
 
 	runDetails(params) {
-		this.setBreadcrumbs([
-			{
-				title: 'Просмотр пользователя',
-				url: `/user/${params[0]}`
-			}
-		]);
+		this.setBreadcrumbs([{
+			title: 'Просмотр пользователя',
+			url: this.getModelActionURL(params[0], false)
+		}]);
 
 		if (this.ui.details) {
 			return;
 		} else {
 			this.$destroyUI();
 		}
-		this.make.user({_id: params[0]}).$get().then((res)=>{
-			if(res.status === 'ok'){
+		this.make.user({
+			_id: params[0]
+		}).$get().then((res) => {
+			if (res.status === 'ok') {
+				let user = notCommon.stripProxy(res.result);
+				this.setBreadcrumbs([{
+					title: `Просмотр пользователя "${user.userID}#${user.username}"`,
+					url: this.getModelActionURL(params[0], false)
+				}]);
 				this.ui.details = new UserUIDetails({
 					target: this.els.main,
-					props:{
-						user: notCommon.stripProxy(res.result)
+					props: {
+						user
 					}
 				});
-			}else{
+			} else {
 				this.ui.error = new UIError({
 					target: this.els.main,
-					props:{
-						title: 		'Произошла ошибка',
-						message: 	res.error?res.error:ERROR_DEFAULT
+					props: {
+						title: 'Произошла ошибка',
+						message: res.error ? res.error : ERROR_DEFAULT
 					}
 				});
 			}
@@ -136,42 +144,42 @@ class ncUser extends notController {
 	}
 
 	runUpdate(params) {
-		this.setBreadcrumbs([
-			{
-				title: 'Редактирование данных',
-				url: `/user/${params[0]}/update`
-			}
-		]);
+		this.setBreadcrumbs([{
+			title: 'Редактирование',
+			url: this.getModelActionURL(params[0], 'update')
+		}]);
 
 		if (this.ui.update) {
 			return;
 		} else {
 			this.$destroyUI();
 		}
-		this.make.user({_id: params[0]}).$get().then((res)=>{
-			if(res.status === 'ok'){
-				this.setBreadcrumbs([
-					{
-						title: `Редактирование данных ${res.result.userId}#${res.result.username}`,
-						url: `/user/${params[0]}/update`
-					}
-				]);
+		this.make.user({
+			_id: params[0]
+		}).$get().then((res) => {
+			if (res.status === 'ok') {
+				this.setBreadcrumbs([{
+					title: `Редактирование данных ${res.result.userID}#${res.result.username}`,
+					url: this.getModelActionURL(params[0], 'update')
+				}]);
 
 				this.ui.update = new UserUIEdit({
 					target: this.els.main,
-					props:{
-						mode: 			'update',
-						user: 			notCommon.stripProxy(res.result)
+					props: {
+						mode: 'update',
+						user: notCommon.stripProxy(res.result)
 					}
 				});
-				this.ui.update.$on('update', (ev) => {this.onUserUpdateFormSubmit(ev.detail);});
+				this.ui.update.$on('update', (ev) => {
+					this.onUserUpdateFormSubmit(ev.detail);
+				});
 				this.ui.update.$on('rejectForm', this.goList.bind(this));
-			}else{
+			} else {
 				this.ui.error = new UIError({
 					target: this.els.main,
-					props:{
-						title: 		'Произошла ошибка',
-						message: 	res.error?res.error:ERROR_DEFAULT
+					props: {
+						title: 'Произошла ошибка',
+						message: res.error ? res.error : ERROR_DEFAULT
 					}
 				});
 			}
@@ -179,35 +187,32 @@ class ncUser extends notController {
 			.catch(this.error.bind(this));
 	}
 
-	runDelete(params){
-		this.setBreadcrumbs([
-			{
-				title: 'Удаление',
-				url: `/user/${params[0]}/delete`
-			}
-		]);
-
+	runDelete(params) {
+		this.setBreadcrumbs([{
+			title: 'Удаление',
+			url: this.getModelActionURL(params[0], 'delete')
+		}]);
 		if (confirm('Удалить пользователя?')) {
-			this.make.user({_id: params[0]}).$delete()
-				.then(()=>{
+			this.make.user({
+				_id: params[0]
+			}).$delete()
+				.then(() => {
 					this.goList();
 				})
-				.catch((e)=>{
+				.catch((e) => {
 					this.error(e);
 					this.goList();
 				});
-		}else{
+		} else {
 			this.goList();
 		}
 	}
 
-	runList(params) {
-		this.setBreadcrumbs([
-			{
-				title: 'Список',
-				url: `/user`
-			}
-		]);
+	runList() {
+		this.setBreadcrumbs([{
+			title: 'Список',
+			url: this.getModelURL()
+		}]);
 
 		if (this.ui.list) {
 			return;
@@ -223,7 +228,9 @@ class ncUser extends notController {
 				},
 				endless: false,
 				preload: {},
-				sorter: { userID: -1 },
+				sorter: {
+					userID: -1
+				},
 				actions: [{
 					title: 'Создать',
 					action: this.goCreate.bind(this)
@@ -233,7 +240,7 @@ class ncUser extends notController {
 					title: 'ID',
 					searchable: true,
 					sortable: true
-				},{
+				}, {
 					path: ':username',
 					title: 'Username',
 					searchable: true,
@@ -293,85 +300,85 @@ class ncUser extends notController {
 		}
 	}
 
-	goCreate(){
-		this.app.getWorking('router').navigate('/' + [this.getModelURL(), 'create'].join('/'));
+	goCreate() {
+		this.app.getWorking('router').navigate(this.getModelActionURL(false, 'create'));
 	}
 
-	goDetails(value){
-		this.app.getWorking('router').navigate('/' + [this.getModelURL(), value].join('/'));
+	goDetails(value) {
+		this.app.getWorking('router').navigate(this.getModelActionURL(value, false));
 	}
 
-	goUpdate(value){
-		this.app.getWorking('router').navigate('/' + [this.getModelURL(), value, 'update'].join('/'));
+	goUpdate(value) {
+		this.app.getWorking('router').navigate(this.getModelActionURL(value, 'update'));
 	}
 
-	goDelete(value){
-		this.app.getWorking('router').navigate('/' + [this.getModelURL(), value, 'delete'].join('/'));
+	goDelete(value) {
+		this.app.getWorking('router').navigate(this.getModelActionURL(value, 'delete'));
 	}
 
-	goList(){
-		this.app.getWorking('router').navigate('/' + this.getModelURL());
+	goList() {
+		this.app.getWorking('router').navigate(this.getModelURL());
 	}
 
-	createDefaultUser(){
+	createDefaultUser() {
 		return {
-			username: 	'',
-			email: 			'',
-			telephone: 	'',
-			password: 	'',
-			active: 		true,
-			country:		'ru',
-			role: 			['user']
+			username: '',
+			email: '',
+			telephone: '',
+			password: '',
+			active: true,
+			country: 'ru',
+			role: ['user']
 		};
 	}
 
-	onUserCreateFormSubmit(user){
+	onUserCreateFormSubmit(user) {
 		this.ui.create.setLoading();
 		this.make.user(user).$create()
-			.then((res)=>{
+			.then((res) => {
 				this.log(res);
 				this.showResult(this.ui.create, res);
-				if(!UserCommon.isError(res) && !res.error){
+				if (!UserCommon.isError(res) && !res.error) {
 					setTimeout(() => this.goList(this.app), 3000);
 				}
 			})
-			.catch((e)=>{
+			.catch((e) => {
 				this.showResult(this.ui.create, e);
 			});
 	}
 
-	onUserUpdateFormSubmit(user){
+	onUserUpdateFormSubmit(user) {
 		this.ui.update.setLoading();
 		this.make.user(user).$update()
-			.then((res)=>{
+			.then((res) => {
 				this.showResult(this.ui.update, res);
-				if(!UserCommon.isError(res) && !res.error){
+				if (!UserCommon.isError(res) && !res.error) {
 					setTimeout(() => this.goList(this.app), 3000);
 				}
 			})
-			.catch((e)=>{
+			.catch((e) => {
 				this.showResult(this.ui.update, e);
 			});
 	}
 
 	showResult(ui, res) {
 		ui.resetLoading();
-		if(UserCommon.isError(res)){
+		if (UserCommon.isError(res)) {
 			notCommon.report(res);
-		}else{
-			if(res.errors && Object.keys(res.errors).length > 0){
-				if (!Array.isArray(res.error)){
+		} else {
+			if (res.errors && Object.keys(res.errors).length > 0) {
+				if (!Array.isArray(res.error)) {
 					res.error = [];
 				}
-				Object.keys(res.errors).forEach((fieldName)=>{
+				Object.keys(res.errors).forEach((fieldName) => {
 					ui.setFieldInvalid(fieldName, res.errors[fieldName]);
 					res.error.push(...res.errors[fieldName]);
 				});
 			}
-			if(res.error){
+			if (res.error) {
 				ui.setFormError(res.error);
 			}
-			if(!res.error ){
+			if (!res.error) {
 				ui.showSuccess();
 			}
 		}
