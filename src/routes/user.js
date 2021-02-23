@@ -23,12 +23,7 @@ const
 	Log = require('not-log')(module, 'User/Routes'),
 	config = require('not-config').readerForModule('user');
 
-exports.getIP = (req) => {
-	return req.headers['x-forwarded-for'] ||
-    req.connection.remoteAddress ||
-    req.socket.remoteAddress ||
-    req.connection.socket.remoteAddress;
-};
+const getIP = notNode.Auth.getIP;
 
 /**
  *   Guest actions
@@ -39,7 +34,7 @@ exports.register = async (req, res) => {
 		Log.debug('register');
 		let User = this.getModel('User'),
 			OneTimeCode = this.getModel('OneTimeCode'),
-			ip = exports.getIP(req),
+			ip = getIP(req),
 			userID = await notNode.Increment.next(MODEL_NAME),
 			newUser = new User({
 				userID,
@@ -176,8 +171,8 @@ exports.login = (req, res) => {
 	let User = this.getModel('User'),
 		email = req.body.email,
 		password = req.body.password,
-		ip = exports.getIP(req);
-	if ((typeof email !== 'string') || (!validator.isEmail(email))) {
+		ip = getIP(req);
+	if (!User.validateEmail(email)) {
 		let err = new notError(notLocale.say('email_not_valid'));
 		notApp.report(err);
 		return res.status(403).json({
@@ -185,10 +180,7 @@ exports.login = (req, res) => {
 				email: [err.message]
 			}
 		});
-	} else if ((typeof password !== 'string') || (!validator.isLength(password, {
-		min: 6,
-		max: 100
-	}))) {
+	} else if (!User.validatePassword(password)) {
 		let err = new notError(notLocale.say('password_length_not_valid'));
 		notApp.report(err);
 		return res.status(403).json({
@@ -282,7 +274,7 @@ exports.loginByCode = (req, res) => {
 	let User = this.getModel('User'),
 		OneTimeCode = notApp.getModel('OneTimeCode'),
 		code = req.query.code,
-		ip = exports.getIP(req);
+		ip = getIP(req);
 	OneTimeCode.findValid(code)
 		.then((oneTimeCode) => {
 			if (oneTimeCode && oneTimeCode.payload.action === 'loginByCode') {
@@ -397,13 +389,59 @@ exports.restorePassword = (req, res) => {
  *   Authorized user actions
  */
 exports.logout = (req, res) => {
-	req.session.user = null;
-	req.session.role = 'guest';
+	notNode.Auth.setGuest(req);
 	res.status(200).json({});
 };
 
-exports.changePassword = (req, res) => {
-	res.status(200).json({});
+exports._changePassword = exports.changePassword = async (req, res) => {
+	Log.debug('user/profile');
+	let targetId = req.user._id,
+		userId = req.user._id;
+	try{
+		const notApp = notNode.Application,
+			User = notApp.getModel(MODEL_NAME),
+			oldPassword = req.body.oldPassword,
+			newPassword = req.body.newPassword;
+		if (req.user.checkPassword(oldPassword)){
+			if (User.validatePassword(newPassword)) {
+				req.user.password = newPassword;
+				await req.user.save();
+				notApp.inform({
+					to: 	req.user.email,
+					tags: ['userChangePasswordNotification']
+				});
+				req.status(200).json({status: 'ok' });
+			}else{
+				const err = new notError(notLocale.say('password_length_not_valid'), {userId,role: notNode.notAuth.getRole(req)});
+				notApp.report(err);
+				return res.status(403).json({
+					errors: {
+						newPassword: [err.message]
+					}
+				});
+			}
+		}else{
+			 const err = new notError(notLocale.say('password_incorrect'), {userId,role: notNode.notAuth.getRole(req)});
+			 notApp.report(err);
+			 return res.status(403).json({
+				 status: 'error',
+				 errors: {
+					 oldPassword: [err.message]
+				 }
+			 });
+		}
+	}catch(e){
+		notNode.Application.report(new notError('user.changePassword', {
+			ip: getIP(req),
+			role: notNode.notAuth.getRole(req),
+			userId,
+			targetId
+		}, e));
+		res.status(500).json({
+			status: 'error',
+			error: 	e.toString()
+		});
+	}
 };
 
 exports.profile = (req, res) => {
@@ -422,7 +460,7 @@ exports.profile = (req, res) => {
 		})
 			.catch((e) => {
 				notNode.Application.report(new notError('user.profile:db', {
-					ip: exports.getIP(req),
+					ip: getIP(req),
 					userId,
 					targetId
 				}, e));
@@ -433,7 +471,7 @@ exports.profile = (req, res) => {
 			});
 	} catch (e) {
 		notNode.Application.report(new notError('user.profile', {
-			ip: exports.getIP(req),
+			ip: getIP(req),
 			userId,
 			targetId
 		}, e));
@@ -470,7 +508,7 @@ exports.update = async (req, res) => {
 				//репортим попытку доступа к запрещенным данным
 				notNode.Application.report(
 					new notError('user.update: insufficient_level_of_privilegies', {
-						ip: exports.getIP(req),
+						ip: getIP(req),
 						userId,
 						targetId
 					})
@@ -490,7 +528,7 @@ exports.update = async (req, res) => {
 		});
 	} catch (e) {
 		notNode.Application.report(new notError('user.update', {
-			ip: exports.getIP(req),
+			ip: getIP(req),
 			userId,
 			targetId
 		}, e));
@@ -548,7 +586,7 @@ exports._create = async (req, res) => {
 		notApp.logger.debug('user._create');
 		let User = this.getModel('User'),
 			OneTimeCode = notApp.getModel('OneTimeCode'),
-			ip = exports.getIP(req),
+			ip = getIP(req),
 			userID = await notNode.Increment.next(MODEL_NAME),
 			newUser = new User({
 				userID,
@@ -649,7 +687,7 @@ exports._create = async (req, res) => {
 			});
 	} catch (e) {
 		notNode.Application.report(new notError('user._get', {
-			ip: exports.getIP(req),
+			ip: getIP(req),
 			userId,
 			targetId
 		}, e));
@@ -689,7 +727,7 @@ exports._update = async (req, res) => {
 		});
 	} catch (e) {
 		notNode.Application.report(new notError('user._update', {
-			ip: exports.getIP(req),
+			ip: getIP(req),
 			userId,
 			targetId
 		}, e));
@@ -729,7 +767,7 @@ exports._delete = async (req, res) => {
 		if (notNode.Auth.intersect_safe(req.user.role, ['root', 'admin']).length === 0) {
 			notNode.Application.report(
 				new notError('user._delete: insufficient_level_of_privilegies', {
-					ip: exports.getIP(req),
+					ip: getIP(req),
 					userId,
 					targetId
 				})
@@ -758,7 +796,7 @@ exports._delete = async (req, res) => {
 		} else {
 			notNode.Application.report(
 				new notError('user._delete: insufficient_level_of_privilegies', {
-					ip: exports.getIP(req),
+					ip: getIP(req),
 					userId,
 					targetId
 				})
@@ -770,7 +808,7 @@ exports._delete = async (req, res) => {
 		}
 	} catch (e) {
 		notNode.Application.report(new notError('user._delete', {
-			ip: exports.getIP(req),
+			ip: getIP(req),
 			userId,
 			targetId
 		}, e));
@@ -811,7 +849,7 @@ exports.get = (req, res) => {
 					//пише в лог с подробностями: кто кого хотел посмотреть
 					notNode.Application.report(
 						new notError('user.get: insufficient_level_of_privilegies', {
-							ip: exports.getIP(req),
+							ip: getIP(req),
 							userId,
 							targetId
 						})
@@ -835,7 +873,7 @@ exports.get = (req, res) => {
 			});
 	} catch (e) {
 		notNode.Application.report(new notError('user.get', {
-			ip: exports.getIP(req),
+			ip: getIP(req),
 			userId,
 			targetId
 		}, e));
@@ -862,7 +900,7 @@ exports._get = async (req, res) => {
 		})
 			.catch((e) => {
 				notNode.Application.report(new notError('user._get(db)', {
-					ip: exports.getIP(req),
+					ip: getIP(req),
 					userId,
 					targetId
 				}, e));
@@ -873,7 +911,7 @@ exports._get = async (req, res) => {
 			});
 	} catch (e) {
 		notNode.Application.report(new notError('user._get', {
-			ip: exports.getIP(req),
+			ip: getIP(req),
 			userId,
 			targetId
 		}, e));

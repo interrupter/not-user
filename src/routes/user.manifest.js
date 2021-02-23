@@ -111,6 +111,7 @@ module.exports = {
 		},
 		changePassword:{
 			method: 'post',
+			data: ['record', 'data'],
 			rules:[{
 				auth: true
 			}],

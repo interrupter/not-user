@@ -41,6 +41,7 @@
 	import {createEventDispatcher} from 'svelte';
 	let dispatch = createEventDispatcher();
 
+	export let own = false;
 	export let mode = 'create';
 	export let loading = false;
 	export let formValid = false;
@@ -53,8 +54,8 @@
 
 	export let description = {
 		__enabled: true,
-		create:  'Заполните пожалуйств форму',
-		update:  'Заполните пожалуйств форму',
+		create:  'Заполните пожалуйста форму',
+		update:  'Заполните пожалуйста форму',
 	};
 
 	export let username = UserCommon.fieldInit('username', {enabled: true});
@@ -284,6 +285,11 @@
 
 	$: formInvalid = (formValid === false);
 
+
+	function goChangePassword(){
+		dispatch('goChangePassword');
+	}
+
 </script>
 
 {#if success}
@@ -293,6 +299,7 @@
 {:else}
 {#if title.__enabled}
 <h5 class="title">{title[mode]} {#if mode==='update'}{user.userID}#{user.username}{/if}</h5>
+<button on:click={goChangePassword} class="button">Изменение пароля</button>
 {/if}
 {#if description.__enabled}
 <h6 class="subtitle is-6">{description[mode]}</h6>
@@ -503,6 +510,5 @@
 		<button on:click={tryModeAction} disabled={formInvalid} class="button is-primary is-hovered user-register-form-submit pull-right">{submit.caption}</button>
 		{/if}
 	</div>
-
 </div>
 {/if}

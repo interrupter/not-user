@@ -405,6 +405,15 @@ exports.thisStatics = {
 			return false;
 		}
 		return (Object.prototype.hasOwnProperty.call(data, '_id') && data._id.toString() === user_id.toString());
+	},
+	validatePassword(password){
+		return (typeof password === 'string') && (validator.isLength(password, {
+			min: 6,
+			max: 100
+		}));
+	},
+	validateEmail(email){
+		return (typeof email === 'string') && (validator.isEmail(email));
 	}
 };
 

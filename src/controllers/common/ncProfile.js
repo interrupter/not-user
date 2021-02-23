@@ -2,60 +2,31 @@ const ERROR_DEFAULT = 'Что пошло не так.';
 
 import UserCommon from '../common/user.js';
 import UserUIEdit from '../common/ui.edit.svelte';
+import UserUIChangePassword from '../common/ui.change.password.svelte';
 
 import {
-	UIError,
-	Breadcrumbs,
-	notController,
+	ncCRUD,
 	notCommon
 } from 'not-bulma';
 
-const BREADCRUMBS = [{
-	title: 'Аккаунт',
-	url: '/profile'
-}];
+const MODULE_NAME = '';
+const MODEL_NAME = 'User';
 
-class ncProfile extends notController {
+const LABELS = {
+	single: 'Профиль',
+	plural: 'Профили'
+};
+
+class ncProfile extends ncCRUD {
 	constructor(app, params) {
-		super(app, 'User.Profile');
-		this.ui = {};
-		this.els = {};
-		this.setModelName('user');
-		this.buildFrame();
-		Breadcrumbs.setHead(BREADCRUMBS).render({
-			root: app.getOptions('router:root'),
-			target: this.els.top,
-			navigate: (url) => app.getWorking('router').navigate(url)
-		});
-		this.route(params);
+		super(app, `${MODULE_NAME}.ncProfile`);
+		this.setModuleName(MODULE_NAME.toLowerCase());
+		this.setModelName(MODEL_NAME.toLowerCase());
+		this.setOptions('names', LABELS);
+    this.setOptions('Validators', Validators);
+    this.setOptions('params', params);
+		this.start();
 		return this;
-	}
-	setBreadcrumbs(tail) {
-		Breadcrumbs.setTail(tail).update();
-	}
-
-	buildFrame() {
-		let el = document.querySelector(this.app.getOptions('crud.containerSelector', 'body'));
-		while (el.firstChild) {
-			el.removeChild(el.firstChild);
-		}
-		this.els.top = document.createElement('div');
-		this.els.top.id = 'crud-top';
-		this.els.top.classList.add('box');
-		el.appendChild(this.els.top);
-		this.els.main = document.createElement('div');
-		this.els.main.id = 'crud-main';
-		this.els.main.classList.add('box');
-		el.appendChild(this.els.main);
-		this.els.bottom = document.createElement('div');
-		this.els.bottom.id = 'crud-bottom';
-		this.els.bottom.classList.add('box');
-		el.appendChild(this.els.bottom);
-	}
-
-	route(params = []) {
-		this.setBreadcrumbs([]);
-		return this.runUpdate(params);
 	}
 
 	runUpdate(params) {
@@ -71,32 +42,53 @@ class ncProfile extends notController {
 				this.ui.update = new UserUIEdit({
 					target: this.els.main,
 					props: {
+						owner: true,
 						mode: 'update',
 						user: notCommon.stripProxy(res.result)
 					}
+				});
+				this.ui.update.$on('goChangePassword', () => {
+					this.runChangePassword(params);
 				});
 				this.ui.update.$on('update', (ev) => {
 					this.onUserUpdateFormSubmit(ev.detail);
 				});
 				this.ui.update.$on('rejectForm', () => UserCommon.goDashboard(this.app));
 			} else {
-				this.ui.error = new UIError({
-					target: this.els.main,
-					props: {
-						title: 'Произошла ошибка',
-						message: res.error ? res.error : ERROR_DEFAULT
-					}
-				});
+				this.showErrorMessage(res);
 			}
 		})
-			.catch(this.error.bind(this));
+			.catch((err)=>{
+				this.showErrorMessage({ error: err.message });
+			});
 	}
 
-	$destroyUI() {
-		for (let name in this.ui) {
-			this.ui[name].$destroy && this.ui[name].$destroy();
-			delete this.ui[name];
+	runChangePassword(params) {
+		try{
+			if (this.ui.changePassword) {
+				return;
+			} else {
+				this.$destroyUI();
+			}
+			this.ui.changePassword = new UserUIChangePassword({
+				target: this.els.main,
+				props: {}
+			});
+			this.ui.changePassword.$on('changePassword', (ev) => {
+				this.onUserChangePassword({ _id: params[0] , ...ev.detail });
+			});
+			this.ui.changePassword.$on('reject', () => this.goProfile(params[0]));
+		}catch(e){
+			this.showErrorMessage({ error: e.message });
 		}
+	}
+
+	onUserChangePassword(data){
+		this.getModel()({ _id: data._id }).$changePassword(data)
+			.then(this.ui.changePassword.showRequestResult.bind(this))
+			.catch((e)=>{
+				this.showErrorMessage({ error: e.message });
+			});
 	}
 
 	goProfile() {
