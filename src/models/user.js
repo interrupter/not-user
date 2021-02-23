@@ -19,7 +19,7 @@ exports.DEFAULT_ROLES_LIST = DEFAULT_ROLES_LIST;
 const EXTRA_ROLES_LIST = ['confirmed'];
 exports.EXTRA_ROLES_LIST = EXTRA_ROLES_LIST;
 
-exports.DEFAULT_HASH_ALGO = 'sha1';
+exports.DEFAULT_HASH_ALGO = 'sha256';
 exports.thisModelName = 'User';
 exports.keepNotExtended = false;
 

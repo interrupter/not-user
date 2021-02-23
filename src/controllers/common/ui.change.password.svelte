@@ -26,29 +26,33 @@
     error = error;
   };
 
-  function reject(){
+  function reject(e){
+    e && e.preventDefault();
     dispatch('reject');
+    return false;
   }
 
-  function requestChangePassword(){
+  function requestChangePassword(e){
+    e && e.preventDefault();
     dispatch('changePassword', {
       oldPassword, newPassword
     });
     waiting = true;
+    return false;
   }
 
   export function showRequestResult(result){
     waiting = false;
-    if(result.status = 'error'){
-      showError(result.error);
+    if(result.status === 'error'){
+      showError(result.errors);
     }else{
       showSuccess();
     }
   }
 
   function resetErrors(){
-    Object.keys(errors).forEach(key => {
-      errors[key] = false;
+    Object.keys(error).forEach(key => {
+      error[key] = false;
     });
   }
 
@@ -56,10 +60,10 @@
     resetErrors();
     Object.keys(errs).forEach((key)=>{
       if(Object.prototype.hasOwnProperty.call(errs, key)){
-        errors[key] = errs[key];
+        error[key] = errs[key];
       }
     });
-    errors = errors;
+    error = error;
   }
 
   function showSuccess(){

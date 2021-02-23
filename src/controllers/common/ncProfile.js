@@ -1,5 +1,3 @@
-const ERROR_DEFAULT = 'Что пошло не так.';
-
 import UserCommon from '../common/user.js';
 import UserUIEdit from '../common/ui.edit.svelte';
 import UserUIChangePassword from '../common/ui.change.password.svelte';
@@ -23,32 +21,34 @@ class ncProfile extends ncCRUD {
 		this.setModuleName(MODULE_NAME.toLowerCase());
 		this.setModelName(MODEL_NAME.toLowerCase());
 		this.setOptions('names', LABELS);
-    this.setOptions('Validators', Validators);
+    this.setOptions('Validators', {});
     this.setOptions('params', params);
 		this.start();
 		return this;
 	}
 
-	runUpdate(params) {
+	runList(){
+		this.runUpdate();
+	}
+
+	runUpdate() {
 		if (this.ui.update) {
 			return;
 		} else {
 			this.$destroyUI();
 		}
-		this.make.user({
-			_id: params[0]
-		}).$profile().then((res) => {
+		this.getModel()({}).$profile().then((res) => {
 			if (res.status === 'ok') {
 				this.ui.update = new UserUIEdit({
 					target: this.els.main,
 					props: {
-						owner: true,
+						own: true,
 						mode: 'update',
 						user: notCommon.stripProxy(res.result)
 					}
 				});
 				this.ui.update.$on('goChangePassword', () => {
-					this.runChangePassword(params);
+					this.runChangePassword();
 				});
 				this.ui.update.$on('update', (ev) => {
 					this.onUserUpdateFormSubmit(ev.detail);
@@ -63,7 +63,7 @@ class ncProfile extends ncCRUD {
 			});
 	}
 
-	runChangePassword(params) {
+	runChangePassword() {
 		try{
 			if (this.ui.changePassword) {
 				return;
@@ -75,16 +75,16 @@ class ncProfile extends ncCRUD {
 				props: {}
 			});
 			this.ui.changePassword.$on('changePassword', (ev) => {
-				this.onUserChangePassword({ _id: params[0] , ...ev.detail });
+				this.onUserChangePassword({ ...ev.detail });
 			});
-			this.ui.changePassword.$on('reject', () => this.goProfile(params[0]));
+			this.ui.changePassword.$on('reject', () => this.goProfile());
 		}catch(e){
 			this.showErrorMessage({ error: e.message });
 		}
 	}
 
 	onUserChangePassword(data){
-		this.getModel()({ _id: data._id }).$changePassword(data)
+		this.getModel()(data).$changePassword()
 			.then(this.ui.changePassword.showRequestResult.bind(this))
 			.catch((e)=>{
 				this.showErrorMessage({ error: e.message });
@@ -98,7 +98,7 @@ class ncProfile extends ncCRUD {
 
 	onUserUpdateFormSubmit(user) {
 		this.ui.update.setLoading();
-		this.make.user(user).$update()
+		this.getModel()(user).$update()
 			.then((res) => {
 				this.log(res);
 				this.showResult(this.ui.update, res);

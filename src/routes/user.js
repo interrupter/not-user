@@ -410,9 +410,9 @@ exports._changePassword = exports.changePassword = async (req, res) => {
 					to: 	req.user.email,
 					tags: ['userChangePasswordNotification']
 				});
-				req.status(200).json({status: 'ok' });
+				res.status(200).json({status: 'ok' });
 			}else{
-				const err = new notError(notLocale.say('password_length_not_valid'), {userId,role: notNode.notAuth.getRole(req)});
+				const err = new notError(notLocale.say('password_length_not_valid'), {userId,role: notNode.Auth.getRole(req)});
 				notApp.report(err);
 				return res.status(403).json({
 					errors: {
@@ -421,7 +421,7 @@ exports._changePassword = exports.changePassword = async (req, res) => {
 				});
 			}
 		}else{
-			 const err = new notError(notLocale.say('password_incorrect'), {userId,role: notNode.notAuth.getRole(req)});
+			 const err = new notError(notLocale.say('password_incorrect'), {userId,role: notNode.Auth.getRole(req)});
 			 notApp.report(err);
 			 return res.status(403).json({
 				 status: 'error',
@@ -433,7 +433,7 @@ exports._changePassword = exports.changePassword = async (req, res) => {
 	}catch(e){
 		notNode.Application.report(new notError('user.changePassword', {
 			ip: getIP(req),
-			role: notNode.notAuth.getRole(req),
+			role: notNode.Auth.getRole(req),
 			userId,
 			targetId
 		}, e));

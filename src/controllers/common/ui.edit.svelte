@@ -299,7 +299,9 @@
 {:else}
 {#if title.__enabled}
 <h5 class="title">{title[mode]} {#if mode==='update'}{user.userID}#{user.username}{/if}</h5>
-<button on:click={goChangePassword} class="button">Изменение пароля</button>
+{#if own}
+<button on:click={goChangePassword} class="button is-small is-warning">Изменение пароля</button>
+{/if}
 {/if}
 {#if description.__enabled}
 <h6 class="subtitle is-6">{description[mode]}</h6>
