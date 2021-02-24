@@ -1,7 +1,8 @@
 <script>
   import {
     UICommon,
-    UISuccess
+    UISuccess,
+    UIError
   } from 'not-bulma';
 
   import {
@@ -14,6 +15,7 @@
   let newPassword2 = '';
   let waiting = false;
   let success = false;
+  let fatalError = false;
 
   let error = {
     oldPassword: false,
@@ -34,6 +36,7 @@
 
   function requestChangePassword(e){
     e && e.preventDefault();
+    fatalError = false;
     dispatch('changePassword', {
       oldPassword, newPassword
     });
@@ -44,7 +47,11 @@
   export function showRequestResult(result){
     waiting = false;
     if(result.status === 'error'){
-      showError(result.errors);
+      if(Object.prototype.hasOwnProperty.call(result, 'errors')){
+        showError(result.errors);
+      }else if(Object.prototype.hasOwnProperty.call(result, 'error')){
+        showFatalError(result.error);
+      }
     }else{
       showSuccess();
     }
@@ -64,6 +71,10 @@
       }
     });
     error = error;
+  }
+
+  function showFatalError(message){
+    fatalError = message;
   }
 
   function showSuccess(){
@@ -124,6 +135,9 @@
   <p class="help {UICommon.CLASS_ERR}">{error.newPassword2}</p>
   {/if}
 </div>
+{#if fatalError }
+<UIError title="Fatal error" message={fatalError} ></UIError>
+{/if}
 
 <div class="field is-grouped is-grouped-centered">
   <p class="control">
