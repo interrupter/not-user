@@ -485,6 +485,12 @@ exports.thisMethods = {
 	isUser() {
 		return this.isRole('user');
 	},
+	getPrimaryRole(roles){
+		let res = this.role.findItem((itm) => {
+			return roles.includes(itm);
+		});
+		return res;
+	},
 	confirmEmail() {
 		this.emailConfirmed = true;
 		this.confirm = '';
