@@ -486,7 +486,7 @@ exports.thisMethods = {
 		return this.isRole('user');
 	},
 	getPrimaryRole(roles){
-		let res = this.role.findItem((itm) => {
+		let res = this.role.find((itm) => {
 			return roles.includes(itm);
 		});
 		return res;
