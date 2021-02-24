@@ -88,6 +88,14 @@ class ncLogin extends notController {
 				.then(this.showResult.bind(this))
 				.catch(this.showResult.bind(this));
 		});
+
+		this.formUI.$on('loginByCode', ({detail})=>{
+			this.item.setAttrs(detail);
+			this.formUI.setLoading();
+			this.item.$loginByCode()
+				.then(this.showResult.bind(this))
+				.catch(this.showResult.bind(this));
+		});
 	}
 }
 
