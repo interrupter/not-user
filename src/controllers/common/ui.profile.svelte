@@ -70,7 +70,7 @@
   <div class="columns">
     <div class="column">Роли</div>
     <div class="column">
-      <UITag variants={UserCommon.ROLES} items={userRoles} />
+      <UITag variants={UserCommon.ROLES} items={userRoles} readonly={true} />
     </div>
   </div>
 
