@@ -15,6 +15,7 @@
 		userRoleSet.forEach((userRole)=>{
 			userRoles.push(UserCommon.ROLES.find(el => el.title === userRole ));
 		});
+    userRoles = userRoles;
 	}
 
   onMount(()=>{
