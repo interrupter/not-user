@@ -12,7 +12,7 @@ const MODEL_NAME = 'User';
 
 const LABELS = {
 	single: 'Профиль',
-	plural: 'Профили'
+	plural: 'Профиль'
 };
 
 class ncProfile extends ncCRUD {
@@ -32,6 +32,10 @@ class ncProfile extends ncCRUD {
 	}
 
 	runUpdate() {
+		this.setBreadcrumbs([{
+			title: 'Редактирование',
+			url: this.getModelActionURL(false, '')
+		}]);
 		if (this.ui.update) {
 			return;
 		} else {
@@ -65,6 +69,12 @@ class ncProfile extends ncCRUD {
 
 	runChangePassword() {
 		try{
+			this.setBreadcrumbs([{
+				title: 'Редактирование',
+				url: this.getModelActionURL(false, '')
+			},{
+				title: 'Изменение пароля'
+			}]);
 			if (this.ui.changePassword) {
 				return;
 			} else {
