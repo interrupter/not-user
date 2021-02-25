@@ -60,7 +60,8 @@ class ncLogin extends notController {
 					enabled: false,
 					required: false,
 					value: '',
-				}
+				},
+				MODES: this.app.getOptions('modules.user.loginForm.modes', ['login'])
 			}
 		});
 		this.formUI.$on('login', ({detail})=>{

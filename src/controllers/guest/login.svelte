@@ -28,7 +28,7 @@
 		loginByCode
 	*/
 
-	export const  MODES = [
+	export const AVAILABLE_MODES = [
 		'login',
 		'requestLoginCodeOnEmail',
 		'requestLoginCodeOnTelephone',
@@ -48,6 +48,13 @@
 		'requestLoginCodeOnTelephone': 'Вам было отправлено SMS сообщение с кодом',
 		'loginByCode': 'Вход по коду выполнен'
 	};
+
+	export let MODES = [
+		'login',
+		'requestLoginCodeOnEmail',
+		'requestLoginCodeOnTelephone',
+		'loginByCode'
+	];
 
 	export let mode = 'login';
 	export let loading = false;
