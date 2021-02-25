@@ -452,12 +452,13 @@ exports.profile = (req, res) => {
 		const notApp = notNode.Application;
 		let
 			thisModel = notApp.getModel(MODEL_NAME);
-		thisModel.getOne(targetId).then((data) => {
-			res.status(200).json({
-				status: 'ok',
-				result: thisModel.clearFromUnsafe(data, req.user.role)
-			});
-		})
+		thisModel.getOne(targetId)
+			.then((data) => {
+				res.status(200).json({
+					status: 'ok',
+					result: thisModel.clearFromUnsafe(data.toObject(), req.user.role)
+				});
+			})
 			.catch((e) => {
 				notNode.Application.report(new notError('user.profile:db', {
 					ip: getIP(req),

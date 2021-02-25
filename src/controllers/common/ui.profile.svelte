@@ -53,11 +53,15 @@
   <div class="columns">
     <div class="column">Телефон</div>
     <div class="column">
+      {#if user.telephone && typeof user.telephone !== 'undefined' && user.telephone !== 'undefined'}
       {user.telephone}
       {#if user.telephoneConfirmed }
       <span class="tag is-success">Подтверждён</span>
       {:else }
       <span class="tag is-danger">Не подтверждён</span>
+      {/if}
+      {:else }
+      Не указан
       {/if}
     </div>
   </div>
