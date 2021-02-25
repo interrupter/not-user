@@ -1,78 +1,160 @@
 import UserCommon from '../common/user.js';
-import UserUIEdit from '../common/ui.edit.svelte';
+import UserUIProfile from '../common/ui.profile.svelte';
 import UserUIChangePassword from '../common/ui.change.password.svelte';
 
 import {
-	ncCRUD,
-	notCommon
+	notController,
+	notCommon,
+	Breadcrumbs,
+	UIError,
+	UISuccess
 } from 'not-bulma';
 
 const MODULE_NAME = '';
 const MODEL_NAME = 'User';
 
-const LABELS = {
-	single: 'Профиль',
-	plural: 'Профиль'
-};
+const LABEL = 'Профиль';
 
-class ncProfile extends ncCRUD {
+const BREADCRUMBS = [];
+
+class ncProfile extends notController {
 	constructor(app, params) {
-		super(app, `${MODULE_NAME}.ncProfile`);
+		super(app, `User.Profile`);
+		this.ui = {};
+		this.els = {};
+		this.setOptions('containerSelector', this.app.getOptions('crud.containerSelector'));
 		this.setModuleName(MODULE_NAME.toLowerCase());
 		this.setModelName(MODEL_NAME.toLowerCase());
-		this.setOptions('names', LABELS);
-    this.setOptions('Validators', {});
-    this.setOptions('params', params);
+		this.setOptions('Validators', {});
+		this.setOptions('params', params);
+		this.buildFrame();
 		this.start();
 		return this;
 	}
 
-	runList(){
-		this.runUpdate();
+	start() {
+		BREADCRUMBS.splice(0, BREADCRUMBS.length, {
+			title: LABEL,
+			url: notCommon.buildURL({
+				prefix: this.getURLPrefix(),
+				action: 'profile'
+			})
+		});
+		Breadcrumbs.setHead(BREADCRUMBS).render({
+			root: '',
+			target: this.els.top,
+			navigate: (url) => this.app.getWorking('router').navigate(url)
+		});
+		this.route(this.getOptions('params'));
 	}
 
-	runUpdate() {
+	getModel() {
+		return this.make[this.getModelName()];
+	}
+
+	setBreadcrumbs(tail) {
+		Breadcrumbs.setTail(tail).update();
+	}
+
+	backToList() {
+		this.app.getWorking('router').navigate(this.linkBackToList());
+	}
+
+	afterAction(action = 'list') {
+		let navBack = this.app.getOptions('crud.navigateBackAfter', []);
+		if (navBack && Array.isArray(navBack) && navBack.indexOf(action) > -1) {
+			window.history.back();
+		} else {
+			this.backToList();
+		}
+	}
+
+	linkBackToList() {
+		return notCommon.buildURL({
+			prefix: this.getURLPrefix(),
+			action: 'profile'
+		});
+	}
+
+	buildFrame() {
+		let el = document.querySelector(this.app.getOptions('crud.containerSelector', 'body'));
+		while (el.firstChild) {
+			el.removeChild(el.firstChild);
+		}
+		this.els.top = document.createElement('div');
+		this.els.top.id = 'crud-top';
+		this.els.top.classList.add('box');
+		el.appendChild(this.els.top);
+		this.els.main = document.createElement('div');
+		this.els.main.id = 'crud-main';
+		this.els.main.classList.add('box');
+		el.appendChild(this.els.main);
+		this.els.bottom = document.createElement('div');
+		this.els.bottom.id = 'crud-bottom';
+		this.els.bottom.classList.add('box');
+		el.appendChild(this.els.bottom);
+	}
+
+	async preloadVariants() {}
+
+	getItemTitle(item) {
+		if (Object.prototype.hasOwnProperty.call(item, 'title') && (typeof item.title === 'string')) {
+			return item.title;
+		} else if (Object.prototype.hasOwnProperty.call(item, 'label') && (typeof item.label === 'string')) {
+			return item.label;
+		} else if (Object.prototype.hasOwnProperty.call(item, 'id') && (typeof item.id === 'string')) {
+			return item.id;
+		} else if (Object.prototype.hasOwnProperty.call(item, 'name') && (typeof item.name === 'string')) {
+			return item.name;
+		}
+	}
+
+	route() {
+		return this.runDetails();
+	}
+
+	async runDetails() {
+		await this.preloadVariants('details');
 		this.setBreadcrumbs([{
-			title: 'Редактирование',
-			url: this.getModelActionURL(false, '')
+			title: 'Просмотр'
 		}]);
-		if (this.ui.update) {
+		if (this.ui.details) {
 			return;
 		} else {
 			this.$destroyUI();
 		}
-		this.getModel()({}).$profile().then((res) => {
-			if (res.status === 'ok') {
-				this.ui.update = new UserUIEdit({
-					target: this.els.main,
-					props: {
-						own: true,
-						mode: 'update',
-						user: notCommon.stripProxy(res.result)
-					}
+		this.getModel()({}).$profile()
+			.then((res) => {
+				if (res.status === 'ok') {
+					this.ui.update = new UserUIProfile({
+						target: this.els.main,
+						props: {
+							own: true,
+							mode: 'profile',
+							user: notCommon.stripProxy(res.result)
+						}
+					});
+					this.ui.update.$on('goChangePassword', () => {
+						this.runChangePassword();
+					});
+					this.ui.update.$on('update', (ev) => {
+						this.onUserUpdateFormSubmit(ev.detail);
+					});
+					this.ui.update.$on('rejectForm', () => UserCommon.goDashboard(this.app));
+				} else {
+					this.showErrorMessage(res);
+				}
+			})
+			.catch((err) => {
+				this.showErrorMessage({
+					error: err.message
 				});
-				this.ui.update.$on('goChangePassword', () => {
-					this.runChangePassword();
-				});
-				this.ui.update.$on('update', (ev) => {
-					this.onUserUpdateFormSubmit(ev.detail);
-				});
-				this.ui.update.$on('rejectForm', () => UserCommon.goDashboard(this.app));
-			} else {
-				this.showErrorMessage(res);
-			}
-		})
-			.catch((err)=>{
-				this.showErrorMessage({ error: err.message });
 			});
 	}
 
 	runChangePassword() {
-		try{
+		try {
 			this.setBreadcrumbs([{
-				title: 'Редактирование',
-				url: this.getModelActionURL(false, '')
-			},{
 				title: 'Изменение пароля'
 			}]);
 			if (this.ui.changePassword) {
@@ -85,25 +167,53 @@ class ncProfile extends ncCRUD {
 				props: {}
 			});
 			this.ui.changePassword.$on('changePassword', (ev) => {
-				this.onUserChangePassword({ ...ev.detail });
+				this.onUserChangePassword({ ...ev.detail
+				});
 			});
 			this.ui.changePassword.$on('reject', () => this.goProfile());
-		}catch(e){
-			this.showErrorMessage({ error: e.message });
+		} catch (e) {
+			this.showErrorMessage({
+				error: e.message
+			});
 		}
 	}
 
-	onUserChangePassword(data){
+	onUserChangePassword(data) {
 		this.getModel()(data).$changePassword()
 			.then(this.ui.changePassword.showRequestResult.bind(this))
-			.catch((e)=>{
-				this.showErrorMessage({ error: e.message });
+			.catch((e) => {
+				this.showErrorMessage({
+					error: e.message
+				});
 			});
 	}
 
-	goProfile() {
-		this.$destroyUI();
-		this.route();
+	$destroyUI() {
+		for (let name in this.ui) {
+			this.ui[name].$destroy && this.ui[name].$destroy();
+			delete this.ui[name];
+		}
+	}
+
+	showErrorMessage(res) {
+		this.error(res);
+		this.ui.error = new UIError({
+			target: this.els.main,
+			props: {
+				title: 'Произошла ошибка',
+				message: res.error ? res.error : 'unknown error'
+			}
+		});
+	}
+
+	showSuccessMessage(title, message) {
+		this.ui.success = new UISuccess({
+			target: this.els.main,
+			props: {
+				title,
+				message
+			}
+		});
 	}
 
 	onUserUpdateFormSubmit(user) {
@@ -144,7 +254,10 @@ class ncProfile extends ncCRUD {
 		}
 	}
 
-
+	goProfile() {
+		this.$destroyUI();
+		this.route();
+	}
 }
 
 export default ncProfile;
