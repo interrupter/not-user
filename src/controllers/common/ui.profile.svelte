@@ -312,65 +312,6 @@
 	</div>
 	{/if}
 
-	{#if fields.password.enabled}
-	<div class="field user-form-field user-login-form-password">
-		<label for="user-login-form-password" class="label">{fields.password.label}</label>
-		<div class="control has-icons-left has-icons-right">
-			<input id="user-login-form-password"
-				class="input {passwordClasses}" type="password" name="password"
-				invalid="{validationErrors.password}"
-				required={fields.password.required}
-				placeholder="{fields.password.placeholder}"
-				bind:value={fields.password.value}
-				on:change={onChange} on:input={onInput}
-				autocomplete="password" aria-controls="input-field-helper-password" aria-describedby="input-field-helper-password"
-				/>
-			<span class="icon is-small is-left"><i class="fas fa-lock"></i></span>
-			{#if fields.password.validated === true }
-			<span class="icon is-small is-right">
-				{#if fields.password.valid}
-				<i class="fas fa-check"></i>
-				{:else}
-				<i class="fas fa-exclamation-triangle"></i>
-				{/if}
-			</span>
-			{/if}
-		</div>
-		<p class="help {passwordClasses}" id="input-field-helper-password">
-			{#if !(fields.password.validated && fields.password.valid) }{passwordHelper}{:else}&nbsp;{/if}
-		</p>
-	</div>
-	{/if}
-
-	{#if fields.password2.enabled}
-	<div class="field user-form-field user-login-form-password2">
-		<label class="label" for="user-login-form-password2">{fields.password2.label}</label>
-		<div class="control has-icons-left has-icons-right">
-			<input id="user-login-form-password2"
-			class="input {password2Classes}" type="password" name="password2" invalid="{validationErrors.password2}"
-			required={fields.password2.required} placeholder="{fields.password2.placeholder}"
-			bind:value={fields.password2.value} on:change={onChange} on:input={onInput}
-				autocomplete="password2" aria-controls="input-field-helper-password2" aria-describedby="input-field-helper-password2"
-				/>
-			<span class="icon is-small is-left"><i class="fas fa-lock"></i></span>
-			{#if fields.password2.validated === true }
-			<span class="icon is-small is-right">
-				{#if fields.password2.valid}
-				<i class="fas fa-check"></i>
-				{:else}
-				<i class="fas fa-exclamation-triangle"></i>
-				{/if}
-			</span>
-			{/if}
-		</div>
-		<p class="help {password2Classes}" id="input-field-helper-password2">
-			{#if !(fields.password2.validated && fields.password2.valid) }
-			{password2Helper}
-			{:else}&nbsp;{/if}
-		</p>
-	</div>
-	{/if}
-
 	{#if fields.tel.enabled}
 	<div class="field user-form-field user-login-form-tel">
 		<label class="label" for="user-login-form-tel">{fields.tel.label}</label>
@@ -429,7 +370,7 @@
 	<div class="user-form-field user-login-form-role field">
 		<label class="label" for="user-login-form-role">{fields.role.label}</label>
 		<div class="control {roleClasses}" id="user-login-form-role">
-			<UITag variants={UserCommon.ROLES} bind:error={roleInvalid} on:change={onRoleChange} bind:items={userRoles} />
+			<UITag variants={UserCommon.ROLES}  />
 		</div>
 
 		<p class="help {roleClasses}" id="input-field-helper-role">
