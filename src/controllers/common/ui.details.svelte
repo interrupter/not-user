@@ -1,5 +1,6 @@
 <script>
   export let user = {};
+  
 </script>
 
 <h2 class="h2">Пользователь ({user.userID}#{user.username})</h2>
@@ -46,7 +47,9 @@
 
   <div class="columns">
     <div class="column">Роли</div>
-    <div class="column">{user.role.join(', ')}</div>
+    <div class="column">
+      {user.role.join(', ')}
+    </div>
   </div>
 
   <div class="columns">
