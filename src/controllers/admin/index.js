@@ -25,13 +25,13 @@ let manifest = {
 			items: [{
 				section: 'account',
 				title: 	'Профиль',
-				url: 		'/dashboard/profile'
+				url: 		'dashboard/profile'
 			},{
 				break: true,
 				section: 'account',
 				priority: -100,
 				title: 'Выход',
-				url: 		'/dashboard/logout'
+				url: 		'dashboard/logout'
 			}]
 		}
 	},
