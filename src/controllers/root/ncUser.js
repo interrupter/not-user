@@ -249,11 +249,13 @@ class ncUser extends notController {
 					path: ':email',
 					title: 'Email',
 					searchable: true,
-					sortable: true
+					sortable: true,
+					hideOnMobile: true
 				}, {
 					path: ':emailConfirmed',
 					title: 'Подтверждён',
 					type: 'boolean',
+					hideOnMobile: true
 				}, {
 					path: ':role',
 					title: 'Роли',
