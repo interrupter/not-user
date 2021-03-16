@@ -20,13 +20,16 @@ let manifest = {
 		top: {
 			sections: [{
 				id: 		'account',
-				title: 	'Аккаунт'
+				title: 	'Аккаунт',
+				place: 	'end'
 			}],
 			items: [{
-				section: 'account',
-				title: 	'Профиль',
-				url: 		'dashboard/profile'
+				id: 			'account.profile',
+				section: 	'account',
+				title: 		'Профиль',
+				url: 			'dashboard/profile'
 			},{
+				id: 			'account.profile',
 				break: true,
 				section: 'account',
 				priority: -100,

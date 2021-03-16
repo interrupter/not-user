@@ -22,23 +22,22 @@ let manifest = {
 	menu: {
 		top: {
 			sections: [{
-				id: 		'system.state',
-				title: 	'Система'
-			},{
 				id: 		'account',
 				title: 	'Аккаунт',
-				priority: -100
+				place: 	'end'
 			}],
 			items: [{
-				section: 'account',
-				title: 	'Профиль',
-				url: 		'/profile'
+				id: 			'account.profile',
+				section: 	'account',
+				title: 		'Профиль',
+				url: 			'dashboard/profile'
 			},{
-				break: true,
-				section: 'account',
-				priority: -100,
-				title: 'Выход',
-				url: 		'/logout'
+				id: 				'account.profile',
+				break: 			true,
+				section: 		'account',
+				priority: 	-100,
+				title: 			'Выход',
+				url: 				'dashboard/logout'
 			}]
 		},
 		side:{

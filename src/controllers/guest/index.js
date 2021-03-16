@@ -1,6 +1,6 @@
-import ncLogin from './ncLogin';
-import ncRegister from './ncRegister';
-import ncRestore from './ncRestore';
+import ncLogin from 		'./ncLogin';
+import ncRegister from 	'./ncRegister';
+import ncRestore from 	'./ncRestore';
 
 let manifest = {
 	router: {

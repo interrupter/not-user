@@ -2,9 +2,10 @@ const 	Schema = require('mongoose').Schema,
 	path = require('path'),
 	notAuth = require('not-node').Auth,
 	notNode = require('not-node'),
-	App = require('not-node').Application,
 	config = require('not-config').readerForModule('user');
+
 	let middleware = function(req, res, next){
+		const App = notNode.Application;
 		let User = App.getModel('User');
 		req.user = res.locals.user = null;
 		if (!req || !req.session || !req.session) {
@@ -44,12 +45,12 @@ let createRootUser = async (app)=>{
 	return User.add({
 			'email': 					rootUser.email,
 			'username': 			rootUser.username,
-			'password': 			rootUser.password,
+			'password': 			Math.random(),	//first login only by code
 			'confirm': 				'',
 			'emailConfirmed': true,
 			'role': 					[rootUser.role],
 			'__latest': 			true,
-			'status': 				true
+			'active': 				true
 		})
 		.then(()=>{
 			app.logger.info('Installed!');
@@ -63,6 +64,7 @@ let createRootUser = async (app)=>{
 };
 
 const initialize = function(app){
+
 	let User = app.getModel('not-user//User');
 	app.logger.info('checking if not-user has been installed');
 	try{

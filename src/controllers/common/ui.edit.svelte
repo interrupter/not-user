@@ -3,7 +3,8 @@
 	import {onMount} from 'svelte';
 
 
-	import { UITag } from 'not-bulma';
+	import { FormElements } from 'not-bulma';
+	const {UITagControl} = FormElements;
 	import UserCommon from './user.js';
 	const CLASS_ERR = UserCommon.CLASS_ERR;
 	const CLASS_OK = UserCommon.CLASS_OK;
@@ -473,7 +474,7 @@
 	<div class="user-form-field user-login-form-role field">
 		<label class="label" for="user-login-form-role">{fields.role.label}</label>
 		<div class="control {roleClasses}" id="user-login-form-role">
-			<UITag variants={UserCommon.ROLES} bind:error={roleInvalid} on:change={onRoleChange} bind:items={userRoles} />
+			<UITagControl variants={UserCommon.ROLES} bind:error={roleInvalid} on:change={onRoleChange} bind:items={userRoles} />
 		</div>
 
 		<p class="help {roleClasses}" id="input-field-helper-role">

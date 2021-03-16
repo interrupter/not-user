@@ -1,5 +1,6 @@
 <script>
-  import { UITag } from 'not-bulma';
+  import { FormElements } from 'not-bulma';
+	const {UITagControl} = FormElements;
   import {createEventDispatcher, onMount} from 'svelte';
   import UserCommon from './user.js';
   let dispatch = createEventDispatcher();
@@ -74,7 +75,7 @@
   <div class="columns">
     <div class="column title is-5">Роли</div>
     <div class="column subtitle is-5">
-      <UITag variants={UserCommon.ROLES} items={userRoles} readonly={true} />
+      <UITagControl variants={UserCommon.ROLES} items={userRoles} readonly={true} />
     </div>
   </div>
 
