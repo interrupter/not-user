@@ -99,6 +99,7 @@ module.exports = {
 		locales:			path.join(__dirname, 'src', 'locales')
 	},
 	getMiddleware(options){
+		const App = notNode.Application;
 		App.logger.info('...loadUser middleware');
 		return middleware.bind(this);
 	},
