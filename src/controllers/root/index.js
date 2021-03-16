@@ -30,14 +30,14 @@ let manifest = {
 				id: 			'account.profile',
 				section: 	'account',
 				title: 		'Профиль',
-				url: 			'dashboard/profile'
+				url: 			'/dashboard/profile'
 			},{
 				id: 				'account.logout',
 				break: 			true,
 				section: 		'account',
 				priority: 	-100,
 				title: 			'Выход',
-				url: 				'dashboard/logout'
+				url: 				'/dashboard/logout'
 			}]
 		},
 		side:{
