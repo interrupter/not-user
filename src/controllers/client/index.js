@@ -29,7 +29,7 @@ let manifest = {
 				title: 		'Профиль',
 				url: 			'dashboard/profile'
 			},{
-				id: 				'account.profile',
+				id: 				'account.logout',
 				break: 			true,
 				section: 		'account',
 				priority: 	-100,

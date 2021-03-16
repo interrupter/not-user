@@ -29,12 +29,12 @@ let manifest = {
 				title: 		'Профиль',
 				url: 			'dashboard/profile'
 			},{
-				id: 			'account.profile',
-				break: true,
-				section: 'account',
-				priority: -100,
-				title: 'Выход',
-				url: 		'dashboard/logout'
+				id: 				'account.logout',
+				break: 			true,
+				section: 		'account',
+				priority: 	-100,
+				title: 			'Выход',
+				url: 				'dashboard/logout'
 			}]
 		}
 	},

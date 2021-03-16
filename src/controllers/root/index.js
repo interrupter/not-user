@@ -32,7 +32,7 @@ let manifest = {
 				title: 		'Профиль',
 				url: 			'dashboard/profile'
 			},{
-				id: 				'account.profile',
+				id: 				'account.logout',
 				break: 			true,
 				section: 		'account',
 				priority: 	-100,
@@ -46,6 +46,8 @@ let manifest = {
 				title: 	'Система'
 			}],
 			items:		[{
+				id: 		'system.users',
+				section:'system',
 				title: 	'Пользователи',
 				url: 		'/user'
 			}]
