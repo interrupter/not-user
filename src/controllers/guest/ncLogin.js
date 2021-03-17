@@ -64,6 +64,9 @@ class ncLogin extends notController {
 				MODES: this.app.getOptions('modules.user.loginForm.modes', ['login'])
 			}
 		});
+		this.formUI.$on('rejectLogin', ()=>{
+			window.location.assign('/');
+		});
 		this.formUI.$on('login', ({detail})=>{
 			this.item.setAttrs(detail);
 			this.formUI.setLoading();
