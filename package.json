@@ -1,6 +1,6 @@
 {
 		"name": "not-user",
-		"version": "0.2.72",
+		"version": "0.2.73",
 		"description": "not-* family user model in not- environment",
 		"main": "index.js",
 		"scripts": {
@@ -44,13 +44,10 @@
 				"generate-password": "^1.6.0",
 				"jsonwebtoken": "^8.5.1",
 				"mongoose": "^5.12.2",
-				"not-bulma": "^0.3.5",
 				"not-config": "*",
 				"not-error": "*",
 				"not-filter": "*",
 				"not-locale": "*",
-				"not-log": "0.0.18",
-				"not-node": "^3.3.97",
 				"not-one-time-code": "*",
 				"uuidv4": "*",
 				"validator": "^13.5.2",
