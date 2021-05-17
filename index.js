@@ -45,7 +45,7 @@ let createRootUser = async (app)=>{
 	return User.add({
 			'email': 					rootUser.email,
 			'username': 			rootUser.username,
-			'password': 			process.env.INIT_PASS || 'letMeIn',	//first login only by code
+			'password': 			process.env.INIT_PASS || 'letMeIn',	
 			'confirm': 				'',
 			'emailConfirmed': true,
 			'role': 					[rootUser.role],

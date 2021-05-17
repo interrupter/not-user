@@ -151,6 +151,8 @@ module.exports = {
 			method: 'get',
 			rules:[{
 				auth: true
+			},{
+				auth: false
 			}],
 			postFix: '/:actionName'
 		},

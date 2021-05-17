@@ -15,5 +15,6 @@
 	"user_token_ttl_not_set":"tokenTTL не задан, используем стандартное значение 3600 секунд",
 	"telephone_value_is_not_valid": "Номер телефона должен иметь формат +X-XXX-XXX-XXXX",
 	"user_cant_delete_his_own_account" : "Пользователь не может удалить свой собственный аккаунт.",
-	"insufficient_level_of_privilegies": "Недостаточный уровень привилегий"
+	"insufficient_level_of_privilegies": "Недостаточный уровень привилегий",
+	"user_role_guest":	"Гость"
 }

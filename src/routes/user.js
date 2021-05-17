@@ -556,22 +556,34 @@ exports.token = (req, res) => {
 			notApp.logger.log(notLocale.say('user_token_ttl_not_set'));
 			tokenTTL = 3600;
 		}
-		let userInfo = {
-			username: req.user.username,
-			email: req.user.email,
-			emailConfirmed: req.user.emailConfirmed,
-			telephone: req.user.telephone,
-			telephoneConfirmed: req.user.telephoneConfirmed,
-			created: req.user.created,
-			role: req.user.role,
-			active: req.user.active,
-			country: req.user.country,
-			exp: Date.now() / 1000 + tokenTTL
-		};
-		let tokenData = {
-			token: JWT.sign(userInfo, secret)
-		};
-		res.status(200).json(tokenData);
+		let tokenData = {};
+		if(notNode.Auth.isUser(req)){
+			let userInfo = {
+				username: req.user.username,
+				email: req.user.email,
+				emailConfirmed: req.user.emailConfirmed,
+				telephone: req.user.telephone,
+				telephoneConfirmed: req.user.telephoneConfirmed,
+				created: req.user.created,
+				role: req.user.role,
+				active: req.user.active,
+				country: req.user.country,
+				exp: Date.now() / 1000 + tokenTTL
+			};
+			tokenData = {
+				token: JWT.sign(userInfo, secret)
+			};
+			res.status(200).json(tokenData);
+		}else{
+			tokenData = {
+				token: JWT.sign({
+					username: 	notLocale.say('user_role_guest'),
+					role: 			notNode.Auth.DEFAULT_USER_ROLE_FOR_GUEST,
+					exp: Date.now() / 1000 + tokenTTL
+				}, secret)
+			};
+			res.status(200).json(tokenData);
+		}
 	}
 };
 
