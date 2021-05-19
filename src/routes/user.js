@@ -559,8 +559,10 @@ exports.token = (req, res) => {
 		let tokenData = {};
 		if(notNode.Auth.isUser(req)){
 			let userInfo = {
+				session: 		req.session.id,
+				_id: 			req.user._id,
 				username: req.user.username,
-				email: req.user.email,
+				email: 		req.user.email,
 				emailConfirmed: req.user.emailConfirmed,
 				telephone: req.user.telephone,
 				telephoneConfirmed: req.user.telephoneConfirmed,
@@ -577,9 +579,11 @@ exports.token = (req, res) => {
 		}else{
 			tokenData = {
 				token: JWT.sign({
+					session: 		req.session.id,
+					_id: 				false,
 					username: 	notLocale.say('user_role_guest'),
 					role: 			notNode.Auth.DEFAULT_USER_ROLE_FOR_GUEST,
-					exp: Date.now() / 1000 + tokenTTL
+					exp: 				Date.now() / 1000 + tokenTTL
 				}, secret)
 			};
 			res.status(200).json(tokenData);
