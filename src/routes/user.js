@@ -73,7 +73,9 @@ exports.register = async (req, res) => {
 		//send email confirmation
 			.then((oneTimeCode) => {
 				notApp.inform({
-					to: newUser.email,
+					reciever:{
+						email: newUser.email,
+					},
 					tags: ['userEmailConfirmationLink'],
 					link: `/api/user/confirmEmail?code=${oneTimeCode.code}&`
 				});
@@ -239,7 +241,9 @@ exports.requestLoginCodeOnEmail = (req, res) => {
 			.then((oneTimeCode) => {
 				try {
 					notApp.inform({
-						to: email,
+						reciever:{
+							email,
+						},
 						tags: ['userOneTimeLoginLink'],
 						link: `/api/user/loginByCode?code=${oneTimeCode.code}&`
 					});
@@ -317,7 +321,9 @@ exports.requestPasswordRestore = (req, res) => {
 			.then((oneTimeCode) => {
 				try {
 					notApp.inform({
-						to: email,
+						reciever:{
+							email,
+						},
 						tags: ['userPasswordRestoration'],
 						link: `/api/user/restorePassword?code=${oneTimeCode.code}`
 					});
@@ -369,7 +375,9 @@ exports.restorePassword = (req, res) => {
 			notApp.logger.info(`'${user.username}' restored password as ${user._id} ${user.role} via emailed one-time code`);
 			try {
 				notApp.inform({
-					to: user.email,
+					reciever:{
+						email: user.email,
+					},
 					tags: ['userPasswordNew'],
 					pass: pass
 				});
@@ -407,7 +415,9 @@ exports._changePassword = exports.changePassword = async (req, res) => {
 				req.user.password = newPassword;
 				await req.user.save();
 				notApp.inform({
-					to: 	req.user.email,
+					reciever:{
+						email: req.user.email,
+					},
 					tags: ['userChangePasswordNotification']
 				});
 				res.status(200).json({status: 'ok' });
@@ -651,7 +661,9 @@ exports._create = async (req, res) => {
 		//send email confirmation
 			.then((oneTimeCode) => {
 				notApp.inform({
-					to: 	newUser.email,
+					reciever:{
+						email: newUser.email,
+					},
 					tags: ['userEmailConfirmationLink'],
 					link: `/api/user/confirmEmail?code=${oneTimeCode.code}&`
 				});
