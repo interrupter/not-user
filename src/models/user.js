@@ -238,11 +238,11 @@ exports.thisStatics = {
 		return new Promise((resolve, reject) => {
 			try {
 				if (!validator.isEmail(email)) {
-					reject(new notError(notLocale.say('email_not_valid')));
+					reject(new notError(notLocale.say('not-user:email_not_valid')));
 					return;
 				}
 			} catch (e) {
-				reject(new notError(notLocale.say('email_not_valid')));
+				reject(new notError(notLocale.say('not-user:email_not_valid')));
 				return;
 			}
 			this.findOne({
@@ -253,14 +253,14 @@ exports.thisStatics = {
 						if (user.checkPassword(password)) {
 							resolve(user);
 						} else {
-							reject(new notError(notLocale.say('password_incorrect')));
+							reject(new notError(notLocale.say('not-user:password_incorrect')));
 						}
 					} else {
-						reject(new notError(notLocale.say('user_not_found')));
+						reject(new notError(notLocale.say('not-user:user_not_found')));
 					}
 				})
 				.catch((e) => {
-					let error = (new notError(notLocale.say('user_not_found')));
+					let error = (new notError(notLocale.say('not-user:user_not_found')));
 					reject(error.adopt(e));
 				});
 
@@ -276,11 +276,11 @@ exports.thisStatics = {
 							.then(resolve)
 							.catch(reject);
 					} else {
-						reject(new notError(notLocale.say('user_not_found')));
+						reject(new notError(notLocale.say('not-user:user_not_found')));
 					}
 				})
 				.catch((err) => {
-					reject(new notError(notLocale.say('user_not_found')).adopt(err));
+					reject(new notError(notLocale.say('not-user:user_not_found')).adopt(err));
 				});
 		});
 	},
@@ -325,7 +325,7 @@ exports.thisStatics = {
 				return ((!results[0]) && (!results[1]));
 			})
 			.catch((err) => {
-				throw new notError(notLocale.say('user_uniqueness_verification_error')).adopt(err);
+				throw new notError(notLocale.say('not-user:user_uniqueness_verification_error')).adopt(err);
 			});
 	},
 
@@ -335,7 +335,7 @@ exports.thisStatics = {
 		}
 		let safeData = this.extractSafeFields('update', data, roles, actorId, system);
 		//может быть пусто, тогда не тратим время
-		if(Object.keys(safeData).length === 0) throw new notError(notLocale.say('insufficient_level_of_privilegies'));
+		if(Object.keys(safeData).length === 0) throw new notError(notLocale.say('not-user:insufficient_level_of_privilegies'));
 		if (exports.enrich.versioning) {
 			return this.findOneAndUpdate({
 				_id: data._id,

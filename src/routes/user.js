@@ -54,7 +54,7 @@ exports.register = async (req, res) => {
 				if (unique) {
 					return User.add(newUser);
 				} else {
-					throw new notError(notLocale.say('user_uniqueness_verification_error'), {
+					throw new notError(notLocale.say('not-user:user_uniqueness_verification_error'), {
 						username: newUser.username,
 						email: newUser.email
 					});
@@ -96,15 +96,15 @@ exports.register = async (req, res) => {
 								errors: {}
 							};
 							if (existEmail) {
-								mes.errors.email = [notLocale.say('email_taken')];
+								mes.errors.email = [notLocale.say('not-user:email_taken')];
 							}
 							if (existName) {
-								mes.errors.username = [notLocale.say('username_taken')];
+								mes.errors.username = [notLocale.say('not-user:username_taken')];
 							}
 							return res.status(500).json(mes);
 						} else {
 							return res.status(500).json({
-								error: notLocale.say('some_error')
+								error: notLocale.say('not-user:some_error')
 							});
 						}
 					} catch (e) {
@@ -114,13 +114,13 @@ exports.register = async (req, res) => {
 							});
 						} else {
 							return res.status(500).json({
-								error: notLocale.say('some_error')
+								error: notLocale.say('not-user:some_error')
 							});
 						}
 					}
 				} else {
 					return res.status(500).json({
-						error: notLocale.say('some_error')
+						error: notLocale.say('not-user:some_error')
 					});
 				}
 			});
@@ -128,7 +128,7 @@ exports.register = async (req, res) => {
 		Log.error(e);
 		notApp.report(e);
 		return res.status(500).json({
-			error: notLocale.say('some_error')
+			error: notLocale.say('not-user:some_error')
 		});
 	}
 };
@@ -145,7 +145,7 @@ exports.confirmEmail = (req, res) => {
 				if (oneTimeCode && oneTimeCode.payload.action === 'confirmEmail') {
 					return oneTimeCode.redeem();
 				} else {
-					throw new notError(notLocale.say('one_time_code_not_valid'));
+					throw new notError(notLocale.say('not-user:one_time_code_not_valid'));
 				}
 			})
 			.then((oneTimeCode) => {
@@ -175,7 +175,7 @@ exports.login = (req, res) => {
 		password = req.body.password,
 		ip = getIP(req);
 	if (!User.validateEmail(email)) {
-		let err = new notError(notLocale.say('email_not_valid'));
+		let err = new notError(notLocale.say('not-user:email_not_valid'));
 		notApp.report(err);
 		return res.status(403).json({
 			errors: {
@@ -183,7 +183,7 @@ exports.login = (req, res) => {
 			}
 		});
 	} else if (!User.validatePassword(password)) {
-		let err = new notError(notLocale.say('password_length_not_valid'));
+		let err = new notError(notLocale.say('not-user:password_length_not_valid'));
 		notApp.report(err);
 		return res.status(403).json({
 			errors: {
@@ -233,7 +233,7 @@ exports.requestLoginCodeOnEmail = (req, res) => {
 				} else {
 					res.status(403).json({
 						errors: {
-							email: [notLocale.say('user_not_found')]
+							email: [notLocale.say('not-user:user_not_found')]
 						}
 					});
 				}
@@ -248,7 +248,7 @@ exports.requestLoginCodeOnEmail = (req, res) => {
 						link: `/api/user/loginByCode?code=${oneTimeCode.code}&`
 					});
 					res.status(200).json({
-						message: notLocale.say('requestLoginByLink_success')
+						message: notLocale.say('not-user:requestLoginByLink_success')
 					});
 				} catch (e) {
 					notApp.report(e);
@@ -266,7 +266,7 @@ exports.requestLoginCodeOnEmail = (req, res) => {
 	} else {
 		res.status(403).json({
 			errors: {
-				email: [notLocale.say('email_not_valid')]
+				email: [notLocale.say('not-user:email_not_valid')]
 			}
 		});
 	}
@@ -284,7 +284,7 @@ exports.loginByCode = (req, res) => {
 			if (oneTimeCode && oneTimeCode.payload.action === 'loginByCode') {
 				return oneTimeCode.redeem();
 			} else {
-				throw new notError(notLocale.say('one_time_code_not_valid'));
+				throw new notError(notLocale.say('not-user:one_time_code_not_valid'));
 			}
 		})
 		.then((oneTimeCode) => {
@@ -328,7 +328,7 @@ exports.requestPasswordRestore = (req, res) => {
 						link: `/api/user/restorePassword?code=${oneTimeCode.code}`
 					});
 					res.status(200).json({
-						message: notLocale.say('requestRestorePasswordLink_success')
+						message: notLocale.say('not-user:requestRestorePasswordLink_success')
 					});
 				} catch (e) {
 					notApp.report(e);
@@ -346,7 +346,7 @@ exports.requestPasswordRestore = (req, res) => {
 	} else {
 		res.status(403).json({
 			errors: {
-				email: [notLocale.say('email_not_valid')]
+				email: [notLocale.say('not-user:email_not_valid')]
 			}
 		});
 	}
@@ -363,7 +363,7 @@ exports.restorePassword = (req, res) => {
 			if (oneTimeCode.payload.action === 'restorePassword') {
 				return oneTimeCode.redeem();
 			} else {
-				throw new notError(notLocale.say('one_time_code_not_valid'));
+				throw new notError(notLocale.say('not-user:one_time_code_not_valid'));
 			}
 		})
 		.then((oneTimeCode) => {
@@ -422,7 +422,7 @@ exports._changePassword = exports.changePassword = async (req, res) => {
 				});
 				res.status(200).json({status: 'ok' });
 			}else{
-				const err = new notError(notLocale.say('password_length_not_valid'), {userId,role: notNode.Auth.getRole(req)});
+				const err = new notError(notLocale.say('not-user:password_length_not_valid'), {userId,role: notNode.Auth.getRole(req)});
 				notApp.report(err);
 				return res.status(403).json({
 					errors: {
@@ -431,7 +431,7 @@ exports._changePassword = exports.changePassword = async (req, res) => {
 				});
 			}
 		}else{
-			 const err = new notError(notLocale.say('password_incorrect'), {userId,role: notNode.Auth.getRole(req)});
+			 const err = new notError(notLocale.say('not-user:password_incorrect'), {userId,role: notNode.Auth.getRole(req)});
 			 notApp.report(err);
 			 return res.status(403).json({
 				 status: 'error',
@@ -509,7 +509,7 @@ exports.update = async (req, res) => {
 		if (!user) {
 			return res.status(200).json({
 				status: 'error',
-				error: notLocale.say('user_not_found')
+				error: notLocale.say('not-user:user_not_found')
 			});
 		}
 		//если не владелец
@@ -527,7 +527,7 @@ exports.update = async (req, res) => {
 				//return error
 				return res.status(405).json({
 					status: 'error',
-					error: notLocale.say('insufficient_level_of_privilegies')
+					error: notLocale.say('not-user:insufficient_level_of_privilegies')
 				});
 			}
 		}
@@ -559,11 +559,11 @@ exports.token = (req, res) => {
 	const secret = config.get('secret');
 	let tokenTTL = config.get('tokenTTL');
 	if (!secret || typeof secret === 'undefined' || secret === null || secret === '') {
-		notApp.report(new Error(notLocale.say('user_token_secret_not_valid')));
+		notApp.report(new Error(notLocale.say('not-user:user_token_secret_not_valid')));
 		res.status(500).json({});
 	} else {
 		if (tokenTTL === 0 || isNaN(tokenTTL)) {
-			notApp.logger.log(notLocale.say('user_token_ttl_not_set'));
+			notApp.logger.log(notLocale.say('not-user:user_token_ttl_not_set'));
 			tokenTTL = 3600;
 		}
 		let tokenData = {};
@@ -591,7 +591,7 @@ exports.token = (req, res) => {
 				token: JWT.sign({
 					session: 		req.session.id,
 					_id: 				false,
-					username: 	notLocale.say('user_role_guest'),
+					username: 	notLocale.say('not-user:user_role_guest'),
 					role: 			notNode.Auth.DEFAULT_USER_ROLE_FOR_GUEST,
 					exp: 				Date.now() / 1000 + tokenTTL
 				}, secret)
@@ -686,15 +686,15 @@ exports._create = async (req, res) => {
 								errors: {}
 							};
 							if (existEmail) {
-								mes.errors.email = [notLocale.say('email_taken')];
+								mes.errors.email = [notLocale.say('not-user:email_taken')];
 							}
 							if (existName) {
-								mes.errors.username = [notLocale.say('username_taken')];
+								mes.errors.username = [notLocale.say('not-user:username_taken')];
 							}
 							return res.status(500).json(mes);
 						} else {
 							return res.status(500).json({
-								error: notLocale.say('some_error')
+								error: notLocale.say('not-user:some_error')
 							});
 						}
 					} catch (e) {
@@ -704,13 +704,13 @@ exports._create = async (req, res) => {
 							});
 						} else {
 							return res.status(500).json({
-								error: notLocale.say('some_error')
+								error: notLocale.say('not-user:some_error')
 							});
 						}
 					}
 				} else {
 					return res.status(500).json({
-						error: notLocale.say('some_error')
+						error: notLocale.say('not-user:some_error')
 					});
 				}
 			});
@@ -747,7 +747,7 @@ exports._update = async (req, res) => {
 		if (!user) {
 			return res.status(200).json({
 				status: 'error',
-				error: notLocale.say('user_not_found')
+				error: notLocale.say('not-user:user_not_found')
 			});
 		}
 		await thisModel.Update(req.body, req.user.role, userId);
@@ -777,7 +777,7 @@ exports._delete = async (req, res) => {
 		if (targetId === userId) {
 			return res.status(403).json({
 				status: 'error',
-				error: notLocale.say('user_cant_delete_his_own_account')
+				error: notLocale.say('not-user:user_cant_delete_his_own_account')
 			});
 		}
 
@@ -803,7 +803,7 @@ exports._delete = async (req, res) => {
 			);
 			return res.status(405).json({
 				status: 'error',
-				error: notLocale.say('insufficient_level_of_privilegies')
+				error: notLocale.say('not-user:insufficient_level_of_privilegies')
 			});
 		}
 		//только если есть превосходство над удаляемым
@@ -832,7 +832,7 @@ exports._delete = async (req, res) => {
 			);
 			return res.status(405).json({
 				status: 'error',
-				error: notLocale.say('insufficient_level_of_privilegies')
+				error: notLocale.say('not-user:insufficient_level_of_privilegies')
 			});
 		}
 	} catch (e) {
@@ -886,7 +886,7 @@ exports.get = (req, res) => {
 					//результат на лицо
 					res.status(405).json({
 						status: 'error',
-						error: notLocale.say('insufficient_level_of_privilegies')
+						error: notLocale.say('not-user:insufficient_level_of_privilegies')
 					});
 				}
 			}
