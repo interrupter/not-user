@@ -23,20 +23,20 @@ let manifest = {
 		top: {
 			sections: [{
 				id: 		'account',
-				title: 	'Аккаунт',
+				title: 	'not-user:menuSectionTitle',
 				place: 	'end'
 			}],
 			items: [{
 				id: 			'account.profile',
 				section: 	'account',
-				title: 		'Профиль',
+				title: 		'not-user:menuSectionItemProfile',
 				url: 			'/profile'
 			},{
 				id: 				'account.logout',
 				break: 			true,
 				section: 		'account',
 				priority: 	-100,
-				title: 			'Выход',
+				title: 			'not-user:menuSectionItemLogout',
 				url: 				'/logout'
 			}]
 		},

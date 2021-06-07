@@ -45,7 +45,7 @@ let createRootUser = async (app)=>{
 	return User.add({
 			'email': 					rootUser.email,
 			'username': 			rootUser.username,
-			'password': 			process.env.INIT_PASS || 'letMeIn',	
+			'password': 			process.env.INIT_PASS || 'letMeIn',
 			'confirm': 				'',
 			'emailConfirmed': true,
 			'role': 					[rootUser.role],
@@ -92,6 +92,7 @@ module.exports = {
 	name: 'not-user',
 	paths: {
 		routes:				path.join(__dirname, 'src', 'routes'),
+		logics:				path.join(__dirname, 'src', 'logics'),
 		controllers:	path.join(__dirname, 'src', 'controllers'),
 		views:				path.join(__dirname, 'src', 'views'),
 		models:				path.join(__dirname, 'src', 'models'),
