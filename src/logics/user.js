@@ -4,8 +4,6 @@ const {
 	notError
 } = require('not-error');
 
-const {say} = require('not-locale');
-
 const MODEL_NAME = 'User';
 exports.thisLogicName = MODEL_NAME;
 
@@ -32,7 +30,7 @@ class UserLogic {
 				await User.add(newUser);
 			} else {
 				throw new notError(
-					say('not-user:user_uniqueness_verification_error'),
+					'not-user:user_uniqueness_verification_error',
 					{
 						username: newUser.username,
 						email: newUser.email
