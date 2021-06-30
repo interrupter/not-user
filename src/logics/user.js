@@ -55,7 +55,11 @@ class UserLogic {
 				status: 'ok'
 			};
 		}catch(e){
-
+			notApp.report(e);
+			return {
+				status: 'error',
+				error: 'not-user:some_error'
+			};
 		}
 	}
 

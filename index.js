@@ -64,7 +64,6 @@ let createRootUser = async (app)=>{
 };
 
 const initialize = function(app){
-
 	let User = app.getModel('not-user//User');
 	app.logger.info('checking if not-user has been installed');
 	try{

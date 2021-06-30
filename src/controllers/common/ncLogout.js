@@ -10,6 +10,7 @@ class ncLogout extends notController {
 		if (confirm('Хотите выйти?')) {
 			this.make.user({}).$logout()
 				.then(() => {
+					app.emit('user.logout');
 					document.location.href = '/login';
 				})
 				.catch((err) => {

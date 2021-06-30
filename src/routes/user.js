@@ -15,14 +15,13 @@ const
 
 const
 	JWT = require('jsonwebtoken'),
-	notError = require('not-error').notError,
+	{notError} = require('not-error'),
 	notNode = require('not-node'),
 	notAuth = require('not-node').Auth,
+	getIP = notAuth.getIP,
 	validator = require('validator'),
 	Log = require('not-log')(module, 'User/Routes'),
 	config = require('not-config').readerForModule('user');
-
-const getIP = notNode.Auth.getIP;
 
 /**
  *   Guest actions
@@ -597,6 +596,7 @@ exports.token = (req, res) => {
 		}else{
 			tokenData = {
 				token: JWT.sign({
+					active: 		true,
 					session: 		req.session.id,
 					_id: 				false,
 					username: 	'not-user:user_role_guest',
