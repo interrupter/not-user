@@ -85,4 +85,4 @@ exports[MODEL_NAME] = class UserMailerLogic {
 			tags: ['userChangePasswordNotification']
 		});
 	}
-}
+};

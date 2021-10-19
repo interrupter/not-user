@@ -1,9 +1,7 @@
 const notNode = require('not-node');
 const phrase = require('not-locale').modulePhrase('not-user');
 const Log = require('not-log')(module, 'user:logics');
-const notLocale = require('not-locale');
 const {
-	notError,
 	notValidationError,
 	notRequestError
 } = require('not-error');
@@ -81,7 +79,7 @@ exports[MODEL_NAME] = class UserLogic {
 		Log.debug('UserLogic//confirmEmail');
 		const notApp = notNode.Application;
 		const User = notApp.getModel('not-user//User'),
-					OneTimeCode = notApp.getModel('OneTimeCode');
+			OneTimeCode = notApp.getModel('OneTimeCode');
 		const oneTimeCode = await OneTimeCode.findValid(code);
 		if (oneTimeCode && oneTimeCode.payload.action === 'confirmEmail') {
 			await oneTimeCode.redeem();
@@ -95,15 +93,15 @@ exports[MODEL_NAME] = class UserLogic {
 		};
 	}
 
-	static async profile({user}){
+	static async profile({activeUser}){
 		Log.debug('UserLogic//profile');
 		const notApp = notNode.Application;
 		const User = notApp.getModel('not-user//User');
-		let user = await User.getOne(user._id);
+		let user = await User.getOne(activeUser._id);
 		return {
 			status: 'ok',
-			result: User.clearFromUnsafe(user.toObject(), user.role)
-		}
+			result: User.clearFromUnsafe(user.toObject(), activeUser.role)
+		};
 	}
 
 	static checkUserSupremacy({
@@ -183,7 +181,7 @@ exports[MODEL_NAME] = class UserLogic {
 		};
 	}
 
-	static createUser({activeUser, data, ip}){
+	static async createUser({activeUser, data, ip}){
 		Log.debug('UserLogic//createUser');
 		const notApp = notNode.Application;
 		const User = notApp.getModel('not-user//User');
@@ -216,11 +214,11 @@ exports[MODEL_NAME] = class UserLogic {
 					code: 403,
 					error:phrase('user_cant_delete_his_own_account')
 				}
-			)
+			);
 		}
 	}
 
-	static async delete({targetUserId, activeUserId, ip, activeUser}){
+	static async delete({targetUserId, ip, activeUser}){
 		const notApp = notNode.Application;
 		const User = notApp.getModel('not-user//User');
 		UserLogic.checkAgainstSuicide();
@@ -237,6 +235,16 @@ exports[MODEL_NAME] = class UserLogic {
 				ip
 			});
 			await targetUser.close();
+			Log.log({
+				module: 	'user',
+				logic: 		'User',
+				action: 	'createUser',
+				actorId: 		activeUser._id,
+				actorRole: 	activeUser.role,
+				targetId: 		targetUser._id,
+				targetRole: 	targetUser.role,
+				ip
+			});
 		}
 		return {
 			status: 'ok'
@@ -252,12 +260,12 @@ exports[MODEL_NAME] = class UserLogic {
 		const notApp = notNode.Application;
 		const User = notApp.getModel('not-user//User');
 		//if user not quering his own info, check rights
-		if ((targetId !== userId)){
+		if ((targetUserId !== activeUser._id)){
 			UserLogic.checkUserSupremacy({
 				activeUser,
 				targetUser,
 				ip
-			})
+			});
 		}
 		const targetUser = User.getOne(targetUserId);
 		const data = User.clearFromUnsafe(targetUser.toObject());
@@ -267,4 +275,4 @@ exports[MODEL_NAME] = class UserLogic {
 		};
 	}
 
-}
+};

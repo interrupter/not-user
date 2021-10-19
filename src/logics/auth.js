@@ -1,6 +1,9 @@
 const notNode = require('not-node');
+const Log = require('not-log')(module, 'User/Logics/Auth');
+const config = require('not-config').readerForModule('user');
 const phrase = require('not-locale').modulePhrase('not-user');
 const {
+	notError,
 	notValidationError,
 	notRequestError
 } = require('not-error');
@@ -11,11 +14,12 @@ exports.thisLogicName = MODEL_NAME;
 
 function validateEmail(email){
 	try{
+		const User = notNode.Application.getModel('not-user//User');
 		if (!User.validateEmail(email)){
 			throw new Error(phrase('email_not_valid'));
 		}
 	}catch(e){
-		throw new notValidationError(phrase('email_not_valid'), {email: [phrase('email_not_valid')]})
+		throw new notValidationError(phrase('email_not_valid'), {email: [phrase('email_not_valid')]});
 	}
 }
 
@@ -32,7 +36,6 @@ async function redeemFor(oneTimeCode, actionName){
 const TOKEN_TTL = 3600;
 
 exports[MODEL_NAME] = class AuthLogic {
-	TOKEN_TTL;
 
 	static async login({password, email, ip}){
 		const User = notNode.Application.getModel('not-user//User');
@@ -58,7 +61,7 @@ exports[MODEL_NAME] = class AuthLogic {
 		if (!user) {
 			throw new notRequestError(phrase('user_not_found'), {code:403});
 		}
-		await notNode.Application.getLogic('not-user//UserMailer').sendOneTimeLoginCode({user: newUser});
+		await notNode.Application.getLogic('not-user//UserMailer').sendOneTimeLoginCode({user});
 		return {
 			status: 'ok',
 			message: phrase('requestLoginByLink_success')
@@ -66,6 +69,7 @@ exports[MODEL_NAME] = class AuthLogic {
 	}
 
 	static async loginByCode({code, ip}){
+		const User = notNode.Application.getModel('not-user//User');
 		const OneTimeCode = notNode.Application.getModel('OneTimeCode');
 		const oneTimeCode = await OneTimeCode.findValid(code);
 		if(!oneTimeCode || oneTimeCode.payload.action !== 'loginByCode'){
@@ -87,7 +91,7 @@ exports[MODEL_NAME] = class AuthLogic {
 		return {
 			status: 'ok',
 			message: phrase('requestRestorePasswordLink_success')
-		}
+		};
 	}
 
 	static async resetPassword({code}){
@@ -130,6 +134,7 @@ exports[MODEL_NAME] = class AuthLogic {
 
 
 	static validatePasswordFormat({password, context}){
+		const User = notNode.Application.getModel('not-user//User');
 		if (!User.validatePassword(password)) {
 			throw new notRequestError(
 				phrase('password_length_not_valid'),
@@ -228,7 +233,7 @@ exports[MODEL_NAME] = class AuthLogic {
 		}
 		return {
 			token: JWT.sign(payload, secret)
-		}
+		};
 	}
 
 	/**
@@ -247,5 +252,6 @@ exports[MODEL_NAME] = class AuthLogic {
 		);
 	}
 
+};
 
-}
+exports[MODEL_NAME].TOKEN_TTL = TOKEN_TTL;

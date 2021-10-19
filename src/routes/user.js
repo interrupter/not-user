@@ -14,7 +14,6 @@ const
 	modMeta = require('not-meta');
 
 const
-	{notError} = require('not-error'),
 	notNode = require('not-node'),
 	notAuth = require('not-node').Auth,
 	getIP = notAuth.getIP,
@@ -53,7 +52,7 @@ exports.register = async (req, res, next) => {
 	}
 };
 
-exports.confirmEmail = (req, res, next) => {
+exports.confirmEmail = async (req, res, next) => {
 	try {
 		Log.debug('confirmEmail');
 		const code = req.query.code;
@@ -86,9 +85,9 @@ exports.login = async (req, res, next) => {
 	}
 };
 
-exports.requestLoginCodeOnEmail = (req, res, next) => {
+exports.requestLoginCodeOnEmail = async (req, res, next) => {
 	try{
-		notApp.logger.debug('request login by code from email');
+		Log.debug('request login by code from email');
 		const email = req.body.email;
 		const result = await (getAuthLogic().requestLoginCodeOnEmail({email}));
 		res.status(200).json(result);
@@ -97,11 +96,11 @@ exports.requestLoginCodeOnEmail = (req, res, next) => {
 	}
 };
 
-exports.loginByCode = (req, res, next) => {
+exports.loginByCode = async (req, res, next) => {
 	try{
 		Log.debug('login by code from email or sms');
 		const code = req.query.code,
-					ip = getIP(req);
+			ip = getIP(req);
 		const user = await (getAuthLogic().loginByCode({code, ip}));
 		notNode.Auth.setAuth(req, user._id, user.role);
 		req.session.save();
@@ -112,7 +111,7 @@ exports.loginByCode = (req, res, next) => {
 	}
 };
 
-exports.requestPasswordReset = (req, res, next) => {
+exports.requestPasswordReset = async (req, res, next) => {
 	try{
 		Log.debug('user/requestPasswordReset');
 		const email = req.body.email;
@@ -123,7 +122,7 @@ exports.requestPasswordReset = (req, res, next) => {
 	}
 };
 
-exports.resetPassword = (req, res, next) => {
+exports.resetPassword = async (req, res, next) => {
 	try{
 		Log.debug('user/resetPassword');
 		const code = req.query.code;
@@ -151,7 +150,7 @@ exports._changePassword = exports.changePassword = async (req, res, next) => {
 	try{
 		Log.debug('user/(_)changePassword');
 		const oldPass = req.body.oldPassword,
-					newPass = req.body.newPassword;
+			newPass = req.body.newPassword;
 		const result = await (getAuthLogic().changePassword({
 			user: req.user,
 			oldPass,
@@ -164,7 +163,7 @@ exports._changePassword = exports.changePassword = async (req, res, next) => {
 	}
 };
 
-exports.token = (req, res, next) => {
+exports.token = async (req, res, next) => {
 	try{
 		Log.debug('user/token');
 		const secret = config.get('secret');
@@ -184,7 +183,7 @@ exports.token = (req, res, next) => {
 	}
 };
 
-exports.profile = (req, res, next) => {
+exports.profile = async (req, res, next) => {
 	Log.debug('user/profile');
 	try{
 		const result = await (getLogic().profile({
@@ -226,11 +225,11 @@ exports.status = (req, res) => {
  *   Admin actions
  */
 
-exports._create = async (req, res) => {
+exports._create = async (req, res, next) => {
 	try {
 		Log.debug('user._create');
 		const activeUser = req.user,
-					ip = notNode.Auth.getIP(req);
+			ip = notNode.Auth.getIP(req);
 		const data = {
 			username: 	req.body.username,
 			email: 			req.body.email,
@@ -278,9 +277,9 @@ exports._delete = async (req, res, next) => {
 	try{
 		Log.log('user/_delete');
 		const targetUserId = req.params._id,
-					activeUser = req.user,
-					activeUserId = req.user._id,
-					ip =	notNode.Auth.getIP(req);
+			activeUser = req.user,
+			activeUserId = req.user._id,
+			ip =	notNode.Auth.getIP(req);
 		const result = await (getLogic().delete({
 			activeUser,
 			activeUserId,
@@ -293,13 +292,13 @@ exports._delete = async (req, res, next) => {
 	}
 };
 
-exports.get = (req, res, next) => {
+exports.get = async (req, res, next) => {
 	try{
 		Log.log('user/get');
 		const targetUserId = req.params._id,
-					activeUser = req.user,
-					activeUserId = req.user._id,
-					ip =	notNode.Auth.getIP(req);
+			activeUser = req.user,
+			activeUserId = req.user._id,
+			ip =	notNode.Auth.getIP(req);
 		const result = await (getLogic().get({
 			activeUser,
 			activeUserId,
@@ -316,9 +315,9 @@ exports._get = async (req, res, next) => {
 	try{
 		Log.log('user/_get');
 		const targetUserId = req.params._id,
-					activeUser = req.user,
-					activeUserId = req.user._id,
-					ip =	notNode.Auth.getIP(req);
+			activeUser = req.user,
+			activeUserId = req.user._id,
+			ip =	notNode.Auth.getIP(req);
 		const result = await (getLogic().get({
 			activeUser,
 			activeUserId,
