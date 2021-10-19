@@ -52,5 +52,5 @@
       "path": "../../index.js"
     }
   },
-  "importModulesFromNPM": ["not-error-collect", "not-error", "not-one-time-code"]
+  "importModulesFromNPM": ["not-error", "not-one-time-code"]
 }

@@ -10,10 +10,27 @@ const testPaths = require('./options.js'),
   OneTimeCode = require('not-one-time-code/src/models/oneTimeCode'),
   routes = require('../../src/routes/user.js'),
   User = require('../../src/models/user.js'),
-  JWT = require('jsonwebtoken');
+  UserLogic = require('../../src/logics/user.js'),
+  JWT = require('jsonwebtoken'),
+  {
+    stubApp,
+    stubResponse,
+    stubRequest,
+    stubModuleEnv
+  } = require('../stub');
 
 notConf.init(configPath);
 let config = notConf.createReader();
+const modelsEnv = {
+  models: {
+    'User': User.User,
+    'not-user//User': User.User,
+  },
+  schemes: {
+    'User': User.thisSchema,
+    'not-user//User': User.thisSchema,
+  }
+};
 
 describe('routes/user', function() {
 
@@ -42,11 +59,7 @@ describe('routes/user', function() {
     });
 
     it('login - ok', (done) => {
-      let res = {
-          status(st) {
-            this.status = st;
-            return this;
-          },
+      let res = stubResponse({
           json(result) {
             expect(result.error).to.be.undefined;
             expect(result.user).to.be.ok;
@@ -54,38 +67,18 @@ describe('routes/user', function() {
             expect(this.status).to.be.equal(200);
             done();
           }
-        },
-        req = {
-          headers: {
-            'x-forwarded-for': '127.0.0.1'
-          },
-          session: {
-            save() {}
-          },
+        }),
+        req = stubRequest({
           body: {
             email: 'test@mail.org',
             password: 'test_mail.org',
           }
-        };
-      notNode.Application = {
-        inform() {},
-        logger: {
-          log() {},
-          info() {},
-          error: console.error,
-          debug() {},
-        },
-        log() {},
-        report(e) {
-          done(e);
-        }
-      };
-      routes.getModel = () => {
-        return User.User;
-      };
-      routes.getModelSchema = () => {
-        return User.thisSchema;
-      };
+        });
+
+      notNode.Application = stubApp(modelsEnv);
+
+      stubModuleEnv(routes, modelsEnv);
+
       routes.login(req, res, (err) => {
         if (err) {
           done(err);
@@ -94,6 +87,7 @@ describe('routes/user', function() {
           done();
         }
       });
+
     });
 
     it('login - empty email field', (done) => {
@@ -212,7 +206,7 @@ describe('routes/user', function() {
           json(result) {
             expect(this.status).to.be.equal(403);
             expect(result).to.deep.equal({
-              error: notLocale.say('user_not_found')
+              error: 'not-user:user_not_found'
             });
             done();
           }
@@ -238,7 +232,7 @@ describe('routes/user', function() {
         },
         log() {},
         report(e) {
-          expect(e.message).to.be.equal(notLocale.say('user_not_found'));
+          expect(e.message).to.be.equal('not-user:user_not_found');
         }
       };
       routes.getModel = () => {
@@ -254,25 +248,25 @@ describe('routes/user', function() {
     });
 
     it('login - ip address detection testing', () => {
-      expect(routes.getIP({
+      expect(notNode.Auth.getIP({
         headers: {
           'x-forwarded-for': '127.0.0.1'
         }
       })).to.be.equal('127.0.0.1');
-      expect(routes.getIP({
+      expect(notNode.Auth.getIP({
         headers: {},
         connection: {
           remoteAddress: '127.0.0.1'
         }
       })).to.be.equal('127.0.0.1');
-      expect(routes.getIP({
+      expect(notNode.Auth.getIP({
         headers: {},
         connection: {},
         socket: {
           remoteAddress: '127.0.0.1'
         }
       })).to.be.equal('127.0.0.1');
-      expect(routes.getIP({
+      expect(notNode.Auth.getIP({
         headers: {},
         connection: {
           socket: {
@@ -314,133 +308,60 @@ describe('routes/user', function() {
     });
   });
 
-
-
   describe('routes/user/register', function() {
-    it('register - ok', (done) => {
-      let res = {
-          status(st) {
-            this.status = st;
-            return this;
-          },
-          json(result) {
-            expect(result.error).to.be.undefined;
-            expect(this.status).to.be.equal(200);
+    it('register - ok', async () => {
+      try {
+        let req = stubRequest(),
+          res = stubResponse();
+        routes.register(req, res, (err) => {
+          if (err) {
+            done(err);
+          } else {
+            expect(false).to.be.ok;
             done();
           }
-        },
-        req = {
-          headers: {
-            'x-forwarded-for': '127.0.0.1'
-          },
-          session: {
-            save() {}
-          },
-          body: {
-            username: 'usernameTest',
-            email: 'register@mail.org',
-            password: 'register_mail.org',
-          }
-        };
-      routes.getModel = (name) => {
-        if (name === 'User') {
-          return User.User;
-        } else if (name === 'OneTimeCode') {
-          return OneTimeCode.OneTimeCode;
-        }
-      };
-      routes.getModelSchema = () => {
-        return User.thisSchema;
-      };
-      notNode.Application = {
-        inform() {},
-        log() {},
-        logger: {
-          log() {},
-          info() {},
-          error: console.error,
-          debug() {},
-        },
-        report() {},
-        getModel(name) {
-          console.log('model: ', name);
-          if (name === 'User') {
-            return User.User;
-          } else if (name === 'OneTimeCode') {
-            return OneTimeCode.OneTimeCode;
-          }
-        }
-      };
-      routes.register(req, res, (err) => {
-        if (err) {
-          done(err);
-        } else {
-          expect(false).to.be.ok;
-          done();
-        }
-      });
+        });
+      } catch (e) {
+        expect(e).to.be.undefined;
+      }
     });
 
-    it('register - ok, catched error', (done) => {
-      let res = {
-          status(st) {
-            this._status = st;
-            return this;
-          },
-          json(result) {
-            expect(result.error).to.be.ok;
-            expect(this._status).to.be.equal(500);
-            done();
-          }
-        },
-        req = {
-          headers: {
-            'x-forwarded-for': '127.0.0.1'
-          },
-          session: {
-            save() {}
-          },
+    it('register - failed, notError throwned', (done) => {
+      let res = stubResponse({}),
+        req = stubRequest({
           body: {
             username: 'usernameTest',
             email: 'register@mail.org',
             password: 'register_mail.org',
           }
-        };
-      routes.getModel = (name) => {
-        if (name === 'User') {
-          return User.User;
-        } else if (name === 'OneTimeCode') {
-          return OneTimeCode.OneTimeCode;
-        }
-      };
-      routes.getModelSchema = () => {
-        return User.thisSchema;
-      };
-      notNode.Application = {
-        inform() {},
-        report() {},
-        logger: {
-          log() {},
-          info() {},
-          error: console.error,
-          debug() {},
+        });
+      stubModuleEnv(routes, {
+        models: {
+          'User': User.User,
+          'not-user//User': User.User,
+          'OneTimeCode': OneTimeCode.OneTimeCode
         },
-        log() {},
-        getModel(name) {
-          if (name === 'User') {
-            return User.User;
-          } else if (name === 'OneTimeCode') {
-            return undefined;
+        schemes: {
+          'User': User.thisSchema
+        }
+      })
+      notNode.Application = stubApp({
+        models: {
+          'User': User.User,
+          'not-user//User': User.User,
+          'OneTimeCode': OneTimeCode.OneTimeCode
+        },
+        logics: {
+          'not-user//User': {
+            register: async () => {
+              throw new notError('some error');
+            }
           }
         }
-      };
+      });
       routes.register(req, res, (err) => {
-        if (err) {
-          done(err);
-        } else {
-          expect(false).to.be.ok;
-          done();
-        }
+        expect(err).to.be.instanceof(notError);
+        done();
       });
     });
   });
@@ -596,7 +517,7 @@ describe('routes/user', function() {
             return this;
           },
           json(result) {
-            expect(result.errors.email[0]).to.be.equal(notLocale.say('email_not_valid'));
+            expect(result.errors.email[0]).to.be.equal('not-user:email_not_valid');
             expect(this.status).to.be.equal(403);
             done();
           }
@@ -957,7 +878,7 @@ describe('routes/user', function() {
         },
         log() {},
         report(err) {
-          expect(err.message).to.be.equal(notLocale.say('one_time_code_not_valid'));
+          expect(err.message).to.be.equal('not-user:one_time_code_not_valid');
         },
         getModel(name) {
           if (name === 'User') {
@@ -1014,7 +935,7 @@ describe('routes/user', function() {
         },
         log() {},
         report(err) {
-          expect(err.message).to.be.equal(notLocale.say('one_time_code_not_in_format'));
+          expect(err.message).to.be.equal('not-user:one_time_code_not_in_format');
         },
         getModel(name) {
           if (name === 'User') {
@@ -1043,8 +964,6 @@ describe('routes/user', function() {
 
 
   describe('routes/user/requestPasswordRestore', function() {
-    let oneTimePasses = [],
-      oneTimeUser = null;
     before((done) => {
       ((User.User.add({
         email: 'secondTimeTester@email.com',
@@ -1090,7 +1009,7 @@ describe('routes/user', function() {
           },
           json(data) {
             expect(this._status).to.be.equal(200);
-            expect(data.message).to.be.equal(notLocale.say('requestRestorePasswordLink_success'));
+            expect(data.message).to.be.equal('not-user:requestRestorePasswordLink_success');
             done();
           }
         },
@@ -1114,7 +1033,7 @@ describe('routes/user', function() {
         },
         log() {},
         report(err) {
-          expect(err.message).to.be.equal(notLocale.say('one_time_code_not_in_format'));
+          expect(err.message).to.be.equal('not-user:one_time_code_not_in_format');
         },
         getModel(name) {
           if (name === 'User') {
@@ -1147,7 +1066,7 @@ describe('routes/user', function() {
           },
           json(data) {
             expect(this._status).to.be.equal(403);
-            expect(data.errors.email[0]).to.be.equal(notLocale.say('email_not_valid'));
+            expect(data.errors.email[0]).to.be.equal('not-user:email_not_valid');
             done();
           }
         },
@@ -1171,7 +1090,7 @@ describe('routes/user', function() {
         },
         log() {},
         report(err) {
-          expect(err.error).to.be.equal(notLocale.say('email_not_valid'));
+          expect(err.error).to.be.equal('not-user:email_not_valid');
         },
         getModel(name) {
           if (name === 'User') {
@@ -1320,8 +1239,7 @@ describe('routes/user', function() {
 
 
   describe('routes/user/restorePassword', function() {
-    let oneTimePasses = [],
-      oneTimeUser = null;
+    let oneTimePasses = [];
     before((done) => {
       ((User.User.add({
         email: 'fourthTimeTester@email.com',
@@ -1383,7 +1301,7 @@ describe('routes/user', function() {
         };
       notNode.Application = {
         inform() {},
-        report(err) {},
+        report() {},
         logger: {
           log() {},
           info() {},
@@ -1445,7 +1363,7 @@ describe('routes/user', function() {
         },
         log() {},
         report(err) {
-          expect(err.message).to.be.equal(notLocale.say('one_time_code_not_valid'));
+          expect(err.message).to.be.equal('not-user:one_time_code_not_valid');
         },
         getModel(name) {
           if (name === 'User') {
@@ -1893,7 +1811,7 @@ describe('routes/user', function() {
         },
         log() {},
         report(err) {
-          expect(err.message).to.be.equal(notLocale.say('user_token_secret_not_valid'));
+          expect(err.message).to.be.equal('not-user:user_token_secret_not_valid');
         }
       };
       let res = {
@@ -1942,7 +1860,7 @@ describe('routes/user', function() {
         inform() {},
         logger: {
           log(msg) {
-            expect(msg).to.be.equal(notLocale.say('user_token_ttl_not_set'));
+            expect(msg).to.be.equal('not-user:user_token_ttl_not_set');
           },
           info() {},
           debug() {},

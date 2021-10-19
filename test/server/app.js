@@ -61,12 +61,13 @@ let initServerApp = function() {
   expressApp.use(methodOverride());
 };
 
+mongoUri= '';
+
 let initMongoose = function(input) {
-  mongoServer = new MongoMemoryServer();
   log.info('Starting MongoMemoryServer');
-  return mongoServer
-    .getUri()
-    .then((mongoUri) => {
+  return  MongoMemoryServer.create()
+    .then(mongoServer =>{
+      mongoUri = mongoServer.getUri();
       log.info('Setting up mongoose connection... ' + mongoUri);
       mongoose.Promise = global.Promise;
       return mongoose.connect(mongoUri, {useCreateIndex: true,useNewUrlParser: true, useUnifiedTopology: true});
@@ -89,16 +90,18 @@ let initTemplateEngine = function(input = {
 
 let initUserSessions = function() {
   log.info('Setting up user sessions handler...');
-  var MongoStore = require('connect-mongo')(expressSession);
+  const MongoDBStore = require('connect-mongodb-session')(expressSession);
+  const  store = new MongoDBStore({
+    uri:mongoUri,
+    collection: 'sessions'
+  });
   expressApp.use(expressSession({
     secret: config.get('session:secret'),
     key: config.get('session:key'),
     cookie: config.get('session:cookie'),
     resave: false,
     saveUninitialized: true,
-    store: new MongoStore({
-      mongooseConnection: mongoose.connection
-    })
+    store
   }));
 
 };
@@ -287,5 +290,4 @@ module.exports = async () => {
   initWSServer();
 //initializing test environment
   setTimeout(require('./testEnv'), 1000);
-
 };

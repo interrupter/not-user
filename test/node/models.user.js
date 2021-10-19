@@ -39,7 +39,7 @@ describe('models/user', function() {
       it('encryptPassword', () => {
         let pass = 'qwerty_password',
           salt = 'salty_jelly_fish',
-          hash = crypto.createHmac('sha1', salt).update(pass).digest('hex');
+          hash = crypto.createHmac('sha256', salt).update(pass).digest('hex');
         User.thisMethods.salt = salt;
         expect(User.thisMethods.encryptPassword(pass)).to.be.equal(hash);
       });
@@ -47,7 +47,7 @@ describe('models/user', function() {
       it('checkPassword', () => {
         let pass = 'qwerty_password',
           salt = 'salty_jelly_fish',
-          hash = crypto.createHmac('sha1', salt).update(pass).digest('hex');
+          hash = crypto.createHmac('sha256', salt).update(pass).digest('hex');
         User.thisMethods.salt = salt;
         User.thisMethods.hashedPassword = hash;
         expect(User.thisMethods.checkPassword(pass)).to.be.ok;
@@ -135,43 +135,38 @@ describe('models/user', function() {
           });
       });
 
-      it('throw', (done) => {
-        User.User.authorize({
-            leg: ['email', 'password']
-          })
-          .then(() => {
-            expect(false).to.be.true;
-            done(new Error('wrong path'));
-          })
-          .catch((err) => {
-            expect(err).to.be.instanceof(notError);
-            expect(err.message).to.be.equal(notLocale.say('email_not_valid'));
-            done();
-          });
-      });
-      it('undefined', (done) => {
-        User.User.authorize('email', 'password')
-          .then(() => {
-            expect(false).to.be.true;
-          })
-          .catch((err) => {
-            expect(err).to.be.instanceof(notError);
-            expect(err.message).to.be.equal(notLocale.say('email_not_valid'));
-            done();
-          });
+      it('throw', async () => {
+        try{
+          await User.User.authorize({
+              leg: ['email', 'password']
+            });
+          throw new Error('wrong path');
+        }catch(err){
+          expect(err).to.be.instanceof(notError);
+          expect(err.message).to.be.equal('not-user:email_not_valid');
+        }
       });
 
-      it('user exists, wrong pass', (done) => {
-        User.User.authorize('test@email.com', 'password')
-          .then(() => {
-            expect(false).to.be.true;
-          })
-          .catch((err) => {
-            expect(err).to.be.instanceof(notError);
-            expect(err.message).to.be.equal(notLocale.say('password_incorrect'));
-            done();
-          });
+      it('undefined', async () => {
+        try{
+          await User.User.authorize('email', 'password');
+          throw new Error('wrong path');
+        }catch(err){
+          expect(err).to.be.instanceof(notError);
+          expect(err.message).to.be.equal('not-user:email_not_valid');
+        }
       });
+
+      it('user exists, wrong pass', async () => {
+        try{
+          await User.User.authorize('test@email.com', 'password');
+          throw new Error('wrong path');
+        }catch(err){
+          expect(err).to.be.instanceof(notError);
+          expect(err.message).to.be.equal('not-user:password_incorrect');
+        }
+      });
+      
       it('user exists, pass is correct', (done) => {
         User.User.authorize('test@email.com', 'qwerty')
           .then((user) => {

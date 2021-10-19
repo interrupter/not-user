@@ -14,726 +14,241 @@ const
 	modMeta = require('not-meta');
 
 const
-	JWT = require('jsonwebtoken'),
 	{notError} = require('not-error'),
 	notNode = require('not-node'),
 	notAuth = require('not-node').Auth,
 	getIP = notAuth.getIP,
-	validator = require('validator'),
 	Log = require('not-log')(module, 'User/Routes'),
 	config = require('not-config').readerForModule('user');
+
+
+function getLogic(){
+	const notApp = notNode.Application;
+	return notApp.getLogic('not-user//User');
+}
+
+function getAuthLogic(){
+	const notApp = notNode.Application;
+	return notApp.getLogic('not-user//Auth');
+}
 
 /**
  *   Guest actions
  */
-exports.register = async (req, res) => {
-	const notApp = notNode.Application;
+
+exports.register = async (req, res, next) => {
 	try {
 		Log.debug('register');
-		let User = this.getModel('User'),
-			OneTimeCode = this.getModel('OneTimeCode'),
-			ip = getIP(req),
-			userID = await notNode.Increment.next(MODEL_NAME),
-			newUser = new User({
-				userID,
-				username: req.body.username,
-				email: req.body.email,
-				password: req.body.password,
-				ip
-			});
-		//validate input
-		newUser.validate()
-		//check if user with this attributes already exists
-			.then(() => {
-				return User.isUnique(newUser.username, newUser.email);
-			})
-		//create user
-			.then((unique) => {
-				if (unique) {
-					return User.add(newUser);
-				} else {
-					throw new notError('not-user:user_uniqueness_verification_error', {
-						username: newUser.username,
-						email: newUser.email
-					});
-				}
-			})
-		//create one time code for email confirmation
-			.then(() => {
-				return OneTimeCode.createCode({
-					email: newUser.email,
-					owner: newUser._id,
-					action: 'confirmEmail'
-				},
-				60 /* TTL == 60 minutes */
-				);
-			})
-		//send email confirmation
-			.then((oneTimeCode) => {
-				notApp.inform({
-					reciever:{
-						email: newUser.email,
-					},
-					tags: ['userEmailConfirmationLink'],
-					link: `/api/user/confirmEmail?code=${oneTimeCode.code}&`
-				});
-			})
-			.then(() => {
-				res.status(200).json({});
-			})
-			.catch(async (err) => {
-				Log.error(err);
-				notApp.report(err);
-				if (err.message && err.message.indexOf('E11000') > -1) {
-					try {
-						let existName = await User.usernameExists(newUser.username);
-						let existEmail = await User.emailExists(newUser.email);
-						if (existName || existEmail) {
-							let mes = {
-								status: 'error',
-								errors: {}
-							};
-							if (existEmail) {
-								mes.errors.email = ['not-user:email_taken'];
-							}
-							if (existName) {
-								mes.errors.username = ['not-user:username_taken'];
-							}
-							return res.status(500).json(mes);
-						} else {
-							return res.status(500).json({
-								status: 'error',
-								error: 'not-user:some_error'
-							});
-						}
-					} catch (e) {
-						if (e instanceof notError) {
-							return res.status(500).json({
-								status: 'error',
-								error: notError.message
-							});
-						} else {
-							return res.status(500).json({
-								status: 'error',
-								error: 'not-user:some_error'
-							});
-						}
-					}
-				} else {
-					return res.status(500).json({
-						status: 'error',
-						error: 'not-user:some_error'
-					});
-				}
-			});
-	} catch (e) {
+		const  ip = getIP(req);
+		let result = await (getLogic().register({
+			username:   req.body.username,
+			email:       req.body.email,
+			password:   req.body.password,
+			ip
+		}));
+		res.status(200).json(result);
+	}catch(e){
 		Log.error(e);
-		notApp.report(e);
-		return res.status(500).json({
-			status: 'error',
-			error: 'not-user:some_error'
-		});
+		next(e);
 	}
 };
 
-exports.confirmEmail = (req, res) => {
-	const notApp = notNode.Application;
-	Log.debug('confirmEmail');
-	let User = this.getModel('User'),
-		OneTimeCode = notApp.getModel('OneTimeCode'),
-		code = req.query.code;
+exports.confirmEmail = (req, res, next) => {
 	try {
-		OneTimeCode.findValid(code)
-			.then((oneTimeCode) => {
-				if (oneTimeCode && oneTimeCode.payload.action === 'confirmEmail') {
-					return oneTimeCode.redeem();
-				} else {
-					throw new notError('not-user:one_time_code_not_valid');
-				}
-			})
-			.then((oneTimeCode) => {
-				return User.findById(oneTimeCode.payload.owner);
-			})
-			.then((user) => {
-				return user.confirmEmail();
-			})
-			.then(() => {
-				res.redirect('/user_email_confirmed');
-			})
-			.catch((e) => {
-				notApp.report(e);
-				res.redirect('/login');
-			});
-	} catch (e) {
-		notApp.report(e);
+		Log.debug('confirmEmail');
+		const code = req.query.code;
+		await (getLogic().confirmEmail(code));
+		//!TODO change redirect destination to specific page with success message
 		res.redirect('/login');
+	} catch (e) {
+		next(e);
 	}
 };
 
-exports.login = (req, res) => {
-	const notApp = notNode.Application;
-	notApp.log('login');
-	let User = this.getModel('User'),
-		email = req.body.email,
-		password = req.body.password,
-		ip = getIP(req);
-	if (!User.validateEmail(email)) {
-		let err = new notError('not-user:email_not_valid');
-		notApp.report(err);
-		return res.status(403).json({
-			status: 'error',
-			errors: {
-				email: [err.message]
-			}
+exports.login = async (req, res, next) => {
+	try{
+		const notApp = notNode.Application;
+		notApp.log('login');
+		const
+			email = req.body.email,
+			password = req.body.password,
+			ip = getIP(req);
+		const user = await (getAuthLogic().login({email, password, ip}));
+		notNode.Auth.setAuth(req, user._id, user.role);
+		req.session.save();
+		Log.info(`'${user.username}' authorized as ${req.session.user} ${req.session.role}`);
+		res.status(200).json({
+			status: 'ok',
+			result: user
 		});
-	} else if (!User.validatePassword(password)) {
-		let err = new notError('not-user:password_length_not_valid');
-		notApp.report(err);
-		return res.status(403).json({
-			errors: {
-				password: [err.message]
-			}
-		});
-	} else {
-		User.authorize(email, password)
-			.then((user) => {
-				notAuth.setAuth(req, user._id, user.role);
-				notApp.logger.info(`'${user.username}' authorized as ${req.session.user} ${req.session.role}`);
-				user.ip = ip;
-				req.session.save();
-				return user.save();
-			})
-			.then((user) => {
-				let ret = User.clearFromUnsafe(user).toObject();
-				res.status(200).json({
-					user: ret
-				});
-				return;
-			})
-			.catch((err) => {
-				notApp.report(err);
-				return res.status(403).json({
-					error: err.message
-				});
-			});
+	}catch(e){
+		next(e);
 	}
 };
 
-exports.requestLoginCodeOnEmail = (req, res) => {
-	const notApp = notNode.Application;
-	notApp.logger.debug('request login by code from email');
-	const User = this.getModel('User'),
-		OneTimeCode = notApp.getModel('OneTimeCode');
-	let email = req.body.email;
-	if (validator.isEmail(email)) {
-		User.getByEmail(email)
-			.then((user) => {
-				if (user) {
-					return OneTimeCode.createCode({
-						email: user.email,
-						owner: user._id,
-						action: 'loginByCode'
-					});
-				} else {
-					res.status(403).json({
-						errors: {
-							email: ['not-user:user_not_found']
-						}
-					});
-				}
-			})
-			.then((oneTimeCode) => {
-				try {
-					notApp.inform({
-						reciever:{
-							email,
-						},
-						tags: ['userOneTimeLoginLink'],
-						link: `/api/user/loginByCode?code=${oneTimeCode.code}&`
-					});
-					res.status(200).json({
-						message: 'not-user:requestLoginByLink_success'
-					});
-				} catch (e) {
-					notApp.report(e);
-					res.status(500).json({
-						error: e.message
-					});
-				}
-			})
-			.catch((e) => {
-				notApp.report(e);
-				res.status(500).json({
-					error: e.message
-				});
-			});
-	} else {
-		res.status(403).json({
-			errors: {
-				email: ['not-user:email_not_valid']
-			}
-		});
+exports.requestLoginCodeOnEmail = (req, res, next) => {
+	try{
+		notApp.logger.debug('request login by code from email');
+		const email = req.body.email;
+		const result = await (getAuthLogic().requestLoginCodeOnEmail({email}));
+		res.status(200).json(result);
+	}catch(e){
+		next(e);
 	}
 };
 
-exports.loginByCode = (req, res) => {
-	const notApp = notNode.Application;
-	notApp.logger.debug('login by code from email or sms');
-	let User = this.getModel('User'),
-		OneTimeCode = notApp.getModel('OneTimeCode'),
-		code = req.query.code,
-		ip = getIP(req);
-	OneTimeCode.findValid(code)
-		.then((oneTimeCode) => {
-			if (oneTimeCode && oneTimeCode.payload.action === 'loginByCode') {
-				return oneTimeCode.redeem();
-			} else {
-				throw new notError('not-user:one_time_code_not_valid');
-			}
-		})
-		.then((oneTimeCode) => {
-			return User.findById(oneTimeCode.payload.owner);
-		})
-		.then((user) => {
-			notAuth.setAuth(req, user._id, user.role);
-			notApp.logger.info(`'${user.username}' authorized as ${req.session.user} ${req.session.role} via emailed/smsed one-time code`);
-			user.ip = ip;
-			req.session.save();
-			user.save();
-			res.status(200).redirect('/');
-		})
-		.catch((e) => {
-			notApp.report(e);
-			res.redirect('/login');
-		});
-};
-
-exports.requestPasswordRestore = (req, res) => {
-	let User = this.getModel('User'),
-		email = req.body.email,
-		notApp = notNode.Application,
-		OneTimeCode = notApp.getModel('OneTimeCode');
-	if (validator.isEmail(email)) {
-		User.getByEmail(email)
-			.then((user) => {
-				return OneTimeCode.createCode({
-					email: user.email,
-					owner: user._id,
-					action: 'restorePassword'
-				});
-			})
-			.then((oneTimeCode) => {
-				try {
-					notApp.inform({
-						reciever:{
-							email,
-						},
-						tags: ['userPasswordRestoration'],
-						link: `/api/user/restorePassword?code=${oneTimeCode.code}`
-					});
-					res.status(200).json({
-						message: 'not-user:requestRestorePasswordLink_success'
-					});
-				} catch (e) {
-					notApp.report(e);
-					res.status(500).json({
-						status: 'error',
-						error: e.message
-					});
-				}
-			})
-			.catch((e) => {
-				notApp.report(e);
-				res.status(500).json({
-					status: 'error',
-					error: e.message
-				});
-			});
-	} else {
-		res.status(403).json({
-			status: 'error',
-			errors: {
-				email: ['not-user:email_not_valid']
-			}
-		});
+exports.loginByCode = (req, res, next) => {
+	try{
+		Log.debug('login by code from email or sms');
+		const code = req.query.code,
+					ip = getIP(req);
+		const user = await (getAuthLogic().loginByCode({code, ip}));
+		notNode.Auth.setAuth(req, user._id, user.role);
+		req.session.save();
+		Log.info(`'${user.username}' authorized as ${req.session.user} ${req.session.role} via emailed/smsed one-time code`);
+		res.status(200).redirect('/');
+	}catch(e){
+		next(e);
 	}
 };
 
-exports.restorePassword = (req, res) => {
-	const notApp = notNode.Application;
-	Log.debug('restore password');
-	let User = this.getModel('User'),
-		OneTimeCode = notApp.getModel('OneTimeCode'),
-		code = req.query.code;
-	OneTimeCode.findValid(code)
-		.then((oneTimeCode) => {
-			if (oneTimeCode.payload.action === 'restorePassword') {
-				return oneTimeCode.redeem();
-			} else {
-				throw new notError('not-user:one_time_code_not_valid');
-			}
-		})
-		.then((oneTimeCode) => {
-			return User.findById(oneTimeCode.payload.owner);
-		})
-		.then((user) => {
-			let pass = user.createNewPassword();
-			const notApp = notNode.Application;
-			notApp.logger.info(`'${user.username}' restored password as ${user._id} ${user.role} via emailed one-time code`);
-			try {
-				notApp.inform({
-					reciever:{
-						email: user.email,
-					},
-					tags: ['userPasswordNew'],
-					pass: pass
-				});
-				res.redirect('/restorePasswordSuccess');
-			} catch (e) {
-				notApp.report(e);
-				res.status(500).redirect('/restorePasswordError');
-			}
-		})
-		.catch((e) => {
-			notApp.report(e);
-			res.redirect('/login');
-		});
+exports.requestPasswordReset = (req, res, next) => {
+	try{
+		Log.debug('user/requestPasswordReset');
+		const email = req.body.email;
+		const result = await (getAuthLogic().requestPasswordReset({email}));
+		res.status(200).json(result);
+	}catch(e){
+		next(e);
+	}
+};
+
+exports.resetPassword = (req, res, next) => {
+	try{
+		Log.debug('user/resetPassword');
+		const code = req.query.code;
+		await (getAuthLogic().resetPassword({code}));
+		res.redirect('/resetPasswordSuccess');
+	}catch(e){
+		next(e);
+	}
 };
 
 /**
  *   Authorized user actions
  */
-exports.logout = (req, res) => {
-	notNode.Auth.setGuest(req);
-	res.status(200).json({});
-};
-
-exports._changePassword = exports.changePassword = async (req, res) => {
-	Log.debug('user/profile');
-	let targetId = req.user._id,
-		userId = req.user._id;
+exports._logout = exports.logout = (req, res, next) => {
 	try{
-		const notApp = notNode.Application,
-			User = notApp.getModel(MODEL_NAME),
-			oldPassword = req.body.oldPassword,
-			newPassword = req.body.newPassword;
-		if (req.user.checkPassword(oldPassword)){
-			if (User.validatePassword(newPassword)) {
-				req.user.password = newPassword;
-				await req.user.save();
-				notApp.inform({
-					reciever:{
-						email: req.user.email,
-					},
-					tags: ['userChangePasswordNotification']
-				});
-				res.status(200).json({status: 'ok' });
-			}else{
-				const err = new notError('not-user:password_length_not_valid', {userId,role: notNode.Auth.getRole(req)});
-				notApp.report(err);
-				return res.status(403).json({
-					errors: {
-						newPassword: [err.message]
-					}
-				});
-			}
-		}else{
-			 const err = new notError('not-user:password_incorrect', {userId,role: notNode.Auth.getRole(req)});
-			 notApp.report(err);
-			 return res.status(403).json({
-				 status: 'error',
-				 errors: {
-					 oldPassword: [err.message]
-				 }
-			 });
-		}
+		Log.debug('user/(_)logout');
+		notNode.Auth.setGuest(req);
+		res.status(200).json({});
 	}catch(e){
-		notNode.Application.report(new notError('user.changePassword', {
-			ip: getIP(req),
-			role: notNode.Auth.getRole(req),
-			userId,
-			targetId
-		}, e));
-		res.status(500).json({
-			status: 'error',
-			error: 	e.toString()
-		});
+		next(e);
 	}
 };
 
-exports.profile = (req, res) => {
+exports._changePassword = exports.changePassword = async (req, res, next) => {
+	try{
+		Log.debug('user/(_)changePassword');
+		const oldPass = req.body.oldPassword,
+					newPass = req.body.newPassword;
+		const result = await (getAuthLogic().changePassword({
+			user: req.user,
+			oldPass,
+			newPass,
+			ip: getIP(req)
+		}));
+		res.status(200).json(result);
+	}catch(e){
+		next(e);
+	}
+};
+
+exports.token = (req, res, next) => {
+	try{
+		Log.debug('user/token');
+		const secret = config.get('secret');
+		let tokenTTL = config.get('tokenTTL');
+		const params = {
+			secret,
+			tokenTTL,
+			ip: notNode.Auth.getIP(req),
+		};
+		if(notNode.Auth.isUser(req)){
+			params.user = req.user;
+		}
+		const result = await (getAuthLogic().token(params));
+		res.status(200).json(result);
+	}catch(e){
+		next(e);
+	}
+};
+
+exports.profile = (req, res, next) => {
 	Log.debug('user/profile');
-	let targetId = req.user._id,
-		userId = req.user._id;
-	try {
-		const notApp = notNode.Application;
-		let
-			thisModel = notApp.getModel(MODEL_NAME);
-		thisModel.getOne(targetId)
-			.then((data) => {
-				res.status(200).json({
-					status: 'ok',
-					result: thisModel.clearFromUnsafe(data.toObject(), req.user.role)
-				});
-			})
-			.catch((e) => {
-				notNode.Application.report(new notError('user.profile:db', {
-					ip: getIP(req),
-					userId,
-					targetId
-				}, e));
-				res.status(500).json({
-					status: 'error',
-					error: e.toString()
-				});
-			});
-	} catch (e) {
-		notNode.Application.report(new notError('user.profile', {
-			ip: getIP(req),
-			userId,
-			targetId
-		}, e));
-		res.status(500).json({
-			status: 'error',
-			error: e.toString()
-		});
+	try{
+		const result = await (getLogic().profile({
+			user: req.user,
+			ip: notNode.Auth.getIP(req),
+		}));
+		res.status(200).json(result);
+	}catch(e){
+		next(e);
 	}
 };
 
-exports.update = async (req, res) => {
-	const notApp = notNode.Application;
-	let targetId = req.params._id,
-		userId = req.user._id;
-	try {
-		let rolesPriority = config.get('roles:priority') || ['root', 'admin', 'client', 'user', 'guest'];
-		let thisModel = notApp.getModel(MODEL_NAME);
-		let user = await thisModel.findOne({
-			_id: targetId,
-			__latest: true,
-			__closed: false
-		}).exec();
-
-		if (!user) {
-			return res.status(200).json({
-				status: 'error',
-				error: 'not-user:user_not_found'
-			});
-		}
-		//если не владелец
-		if (targetId !== userId) {
-			//и не админ, а цель ниже по уровню
-			if (!(notNode.Auth.compareRoles(req.user.role, ['admin']) && notNode.Auth.checkSupremacy(req.user.role, user.role, rolesPriority))) {
-				//репортим попытку доступа к запрещенным данным
-				notNode.Application.report(
-					new notError('user.update: insufficient_level_of_privilegies', {
-						ip: getIP(req),
-						userId,
-						targetId
-					})
-				);
-				//return error
-				return res.status(405).json({
-					status: 'error',
-					error: 'not-user:insufficient_level_of_privilegies'
-				});
-			}
-		}
-		//rights is ok
-		await thisModel.Update(req.body, req.user.role, userId);
-		//if no errors
-		return res.status(200).json({
-			status: 'ok'
-		});
-	} catch (e) {
-		notNode.Application.report(new notError('user.update', {
-			ip: getIP(req),
-			userId,
-			targetId
-		}, e));
-		res.status(500).json({
-			status: 'error',
-			error: e.toString()
-		});
+exports.update = async (req, res, next) => {
+	Log.debug('user.update');
+	try{
+		const targetUserId = req.params._id,
+			activeUser = req.user;
+		const result = await (getLogic().update({
+			targetUserId,
+			activeUser,
+			data: req.body,
+			user: req.user,
+			ip: notNode.Auth.getIP(req),
+		}));
+		res.status(200).json(result);
+	}catch(e){
+		next(e);
 	}
 };
 
 exports.status = (req, res) => {
+	Log.debug('user.status');
 	res.status(200).json({});
 };
 
-exports.token = (req, res) => {
-	const notApp = notNode.Application;
-	const secret = config.get('secret');
-	let tokenTTL = config.get('tokenTTL');
-	if (!secret || typeof secret === 'undefined' || secret === null || secret === '') {
-		notApp.report(new Error('not-user:user_token_secret_not_valid'));
-		res.status(500).json({});
-	} else {
-		if (tokenTTL === 0 || isNaN(tokenTTL)) {
-			notApp.logger.log('not-user:user_token_ttl_not_set');
-			tokenTTL = 3600;
-		}
-		let tokenData = {};
-		if(notNode.Auth.isUser(req)){
-			let userInfo = {
-				session: 		req.session.id,
-				_id: 			req.user._id,
-				username: req.user.username,
-				email: 		req.user.email,
-				emailConfirmed: req.user.emailConfirmed,
-				telephone: req.user.telephone,
-				telephoneConfirmed: req.user.telephoneConfirmed,
-				created: req.user.created,
-				role: req.user.role,
-				active: req.user.active,
-				country: req.user.country,
-				exp: Date.now() / 1000 + tokenTTL
-			};
-			tokenData = {
-				token: JWT.sign(userInfo, secret)
-			};
-			res.status(200).json(tokenData);
-		}else{
-			tokenData = {
-				token: JWT.sign({
-					active: 		true,
-					session: 		req.session.id,
-					_id: 				false,
-					username: 	'not-user:user_role_guest',
-					role: 			notNode.Auth.DEFAULT_USER_ROLE_FOR_GUEST,
-					exp: 				Date.now() / 1000 + tokenTTL
-				}, secret)
-			};
-			res.status(200).json(tokenData);
-		}
-	}
-};
+
 
 /**
  *   Admin actions
  */
 
 exports._create = async (req, res) => {
-	const notApp = notNode.Application;
-	let targetId = req.params._id,
-		userId = req.user._id;
 	try {
-		notApp.logger.debug('user._create');
-		let User = this.getModel('User'),
-			OneTimeCode = notApp.getModel('OneTimeCode'),
-			ip = getIP(req),
-			userID = await notNode.Increment.next(MODEL_NAME),
-			newUser = new User({
-				userID,
-				username: req.body.username,
-				email: req.body.email,
-				password: req.body.password,
-				role: req.body.role,
-				tel: req.body.tel,
-				country: req.body.country,
-				active: req.body.active,
-				ip
-			});
-
-		newUser.validate()
-		//check if user with this attributes already exists
-			.then(() => {
-				return User.isUnique(newUser.username, newUser.email);
-			})
-		//create user
-			.then((unique) => {
-				if (unique) {
-					return User.add(newUser);
-				} else {
-					throw new notError('E11000');
-				}
-			})
-		//create one time code for email confirmation
-			.then((savedUser) => {
-				notApp.logger.log({
-					module: 'user',
-					model: 'user',
-					action: 'create',
-					by: userId,
-					target: savedUser._id,
-					targetID: savedUser.userID
-				});
-				return OneTimeCode.createCode({
-					email: newUser.email,
-					owner: newUser._id,
-					action: 'confirmEmail'
-				},
-				60 /* TTL == 60 minutes */
-				);
-			})
-		//send email confirmation
-			.then((oneTimeCode) => {
-				notApp.inform({
-					reciever:{
-						email: newUser.email,
-					},
-					tags: ['userEmailConfirmationLink'],
-					link: `/api/user/confirmEmail?code=${oneTimeCode.code}&`
-				});
-			})
-			.then(() => {
-				res.status(200).json({
-					status: 'ok',
-					result: User.clearFromUnsafe(newUser)
-				});
-			})
-			.catch(async (err) => {
-				notApp.report(err);
-				if (err.message && err.message.indexOf('E11000') > -1) {
-					try {
-						let existName = await User.usernameExists(newUser.username);
-						let existEmail = await User.emailExists(newUser.email);
-						if (existName || existEmail) {
-							let mes = {
-								status: 'error',
-								errors: {}
-							};
-							if (existEmail) {
-								mes.errors.email = ['not-user:email_taken'];
-							}
-							if (existName) {
-								mes.errors.username = ['not-user:username_taken'];
-							}
-							return res.status(500).json(mes);
-						} else {
-							return res.status(500).json({
-								error: 'not-user:some_error'
-							});
-						}
-					} catch (e) {
-						if (e instanceof notError) {
-							return res.status(500).json({
-								error: notError.message
-							});
-						} else {
-							return res.status(500).json({
-								status: 'error',
-								error: 'not-user:some_error'
-							});
-						}
-					}
-				} else {
-					return res.status(500).json({
-						status: 'error',
-						error: 'not-user:some_error'
-					});
-				}
-			});
-	} catch (e) {
-		notNode.Application.report(new notError('user._get', {
-			ip: getIP(req),
-			userId,
-			targetId
-		}, e));
-		res.status(500).json({
-			status: 'error',
-			error: e.toString()
-		});
+		Log.debug('user._create');
+		const activeUser = req.user,
+					ip = notNode.Auth.getIP(req);
+		const data = {
+			username: 	req.body.username,
+			email: 			req.body.email,
+			password: 	req.body.password,
+			role: 			req.body.role,
+			tel: 				req.body.tel,
+			country: 		req.body.country,
+			active: 		req.body.active,
+			ip
+		};
+		const result = await (getLogic().createUser({
+			activeUser,
+			data,
+			ip
+		}));
+		res.status(200).json(result);
+	}catch(e){
+		next(e);
 	}
 };
 
@@ -741,223 +256,78 @@ exports._steal = (req, res) => {
 	res.status(200).json({});
 };
 
-exports._update = async (req, res) => {
-	let targetId = req.params._id,
-		userId = req.user._id;
-	try {
-		const notApp = notNode.Application;
-		let thisModel = notApp.getModel(MODEL_NAME);
-
-		let user = await thisModel.findOne({
-			_id: targetId,
-			__latest: true,
-			__closed: false
-		}).exec();
-
-		if (!user) {
-			return res.status(200).json({
-				status: 'error',
-				error: 'not-user:user_not_found'
-			});
-		}
-		await thisModel.Update(req.body, req.user.role, userId);
-		return res.status(200).json({
-			status: 'ok'
-		});
-	} catch (e) {
-		notNode.Application.report(new notError('user._update', {
-			ip: getIP(req),
-			userId,
-			targetId
-		}, e));
-		res.status(500).json({
-			status: 'error',
-			error: e.toString()
-		});
+exports._update = async (req, res, next) => {
+	try{
+		Log.log('user/_update');
+		const targetUserId = req.params._id,
+			activeUser = req.user;
+		const result = await (getLogic().update({
+			targetUserId,
+			activeUser,
+			data: req.body,
+			user: req.user,
+			ip: 	notNode.Auth.getIP(req),
+		}));
+		res.status(200).json(result);
+	}catch(e){
+		next(e);
 	}
 };
 
-exports._delete = async (req, res) => {
-	let targetId = req.params._id,
-		userId = req.user._id;
-	try {
-		const notApp = notNode.Application;
-		let thisModel = notApp.getModel(MODEL_NAME);
-
-		if (targetId === userId) {
-			return res.status(403).json({
-				status: 'error',
-				error: 'not-user:user_cant_delete_his_own_account'
-			});
-		}
-
-		let user = await thisModel.findOne({
-			_id: targetId,
-			__latest: true,
-			__closed: false
-		}).exec();
-
-		if (!user) {
-			return res.status(200).json({
-				status: 'ok'
-			});
-		}
-		//только админам и супер пользователю положено
-		if (notNode.Auth.intersect_safe(req.user.role, ['root', 'admin']).length === 0) {
-			notNode.Application.report(
-				new notError('user._delete: insufficient_level_of_privilegies', {
-					ip: getIP(req),
-					userId,
-					targetId
-				})
-			);
-			return res.status(405).json({
-				status: 'error',
-				error: 'not-user:insufficient_level_of_privilegies'
-			});
-		}
-		//только если есть превосходство над удаляемым
-		let rolesPriority = config.get('roles:priority') || ['root', 'admin', 'client', 'user', 'guest'];
-		if (notNode.Auth.checkSupremacy(req.user.role, user.role, rolesPriority)) {
-			notApp.logger.log({
-				module: 'user',
-				model: 'user',
-				action: 'delete',
-				by: userId,
-				target: targetId
-			});
-			await user.updateOne({
-				__closed: true
-			}).exec();
-			return res.status(200).json({
-				status: 'ok'
-			});
-		} else {
-			notNode.Application.report(
-				new notError('user._delete: insufficient_level_of_privilegies', {
-					ip: getIP(req),
-					userId,
-					targetId
-				})
-			);
-			return res.status(405).json({
-				status: 'error',
-				error: 'not-user:insufficient_level_of_privilegies'
-			});
-		}
-	} catch (e) {
-		notNode.Application.report(new notError('user._delete', {
-			ip: getIP(req),
-			userId,
-			targetId
-		}, e));
-		res.status(500).json({
-			status: 'error',
-			error: e.toString()
-		});
+exports._delete = async (req, res, next) => {
+	try{
+		Log.log('user/_delete');
+		const targetUserId = req.params._id,
+					activeUser = req.user,
+					activeUserId = req.user._id,
+					ip =	notNode.Auth.getIP(req);
+		const result = await (getLogic().delete({
+			activeUser,
+			activeUserId,
+			targetUserId,
+			ip
+		}));
+		res.status(200).json(result);
+	}catch(e){
+		next(e);
 	}
 };
 
-exports.get = (req, res) => {
-	let targetId = req.params._id,
-		userId = req.user._id;
-	try {
-		const notApp = notNode.Application;
-		let
-			rolesPriority = config.get('roles:priority') || ['root', 'admin', 'client', 'user', 'guest'],
-			thisModel = notApp.getModel(MODEL_NAME);
-		thisModel.getOne(targetId).then((data) => {
-			data = thisModel.clearFromUnsafe(data);
-			//если собственные данные
-			if (targetId === userId) {
-				res.status(200).json({
-					status: 'ok',
-					result: data
-				});
-			} else { //если не его данные, то
-				//но он админ и выше по уровню доступа чем цель
-				if (
-					notNode.Auth.compareRoles(req.user.role, ['admin']) &&
-            notNode.Auth.checkSupremacy(req.user.role, data.role, rolesPriority)
-				) {
-					res.status(200).json({
-						status: 'ok',
-						result: data
-					});
-				} else { //если правов не имеет
-					//пише в лог с подробностями: кто кого хотел посмотреть
-					notNode.Application.report(
-						new notError('user.get: insufficient_level_of_privilegies', {
-							ip: getIP(req),
-							userId,
-							targetId
-						})
-					);
-					//результат на лицо
-					res.status(405).json({
-						status: 'error',
-						error: 'not-user:insufficient_level_of_privilegies'
-					});
-				}
-			}
-		})
-			.catch((e) => {
-				notNode.Application.report(new notError('user.get(db)', {
-					userId,
-					targetId
-				}, e));
-				res.status(500).json({
-					status: 'error'
-				});
-			});
-	} catch (e) {
-		notNode.Application.report(new notError('user.get', {
-			ip: getIP(req),
-			userId,
-			targetId
-		}, e));
-		res.status(500).json({
-			status: 'error'
-		});
+exports.get = (req, res, next) => {
+	try{
+		Log.log('user/get');
+		const targetUserId = req.params._id,
+					activeUser = req.user,
+					activeUserId = req.user._id,
+					ip =	notNode.Auth.getIP(req);
+		const result = await (getLogic().get({
+			activeUser,
+			activeUserId,
+			targetUserId,
+			ip
+		}));
+		res.status(200).json(result);
+	}catch(e){
+		next(e);
 	}
-
 };
 
-exports._get = async (req, res) => {
-	Log.log('root user/get');
-	let targetId = req.params._id,
-		userId = req.user._id;
-	try {
-		const notApp = notNode.Application;
-		let
-			thisModel = notApp.getModel(MODEL_NAME);
-		thisModel.getOne(targetId).then((data) => {
-			res.status(200).json({
-				status: 'ok',
-				result: data
-			});
-		})
-			.catch((e) => {
-				notNode.Application.report(new notError('user._get(db)', {
-					ip: getIP(req),
-					userId,
-					targetId
-				}, e));
-				res.status(500).json({
-					status: 'error',
-					error: e.toString()
-				});
-			});
-	} catch (e) {
-		notNode.Application.report(new notError('user._get', {
-			ip: getIP(req),
-			userId,
-			targetId
-		}, e));
-		res.status(500).json({
-			status: 'error',
-			error: e.toString()
-		});
+exports._get = async (req, res, next) => {
+	try{
+		Log.log('user/_get');
+		const targetUserId = req.params._id,
+					activeUser = req.user,
+					activeUserId = req.user._id,
+					ip =	notNode.Auth.getIP(req);
+		const result = await (getLogic().get({
+			activeUser,
+			activeUserId,
+			targetUserId,
+			ip
+		}));
+		res.status(200).json(result);
+	}catch(e){
+		next(e);
 	}
 };
 

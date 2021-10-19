@@ -1,5 +1,9 @@
-const crypto = require('crypto'),
-	notError = require('not-error').notError,
+const
+	phrase = require('not-locale').modulePhrase('not-user'),
+	crypto = require('crypto'),
+	{
+		notError
+	} = require('not-error'),
 	Auth = require('not-node').Auth,
 	generator = require('generate-password'),
 	Schema = require('mongoose').Schema,
@@ -8,12 +12,13 @@ const crypto = require('crypto'),
 const DEFAULT_TTL = 3; //in minutes
 const DEFAULT_TTL_MIN = 1; //in minutes
 const DEFAULT_TTL_MAX = 60; //in minutes
+
 exports.DEFAULT_TTL = DEFAULT_TTL;
 exports.DEFAULT_TTL_MIN = DEFAULT_TTL_MIN;
 exports.DEFAULT_TTL_MAX = DEFAULT_TTL_MAX;
 
-
-const DEFAULT_ROLES_LIST = ['user', 'guest', 'client', 'admin', 'root'];
+//stronger -> weaker
+const DEFAULT_ROLES_LIST = ['root', 'admin', 'client', 'user', 'guest'];
 exports.DEFAULT_ROLES_LIST = DEFAULT_ROLES_LIST;
 const EXTRA_ROLES_LIST = ['confirmed'];
 exports.EXTRA_ROLES_LIST = EXTRA_ROLES_LIST;
@@ -228,42 +233,37 @@ exports.thisSchema = {
 
 
 exports.indexes = [
-	[{__latest: 1, __closed: 1, username:1 }, 	{ unique: true }],
-	[{__latest: 1, __closed: 1, email:1 }, 		{ unique: true }]
+	[{__latest: 1, __closed: 1, username:1 }, { unique: true }],
+	[{__latest: 1, __closed: 1, email:1 }, { unique: true }]
 ];
 
 exports.thisStatics = {
-	authorize: function(email, password) {
-		return new Promise((resolve, reject) => {
-			try {
-				if (!validator.isEmail(email)) {
-					reject(new notError('not-user:email_not_valid'));
-					return;
-				}
-			} catch (e) {
-				reject(new notError('not-user:email_not_valid'));
-				return;
+	authorize: async function(email, password) {
+		try{
+			let val = validator.isEmail(email);
+			if(!val){
+				throw new notError(phrase('email_not_valid'), {email});
 			}
-			this.findOne({
+		}catch(e){
+			if(e instanceof notError){
+				throw e;
+			}else{
+				throw new notError(phrase('email_not_valid'), {email}, e);
+			}
+		}
+		let user = await this.findOne(
+			{
 				email: email
-			}).exec()
-				.then((user) => {
-					if (user) {
-						if (user.checkPassword(password)) {
-							resolve(user);
-						} else {
-							reject(new notError('not-user:password_incorrect'));
-						}
-					} else {
-						reject(new notError('not-user:user_not_found'));
-					}
-				})
-				.catch((e) => {
-					let error = (new notError('not-user:user_not_found'));
-					reject(error.adopt(e));
-				});
-
-		});
+			}).exec();
+		if (user) {
+			if (user.checkPassword(password)) {
+				return user;
+			} else {
+				throw new notError(phrase('password_incorrect'));
+			}
+		} else {
+			throw new notError(phrase('user_not_found'));
+		}
 	},
 	toggleActive: function(id) {
 		return new Promise((resolve, reject) => {
@@ -275,11 +275,11 @@ exports.thisStatics = {
 							.then(resolve)
 							.catch(reject);
 					} else {
-						reject(new notError('not-user:user_not_found'));
+						reject(new notError(phrase('user_not_found')));
 					}
 				})
 				.catch((err) => {
-					reject(new notError('not-user:user_not_found').adopt(err));
+					reject(new notError(phrase('user_not_found')).adopt(err));
 				});
 		});
 	},
@@ -318,31 +318,47 @@ exports.thisStatics = {
 	getByTelephone: function(telephone) {
 		return this.getByFieldValue('telephone', telephone);
 	},
-	isUnique: function(username, email) {
-		return Promise.all([this.usernameExists(username), this.emailExists(email)])
-			.then((results) => {
-				return ((!results[0]) && (!results[1]));
-			})
-			.catch((err) => {
-				throw new notError('not-user:user_uniqueness_verification_error').adopt(err);
-			});
+	isUnique: async function(username, email) {
+		try{
+			let results = await Promise.all([this.usernameExists(username), this.emailExists(email)]);
+			if(((!results[0]) && (!results[1]))){
+				return true;
+			}else{
+				const errors = {};
+				if(results[0]){
+					errors.username = phrase('username_taken');
+				}
+				if(results[1]){
+					errors.email = phrase('email_taken');
+				}
+				return errors;
+			}
+		}catch(e){
+			throw new notError(
+				phrase('user_uniqueness_verification_error'),
+				{
+					username,
+					email
+				},
+				e
+			);
+		}
 	},
-
 	Update(data, roles, actorId, system = false) {
 		if (!Object.prototype.hasOwnProperty.call(data, '_id')) {
 			throw new Error('No data _id');
 		}
 		let safeData = this.extractSafeFields('update', data, roles, actorId, system);
 		//может быть пусто, тогда не тратим время
-		if(Object.keys(safeData).length === 0) throw new notError('not-user:insufficient_level_of_privilegies');
+		if(Object.keys(safeData).length === 0) throw new notError(phrase('insufficient_level_of_privilegies'));
 		if (exports.enrich.versioning) {
-			return this.findOneAndUpdate({
-				_id: data._id,
-				__latest: true
-			},
-			safeData, {
-				new: true
-			}
+			return this.findOneAndUpdate(
+				{
+					_id: data._id,
+					__latest: true
+				},
+				safeData,
+				{new: true}
 			).exec()
 				.then(async(item) => {
 					if (typeof item !== 'undefined' && item !== null) {
@@ -484,7 +500,7 @@ exports.thisMethods = {
 	isUser() {
 		return this.isRole('user');
 	},
-	getPrimaryRole(roles){
+	getPrimaryRole(roles = DEFAULT_ROLES_LIST){
 		let res = this.role.find((itm) => {
 			return roles.includes(itm);
 		});
@@ -508,4 +524,22 @@ exports.thisMethods = {
 	isOwner(user_id) {
 		return exports[exports.thisModelName].isOwner(this.toObject(), user_id);
 	}
+};
+
+exports.thisPres = {
+	'save': function(){
+		console.log('user model pre save', ...arguments);
+	},
+	'update': function(){
+		console.log('user model pre update', ...arguments);
+	},
+};
+
+exports.thisPosts = {
+	'save': function(){
+		console.log('user model post save', ...arguments);
+	},
+	'update': function(){
+		console.log('user model post update', ...arguments);
+	},
 };
