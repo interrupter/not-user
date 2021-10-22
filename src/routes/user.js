@@ -176,6 +176,7 @@ exports.token = async (req, res, next) => {
 		if(notNode.Auth.isUser(req)){
 			params.user = req.user;
 		}
+		console.log(getAuthLogic());
 		const result = await (getAuthLogic().token(params));
 		res.status(200).json(result);
 	}catch(e){
@@ -214,9 +215,13 @@ exports.update = async (req, res, next) => {
 	}
 };
 
-exports.status = (req, res) => {
-	Log.debug('user.status');
-	res.status(200).json({});
+exports.status = (req, res, next) => {
+	try{
+		Log.debug('user.status');
+		res.status(200).json({});
+	}catch(e){
+		next(e);
+	}
 };
 
 
@@ -264,7 +269,6 @@ exports._update = async (req, res, next) => {
 			targetUserId,
 			activeUser,
 			data: req.body,
-			user: req.user,
 			ip: 	notNode.Auth.getIP(req),
 		}));
 		res.status(200).json(result);

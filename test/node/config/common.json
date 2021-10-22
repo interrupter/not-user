@@ -2,7 +2,12 @@
 	"modules":{
 		"user":{
 			"secret": "asdfasdf",
-			"tokenTTL": 10000
+			"tokenTTL": 10000,
+			"root":{
+				"username": "rootUserFromCOnfig",
+				"password": "rootUserFromCOnfig",
+				"email": "rootUserFromCOnfig@mail.local"
+			}
 		}
 	}
 }

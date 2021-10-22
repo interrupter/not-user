@@ -5,29 +5,44 @@ exports.stubRequest = (options = {}) => {
       ...(options.headers?options.headers:{}),
     },
     session: {
+      ...(options.session?options.session:{}),
       save() {}
     },
     body: {
       ...(options.body?options.body:{}),
+    },
+    params: {
+      ...(options.params?options.params:{}),
+    },
+    query: {
+      ...(options.query?options.query:{}),
+    },
+    user:{
+      ...(options.user?options.user:{}),
     }
   };
-
 }
-
 
 exports.stubResponse = (options = {}) => {
   return {
     status(st) {
       this._status = st;
       if (options.status) {
-        options.status(result)
+        options.status.call(this, result)
+      } else {
+        return this;
+      }
+    },
+    redirect(url){
+      if (options.redirect) {
+        options.redirect.call(this, url)
       } else {
         return this;
       }
     },
     json(result) {
-      if (options.status) {
-        options.json(result)
+      if (options.json) {
+        options.json.call(this, result)
       } else {
         return this;
       }
@@ -46,7 +61,12 @@ function searchInHash(what, where){
 
 exports.stubApp = (options = {})=>{
   return {
-    inform() {},
+    inform() {
+      if(typeof options.inform === 'function'){
+        options.inform(...arguments);
+      }
+      return;
+    },
     report() {},
     logger: {
       log() {},
@@ -67,21 +87,20 @@ exports.stubApp = (options = {})=>{
   };
 }
 
-
 exports.stubModuleEnv = (mod, options)=>{
-  if(options.models){
+  if(options.logics){
     mod.getLogic = (name) => searchInHash(name, options.logics);
   }else{
-    delete module.getLogic
+    delete mod.getLogic
   }
   if(options.models){
     mod.getModel = (name) => searchInHash(name, options.models);
   }else{
-    delete module.getModel
+    delete mod.getModel
   }
   if(options.schemes){
     mod.getModelSchema = (name)=>searchInHash(name, options.schemes);
   }else{
-    delete module.getModelScheme
+    delete mod.getModelScheme
   }
 };

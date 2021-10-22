@@ -8,6 +8,7 @@ const MODEL_NAME = 'UserMailer';
 exports.thisLogicName = MODEL_NAME;
 
 exports[MODEL_NAME] = class UserMailerLogic {
+
 	static async sendConfirmationEmail({user}) {
 		const notApp = notNode.Application;
 		const OneTimeCode = notApp.getModel('OneTimeCode');
@@ -45,7 +46,7 @@ exports[MODEL_NAME] = class UserMailerLogic {
 		});
 	}
 
-	static async sendPasswordRestorationCode({user}){
+	static async sendPasswordResetCode({user}){
 		const notApp = notNode.Application;
 		const OneTimeCode = notApp.getModel('OneTimeCode');
 		const oneTimeCode = await OneTimeCode.createCode(

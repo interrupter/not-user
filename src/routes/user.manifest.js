@@ -74,7 +74,7 @@ module.exports = {
 			}],
 			postFix: '/:actionName'
 		},
-		requestPasswordRestore:{
+		requestPasswordReset:{
 			method: 'post',
 			title: 'Восстановление пароля',
 			rules:[{
@@ -88,7 +88,7 @@ module.exports = {
 			},
 			postFix: '/:actionName'
 		},
-		restorePassword:{
+		resetPassword:{
 			method: 'get',
 			title: 'Восстановление пароля',
 			rules:[{

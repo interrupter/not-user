@@ -3,7 +3,6 @@ const Log = require('not-log')(module, 'User/Logics/Auth');
 const config = require('not-config').readerForModule('user');
 const phrase = require('not-locale').modulePhrase('not-user');
 const {
-	notError,
 	notValidationError,
 	notRequestError
 } = require('not-error');
@@ -23,16 +22,6 @@ function validateEmail(email){
 	}
 }
 
-
-async function redeemFor(oneTimeCode, actionName){
-	if (oneTimeCode.payload.action === actionName) {
-		await oneTimeCode.redeem();
-	} else {
-		throw new notError(phrase('one_time_code_not_valid'));
-	}
-}
-
-
 const TOKEN_TTL = 3600;
 
 exports[MODEL_NAME] = class AuthLogic {
@@ -43,9 +32,13 @@ exports[MODEL_NAME] = class AuthLogic {
 		if (!User.validatePassword(password)) {
 			throw new notRequestError(
 				phrase('password_length_not_valid'),
-				403,
-				//error messages
-				{email: [phrase('password_length_not_valid')]}
+				{
+					code:403,
+					//error messages
+					errors:{
+						password: [phrase('password_length_not_valid')]
+					}
+				}
 			);
 		}
 		let user = await User.authorize(email, password);
@@ -64,47 +57,48 @@ exports[MODEL_NAME] = class AuthLogic {
 		await notNode.Application.getLogic('not-user//UserMailer').sendOneTimeLoginCode({user});
 		return {
 			status: 'ok',
-			message: phrase('requestLoginByLink_success')
+			message: phrase('request_login_by_link_success')
 		};
 	}
 
 	static async loginByCode({code, ip}){
 		const User = notNode.Application.getModel('not-user//User');
-		const OneTimeCode = notNode.Application.getModel('OneTimeCode');
-		const oneTimeCode = await OneTimeCode.findValid(code);
-		if(!oneTimeCode || oneTimeCode.payload.action !== 'loginByCode'){
-			throw new notValidationError(phrase('one_time_code_not_valid'));
-		}
-		await oneTimeCode.redeem();
-		const user = User.findById(oneTimeCode.payload.owner);
+		const OTCLogic = notNode.Application.getLogic('not-user//OneTimeCode');
+		const oneTimeCode = await OTCLogic.retrieveAndRedeemOTCFor(code, 'loginByCode');
+		const user = await User.findById(oneTimeCode.payload.owner);
 		user.ip = ip;
 		await user.save();
 		return User.clearFromUnsafe(user.toObject());
 	}
 
-	static async requestPasswordRestore({email}){
+	static async requestPasswordReset({email}){
 		let User = notNode.Application.getModel('not-user//User');
 		validateEmail(email);
 		const user = User.getByEmail(email);
 		await notNode.Application.getLogic('not-user//UserMailer')
-			.sendPasswordRestorationCode(user);
+			.sendPasswordResetCode(user);
 		return {
 			status: 'ok',
-			message: phrase('requestRestorePasswordLink_success')
+			message: phrase('request_password_reset_success_link')
 		};
 	}
 
 	static async resetPassword({code}){
 		try{
-			const User = notNode.Application.getModel('not-user//User'),
-				OneTimeCode = notNode.Application.getModel('OneTimeCode');
-			const oneTimeCode = await	OneTimeCode.findValid(code);
-			await redeemFor(oneTimeCode,'resetPassword');
+			const User = notNode.Application.getModel('not-user//User');
+			const oneTimeCode = await	notNode.Application.getLogic('not-user//OneTimeCode').retrieveAndRedeemOTCFor(code,'resetPassword');
+
 			let user = await User.findById(oneTimeCode.payload.owner);
+			if (!user) {
+				throw new notRequestError(phrase('user_not_found'), {code:403});
+			}
 			const pass = user.createNewPassword();
 			await user.save();
 			await notNode.Application.getLogic('not-user//UserMailer').sendNewPassword({user, pass});
 			Log.info(`'${user.username}' reseted password as ${user._id} ${user.role} via emailed one-time code`);
+			return {
+				status: 'ok'
+			};
 		}catch(e){
 			throw new notRequestError(e.message,
 				{
@@ -132,7 +126,6 @@ exports[MODEL_NAME] = class AuthLogic {
 		}
 	}
 
-
 	static validatePasswordFormat({password, context}){
 		const User = notNode.Application.getModel('not-user//User');
 		if (!User.validatePassword(password)) {
@@ -154,8 +147,8 @@ exports[MODEL_NAME] = class AuthLogic {
 			role: 	user.getPrimaryRole(),
 			ip
 		};
-		AuthLogic.checkUserPassword({user, oldPass, context});
-		AuthLogic.validatePasswordFormat({newPass, context});
+		AuthLogic.checkUserPassword({user, pass: oldPass, context});
+		AuthLogic.validatePasswordFormat({password: newPass, context});
 		user.password = newPass;
 		await user.save();
 		await notNode.Application.getLogic('not-user//UserMailer').sendChangePasswordNotification({user});
@@ -183,7 +176,7 @@ exports[MODEL_NAME] = class AuthLogic {
 	}
 
 	static validateTTLForToken(tokenTTL){
-		if (tokenTTL === 0 || isNaN(tokenTTL)) {
+		if (!(tokenTTL > 0) || isNaN(tokenTTL)) {
 			Log.log(phrase('user_token_ttl_not_set'));
 			tokenTTL = AuthLogic.TOKEN_TTL;
 		}

@@ -238,6 +238,14 @@ exports.indexes = [
 ];
 
 exports.thisStatics = {
+	DEFAULT_ROLES_LIST,
+	randomPassword: function(){
+		return generator.generate({
+			length: 12,
+			uppercase: true,
+			numbers: true
+		});
+	},
 	authorize: async function(email, password) {
 		try{
 			let val = validator.isEmail(email);
@@ -456,11 +464,7 @@ exports.thisMethods = {
 		return crypto.createHmac(exports.DEFAULT_HASH_ALGO, this.salt).update(password).digest('hex');
 	},
 	createNewPassword() {
-		let pass = generator.generate({
-			length: 12,
-			uppercase: true,
-			numbers: true
-		});
+		let pass = exports[exports.thisModelName].randomPassword();
 		this.password = pass;
 		return pass;
 	},
@@ -475,14 +479,12 @@ exports.thisMethods = {
 		if (this.role.indexOf(role) == -1) {
 			this.role.push(role);
 		}
-		this.save();
 		return this;
 	},
 	deregisterAs(role) {
 		if (this.role.indexOf(role) > -1) {
 			this.role.splice(this.role.indexOf(role), 1);
 		}
-		this.save();
 		return this;
 	},
 	isRole(role) {
@@ -526,20 +528,29 @@ exports.thisMethods = {
 	}
 };
 
-exports.thisPres = {
-	'save': function(){
-		console.log('user model pre save', ...arguments);
+exports.thisPre = {
+	'updateOne': async()=>{
+	//	console.debug('user model pre updateOne');
+
 	},
-	'update': function(){
-		console.log('user model pre update', ...arguments);
+	'insert': async()=>{
+		//console.log('user model pre insert');
+
+	},
+	'save': async()=>{
+		//console.log('user model pre save');
+	},
+	'update': async()=>{
+		//console.log('user model pre update' );
+
 	},
 };
 
-exports.thisPosts = {
-	'save': function(){
-		console.log('user model post save', ...arguments);
+exports.thisPost = {
+	'save': async()=>{
+		//console.log('user model post save');
 	},
-	'update': function(){
-		console.log('user model post update', ...arguments);
+	'update': async()=>{
+		//console.log('user model post update');
 	},
 };

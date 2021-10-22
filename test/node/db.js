@@ -26,7 +26,7 @@ exports.init = (from, done) => {
       return mongoServer.getUri();
     })
     .then((mongoUri) => {
-      console.log('mongoUri', mongoUri);
+
       return mongoose.connect(mongoUri, {useCreateIndex: true,useNewUrlParser: true, useUnifiedTopology: true}, (err) => {
         if (err) {
           done(err);
@@ -42,7 +42,6 @@ exports.init = (from, done) => {
       if (typeof OneTimeCode.OneTimeCode == 'undefined'){
         Proto.fabricate(OneTimeCode, {}, mongoose);
       }
-      console.log(User.User, OneTimeCode.OneTimeCode);
       Increment.init(mongoose);
       onConnected.forEach(f=>f());
       done();

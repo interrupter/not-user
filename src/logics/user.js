@@ -2,7 +2,6 @@ const notNode = require('not-node');
 const phrase = require('not-locale').modulePhrase('not-user');
 const Log = require('not-log')(module, 'user:logics');
 const {
-	notValidationError,
 	notRequestError
 } = require('not-error');
 
@@ -28,16 +27,10 @@ exports[MODEL_NAME] = class UserLogic {
 		//user key data is not duplicating another
 		let unique = await User.isUnique(newUser.username, newUser.email);
 		if (unique !== true) {
-			const validationErrors = {};
-			if (!unique.username) {
-				validationErrors.username = [phrase('username_taken')];
-			}
-			if (!unique.email) {
-				validationErrors.email = [phrase('email_taken')];
-			}
 			throw new notRequestError(
-				phrase('user_uniqueness_verification_error'),
-				{errors: validationErrors}
+				phrase('user_uniqueness_verification_error'), {
+					errors: unique
+				}
 			);
 		}
 		//saving
@@ -54,18 +47,40 @@ exports[MODEL_NAME] = class UserLogic {
 		let newUser = await UserLogic.createNewUserDocument({
 			...data
 		});
-		await notNode.Application.getLogic('not-user//UserMailer').sendConfirmationEmail({user: newUser});
+		await notNode.Application.getLogic('not-user//UserMailer').sendConfirmationEmail({
+			user: newUser
+		});
 		Log.log({
-			module: 	'user',
-			logic: 		'User',
-			action: 	'register',
-			by: 			newUser._id,
-			target: 	newUser._id,
+			module: 'user',
+			logic: 'User',
+			action: 'register',
+			by: newUser._id,
+			target: newUser._id,
 			targetID: newUser.userID
 		});
 		return {
 			status: 'ok'
 		};
+	}
+
+	static async loadUser(targetId) {
+		Log.debug('UserLogic//loadUser');
+		const notApp = notNode.Application;
+		const User = notApp.getModel('not-user//User');
+		let targetUser = await User.findOne({
+			_id: targetId,
+			__latest: true,
+			__closed: false
+		}).exec();
+		if (!targetUser) {
+			throw new notRequestError(
+				phrase('user_not_found'), {
+					code: 403,
+					error: phrase('user_not_found')
+				}
+			);
+		}
+		return targetUser;
 	}
 
 	/**
@@ -75,25 +90,22 @@ exports[MODEL_NAME] = class UserLogic {
 	 * 	@param {string}	code	uuidv4 code
 	 *	@returns {object}	operation result
 	 **/
-	static async confirmEmail(code){
+	static async confirmEmail(code) {
 		Log.debug('UserLogic//confirmEmail');
 		const notApp = notNode.Application;
-		const User = notApp.getModel('not-user//User'),
-			OneTimeCode = notApp.getModel('OneTimeCode');
-		const oneTimeCode = await OneTimeCode.findValid(code);
-		if (oneTimeCode && oneTimeCode.payload.action === 'confirmEmail') {
-			await oneTimeCode.redeem();
-		} else {
-			throw new notValidationError(phrase('one_time_code_not_valid'));
-		}
-		const user = await User.findById(oneTimeCode.payload.owner);
-		await user.confirmEmail();
+		const OneTimeCode = notApp.getLogic('not-user//OneTimeCode');
+		const oneTimeCode = await OneTimeCode.retrieveAndRedeemOTCFor(code, 'confirmEmail');
+		const user = await UserLogic.loadUser(oneTimeCode.payload.owner);
+		user.confirmEmail();
+		await user.save();
 		return {
-			status: 	'ok'
+			status: 'ok'
 		};
 	}
 
-	static async profile({activeUser}){
+	static async profile({
+		activeUser
+	}) {
 		Log.debug('UserLogic//profile');
 		const notApp = notNode.Application;
 		const User = notApp.getModel('not-user//User');
@@ -108,20 +120,19 @@ exports[MODEL_NAME] = class UserLogic {
 		activeUser,
 		targetUser,
 		ip
-	}){
+	}) {
 		Log.debug('UserLogic//checkUserSupremacy');
 		//если не владелец
 		if (targetUser._id !== activeUser._id) {
-			if(activeUser.isRoot() && !targetUser.isRoot()){
+			if (activeUser.isRoot() && !targetUser.isRoot()) {
 				return;
 			}
 			const AuthLogic = notNode.Application.getLogic('not-user//Auth');
 			//и не админ, а цель ниже по уровню
-			if (! AuthLogic.userHaveSupremacy(activeUser, targetUser) ) {
+			if (!AuthLogic.userHaveSupremacy(activeUser, targetUser)) {
 				//репортим попытку доступа к запрещенным данным
 				throw new notRequestError(
-					'UserLogic modification operation: insufficient_level_of_privilegies',
-					{
+					phrase('insufficient_level_of_privilegies'), {
 						code: 405,
 						error: phrase('insufficient_level_of_privilegies'),
 						ip,
@@ -133,28 +144,21 @@ exports[MODEL_NAME] = class UserLogic {
 		}
 	}
 
-	static async loadUser(targetId){
-		Log.debug('UserLogic//loadUser');
-		const notApp = notNode.Application;
-		const User = notApp.getModel('not-user//User');
-		let targetUser = await User.findOne({
-			_id: targetId,
-			__latest: true,
-			__closed: false
-		}).exec();
-		if (!targetUser) {
-			throw new notRequestError(
-				phrase('user_not_found'),
-				{
-					code: 200,
-					error: phrase('user_not_found')
-				}
-			);
-		}
-		return targetUser;
-	}
 
-	static async update({targetUserId, activeUser, data, ip}){
+	/**
+	 *	Update user document
+	 *	@param {ObjectId}							targetUserId  _id of user to update
+	 *	@param {MongooseDocument<User>}	activeUser  user that performs operation
+	 *	@param {Object}								data					delta changes
+	 *	@param {string} 							ip						performer IP
+	 *	@return {Promise<Object>}										standart result object with status field
+	 **/
+	static async update({
+		targetUserId,
+		activeUser,
+		data,
+		ip
+	}) {
 		Log.debug('UserLogic//update');
 		const notApp = notNode.Application;
 		const User = notApp.getModel('not-user//User');
@@ -165,15 +169,22 @@ exports[MODEL_NAME] = class UserLogic {
 			ip
 		});
 		//rights is ok
-		await User.Update(data, activeUser.role, activeUser._id);
+		await User.Update(
+			{
+				...data,
+				_id: targetUserId
+			},
+			activeUser.role,
+			activeUser._id
+		);
 		Log.log({
-			module: 	'user',
-			logic: 		'User',
-			action: 	'update',
-			actorId: 		activeUser._id,
-			actorRole: 	activeUser.role,
-			targetId: 		targetUser._id,
-			targetRole: 	targetUser.role,
+			module: 'user',
+			logic: 'User',
+			action: 'update',
+			actorId: activeUser._id,
+			actorRole: activeUser.role,
+			targetId: targetUser._id,
+			targetRole: targetUser.role,
 		});
 		//if no errors
 		return {
@@ -181,22 +192,28 @@ exports[MODEL_NAME] = class UserLogic {
 		};
 	}
 
-	static async createUser({activeUser, data, ip}){
+	static async createUser({
+		activeUser,
+		data,
+		ip
+	}) {
 		Log.debug('UserLogic//createUser');
 		const notApp = notNode.Application;
 		const User = notApp.getModel('not-user//User');
 		let targetUser = await UserLogic.createNewUserDocument({
 			...data
 		});
-		await notNode.Application.getLogic('not-user//UserMailer').sendConfirmationEmail({user: targetUser});
+		await notNode.Application.getLogic('not-user//UserMailer').sendConfirmationEmail({
+			user: targetUser
+		});
 		Log.log({
-			module: 	'user',
-			logic: 		'User',
-			action: 	'createUser',
-			actorId: 		activeUser._id,
-			actorRole: 	activeUser.role,
-			targetId: 		targetUser._id,
-			targetRole: 	targetUser.role,
+			module: 'user',
+			logic: 'User',
+			action: 'createUser',
+			actorId: activeUser._id,
+			actorRole: activeUser.role,
+			targetId: targetUser._id,
+			targetRole: targetUser.role,
 			ip
 		});
 		return {
@@ -205,23 +222,47 @@ exports[MODEL_NAME] = class UserLogic {
 		};
 	}
 
+	static async createRootUser(app, {
+		username,
+		email,
+		password
+	}) {
+		Log.debug('UserLogic//createRootUser');
+		return await UserLogic.createNewUserDocument({
+			username,
+			email,
+			password,
+			emailConfirmed: true,
+			role: ['root'],
+			active: true
+		});
+	}
 
-	static checkAgainstSuicide({targetUserId, activeUserId}){
+	static checkAgainstSuicide({
+		targetUserId,
+		activeUserId
+	}) {
 		if (targetUserId === activeUserId) {
 			throw new notRequestError(
-				phrase('user_cant_delete_his_own_account'),
-				{
+				phrase('user_cant_delete_his_own_account'), {
 					code: 403,
-					error:phrase('user_cant_delete_his_own_account')
+					error: phrase('user_cant_delete_his_own_account')
 				}
 			);
 		}
 	}
 
-	static async delete({targetUserId, ip, activeUser}){
+	static async delete({
+		targetUserId,
+		ip,
+		activeUser
+	}) {
 		const notApp = notNode.Application;
 		const User = notApp.getModel('not-user//User');
-		UserLogic.checkAgainstSuicide();
+		UserLogic.checkAgainstSuicide({
+			targetUserId: targetUserId.toString(),
+			activeUserId: activeUser._id.toString()
+		});
 		const targetUser = await User.findOne({
 			_id: targetUserId,
 			__latest: true,
@@ -236,13 +277,13 @@ exports[MODEL_NAME] = class UserLogic {
 			});
 			await targetUser.close();
 			Log.log({
-				module: 	'user',
-				logic: 		'User',
-				action: 	'createUser',
-				actorId: 		activeUser._id,
-				actorRole: 	activeUser.role,
-				targetId: 		targetUser._id,
-				targetRole: 	targetUser.role,
+				module: 'user',
+				logic: 'User',
+				action: 'createUser',
+				actorId: activeUser._id,
+				actorRole: activeUser.role,
+				targetId: targetUser._id,
+				targetRole: targetUser.role,
 				ip
 			});
 		}
@@ -255,19 +296,19 @@ exports[MODEL_NAME] = class UserLogic {
 		activeUser,
 		targetUserId,
 		ip
-	}){
+	}) {
 		Log.debug('UserLogic//get');
 		const notApp = notNode.Application;
 		const User = notApp.getModel('not-user//User');
+		const targetUser = await UserLogic.loadUser(targetUserId);
 		//if user not quering his own info, check rights
-		if ((targetUserId !== activeUser._id)){
+		if ((targetUserId !== activeUser._id)) {
 			UserLogic.checkUserSupremacy({
 				activeUser,
 				targetUser,
 				ip
 			});
 		}
-		const targetUser = User.getOne(targetUserId);
 		const data = User.clearFromUnsafe(targetUser.toObject());
 		return {
 			status: 'ok',

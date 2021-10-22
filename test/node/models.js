@@ -1,3 +1,5 @@
+require('not-log').muted = true;
+
 const
   expect = require('chai').expect,
   notError = require('not-error').notError,
@@ -166,7 +168,7 @@ describe('models/user', function() {
           expect(err.message).to.be.equal('not-user:password_incorrect');
         }
       });
-      
+
       it('user exists, pass is correct', (done) => {
         User.User.authorize('test@email.com', 'qwerty')
           .then((user) => {
