@@ -72,9 +72,9 @@ module.exports = ({
         });
       } catch (e) {
         expect(e).to.be.instanceof(notRequestError);
-        expect(e.message).to.be.equal('not-user:password_length_not_valid');
+        expect(e.message).to.be.equal('not-user:password_incorrect');
         expect(e.options.errors).to.be.deep.equal({
-          password: ['not-user:password_length_not_valid']
+          password: ['not-user:password_incorrect']
         });
       }
     });

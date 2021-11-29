@@ -14,33 +14,28 @@ module.exports = ({
 }) => {
   describe('routes/user/resetPassword', function() {
     const url = '/resetPasswordSuccess';
-    const someCode = 'some@mail.it';
     it('ok', async () => {
-      let res = stubResponse({
-          json(result) {
-            expect(result).to.be.ok;
-            expect(this._status).to.be.equal(200);
-          }
-        }),
-        req = stubRequest({
-          query: {
-            code: someCode
-          }
-        });
+      let
+        prepared = {
+          some: 'data'
+        },
+        res = stubResponse({}),
+        req = stubRequest({});
       notNode.Application = stubApp({
         ...modelsEnv,
         logics:{
           'not-user//Auth':{
-            async resetPassword({code}){
-              expect(code).to.be.equal(someCode);
+            async resetPassword(params){
+              expect(params).to.be.deep.equal(prepared);
             }
           }
         }
       });
-      await routes.resetPassword(req, res, (err) => {
-        console.error(err);
+      const result = await routes.resetPassword(req, res, (err) => {
         expect(false).to.be.ok;
-      });
+      },prepared);
+      expect(result).to.be.ok;
+      expect(result.__redirect__).to.be.deep.equal(url);
     });
 
     it('exception', async () => {

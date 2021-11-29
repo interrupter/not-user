@@ -27,7 +27,8 @@ module.exports = ({
         email: 'oneTimeTester@email.com',
         username: 'oneTimeTester',
         emailConfirmed: false,
-        password: 'oneTimeTester'
+        password: 'oneTimeTester',
+        role: ['client']
       })));
 
       notNode.Application = stubApp({
@@ -53,8 +54,7 @@ module.exports = ({
         newPass: 'new_pass',
         ip: '127.0.0.1'
       });
-      expect(result).to.be.ok;
-      expect(result.status).to.be.equal('ok');
+      expect(result).to.be.undefined;
     });
 
     it('exception - password_incorrect', async() => {

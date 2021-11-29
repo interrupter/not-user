@@ -18,7 +18,12 @@ function validateEmail(email){
 			throw new Error(phrase('email_not_valid'));
 		}
 	}catch(e){
-		throw new notValidationError(phrase('email_not_valid'), {email: [phrase('email_not_valid')]});
+		throw new notValidationError(
+			phrase('email_not_valid'),
+			{email: [phrase('email_not_valid')]},
+			null,
+			{email}
+		);
 	}
 }
 
@@ -28,19 +33,6 @@ exports[MODEL_NAME] = class AuthLogic {
 
 	static async login({password, email, ip}){
 		const User = notNode.Application.getModel('not-user//User');
-		validateEmail(email);
-		if (!User.validatePassword(password)) {
-			throw new notRequestError(
-				phrase('password_length_not_valid'),
-				{
-					code:403,
-					//error messages
-					errors:{
-						password: [phrase('password_length_not_valid')]
-					}
-				}
-			);
-		}
 		let user = await User.authorize(email, password);
 		user.ip = ip;
 		await user.save();
@@ -52,13 +44,9 @@ exports[MODEL_NAME] = class AuthLogic {
 		validateEmail(email);
 		const user = await User.getByEmail(email);
 		if (!user) {
-			throw new notRequestError(phrase('user_not_found'), {code:403});
+			throw new notRequestError(phrase('user_not_found'), {code:403, params:{email}});
 		}
 		await notNode.Application.getLogic('not-user//UserMailer').sendOneTimeLoginCode({user});
-		return {
-			status: 'ok',
-			message: phrase('request_login_by_link_success')
-		};
 	}
 
 	static async loginByCode({code, ip}){
@@ -75,12 +63,7 @@ exports[MODEL_NAME] = class AuthLogic {
 		let User = notNode.Application.getModel('not-user//User');
 		validateEmail(email);
 		const user = User.getByEmail(email);
-		await notNode.Application.getLogic('not-user//UserMailer')
-			.sendPasswordResetCode(user);
-		return {
-			status: 'ok',
-			message: phrase('request_password_reset_success_link')
-		};
+		await notNode.Application.getLogic('not-user//UserMailer').sendPasswordResetCode(user);
 	}
 
 	static async resetPassword({code}){
@@ -96,9 +79,6 @@ exports[MODEL_NAME] = class AuthLogic {
 			await user.save();
 			await notNode.Application.getLogic('not-user//UserMailer').sendNewPassword({user, pass});
 			Log.info(`'${user.username}' reseted password as ${user._id} ${user.role} via emailed one-time code`);
-			return {
-				status: 'ok'
-			};
 		}catch(e){
 			throw new notRequestError(e.message,
 				{
@@ -153,9 +133,6 @@ exports[MODEL_NAME] = class AuthLogic {
 		await user.save();
 		await notNode.Application.getLogic('not-user//UserMailer').sendChangePasswordNotification({user});
 		Log.info(`'${user.username}' changed password as ${user._id} ${user.role} via entering old password and new one`);
-		return {
-			status: 'ok'
-		};
 	}
 
 	static validateSecretForToken({secret,context}){
@@ -231,7 +208,7 @@ exports[MODEL_NAME] = class AuthLogic {
 
 	/**
 	*	First have role based security rights supremacy over second
-	*/
+	**/
 	static userHaveSupremacy(activeUser, targetUser){
 		const notApp = notNode.Application;
 		const User = notApp.getModel('not-user//User');

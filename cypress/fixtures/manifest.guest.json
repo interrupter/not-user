@@ -1,0 +1,97 @@
+{
+  "user": {
+    "model": "user",
+    "url": "/api/:modelName",
+    "showMessages": true,
+    "fields": {},
+    "actions": {
+      "register": {
+        "method": "post",
+        "title": "Регистрация",
+        "fields": {
+          "default": [
+            "username",
+            "email",
+            "password",
+            "submit"
+          ]
+        },
+        "postFix": "/:actionName"
+      },
+      "confirmEmail": {
+        "method": "get",
+        "data": [
+          "record"
+        ],
+        "postFix": "/:actionName"
+      },
+      "login": {
+        "method": "post",
+        "data": [
+          "record"
+        ],
+        "return": [
+          "_id",
+          "role",
+          "active",
+          "email",
+          "username"
+        ],
+        "postFix": "/:actionName",
+        "title": "Вход",
+        "fields": {
+          "default": [
+            "email",
+            "password",
+            "submit"
+          ]
+        }
+      },
+      "requestLoginCodeOnEmail": {
+        "method": "post",
+        "data": [
+          "record"
+        ],
+        "postFix": "/:actionName",
+        "title": "Вход одноразовой ссылкой",
+        "fields": {
+          "default": [
+            "email",
+            "submit"
+          ]
+        }
+      },
+      "loginByCode": {
+        "method": "get",
+        "data": [
+          "record"
+        ],
+        "postFix": "/:actionName"
+      },
+      "requestPasswordRestore": {
+        "method": "post",
+        "title": "Восстановление пароля",
+        "fields": {
+          "default": [
+            "email",
+            "submit"
+          ]
+        },
+        "postFix": "/:actionName"
+      },
+      "restorePassword": {
+        "method": "get",
+        "title": "Восстановление пароля",
+        "postFix": "/:actionName"
+      },
+      "status": {
+        "method": "get",
+        "postFix": "/:actionName"
+      },
+      "token": {
+        "method": "get",
+        "postFix": "/:actionName"
+      }
+    }
+  }
+}

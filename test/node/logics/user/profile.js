@@ -26,15 +26,15 @@ module.exports = ({
         email: 'fourthTimeTester@email.com',
         username: 'fourthTimeTester',
         emailConfirmed: false,
-        password: 'fourthTimeTester'
+        password: 'fourthTimeTester',
+        role: ['user']
       })));
     });
 
     it('ok', async() => {
       const res = await UserLogics.User.profile({activeUser:oneTimeUser});
+      console.log(res);
       expect(res).to.be.ok;
-      expect(res.status).to.be.equal('ok');
-      expect(res.result).to.be.ok;
     });
   });
 

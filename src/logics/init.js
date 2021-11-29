@@ -1,5 +1,5 @@
 const config = require('not-config').readerForModule('user');
-
+const Log = require('not-log')(module, 'not-user//logic');
 const MODEL_NAME = 'Init';
 exports.thisLogicName = MODEL_NAME;
 
@@ -20,29 +20,31 @@ exports[MODEL_NAME] = class InitLogic{
 	}
 
 	static async createRootUser(app){
-		app.logger.info(`Installing...`);
+		Log.info(`Installing...`);
 		return await app.getLogic('not-user//User').createRootUser(app, InitLogic.getInitialRootValues());
 	}
 
 	static async initialize(app){
 		try{
 			let User = app.getModel('not-user//User');
-			app.logger.info('checking if not-user has been installed');
+			Log.info('checking if not-user has been installed');
 			const user = await User.findOne({
 				role: 'root',
 				__latest: true,
 				__closed: false
 			});
 			if(user){
-				app.logger.debug(`Root user exists!`);
+				Log.debug(`Root user exists!`);
 				return;
 			}else{
-				app.logger.debug('Root user doesnt exists!');
-				return await InitLogic.createRootUser(app);
+				Log.debug('Root user doesnt exists!');
+				const root = await InitLogic.createRootUser(app);
+				Log.info(`Installed ${root.userID}#${root.username}`);
+				return root;
 			}
 		}catch(e){
-			app.logger.error('While searching for root user in DB!');
-			app.logger.error(e);
+			Log.error('While searching for root user in DB!');
+			Log.error(e);
 			app.report(e);
 		}
 	}

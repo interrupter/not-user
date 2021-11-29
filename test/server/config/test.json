@@ -5,13 +5,39 @@
   },
   "host": "preparator.local",
   "cors": ["*"],
+  "CSP": {
+    "default": [
+      "'self'",
+      "*",
+      "wss:",
+      "https:",
+      "'unsafe-inline'"
+    ]
+  },
   "template": {
     "engine": "pug",
     "views": "views",
     "partialsDir": "partials",
     "partials": {}
   },
+  "db": {
+    "redis": {
+      "prefix": "test"
+    },
+    "mongoose": {
+      "uri": "",
+      "options": {
+        "useNewUrlParser": true,
+        "useFindAndModify": false,
+        "useUnifiedTopology": true,
+        "autoIndex": false,
+        "poolSize": 10,
+        "bufferMaxEntries": 0
+      }
+    }
+  },
   "session": {
+    "driver": "redis",
     "secret": "34097592384-fm195u023947623097udf928hn3j476-g2ni09u",
     "cookie": {
       "maxAge": 2628000000
@@ -32,12 +58,12 @@
       "root": {
         "username": "root",
         "email": "root@test.user.not",
-        "password": "letMeIn",
+        "password": "password",
         "role": "root"
       },
-			"loginByLink": 				true,
-			"emailConfirmation": 	true,
-			"telConfirmation": 		true,
+      "loginByLink": true,
+      "emailConfirmation": true,
+      "telConfirmation": true,
       "secret": "qwerty",
       "tokenTTL": 3600
     },
@@ -50,7 +76,8 @@
   "middleware": {
     "not-user": {
       "path": "../../index.js"
-    }
+    },
+    "not-options":{}
   },
-  "importModulesFromNPM": ["not-error", "not-one-time-code"]
+  "importModulesFromNPM": ["not-error", "not-one-time-code", "not-options"]
 }

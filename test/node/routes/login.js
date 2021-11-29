@@ -14,44 +14,27 @@ module.exports = ({
   describe('routes/user/login', function() {
 
     it('ok', async () => {
-      const req = stubRequest({
-          body: {
-            email: 'email',
-            password: 'password',
-          }
-        }),
-        res = stubResponse({
-          json(result) {
-            expect(result.status).to.be.equal('ok');
-            expect(result.result).to.be.deep.equal({
-              _id: '123123123',
-              username: 'username',
-              role: 'userRole'
-            });
-          }
-        });
+      const req = stubRequest({}),
+        res = stubResponse({}),
+        prepared = {some: 'data'},
+        user = {_id: '9832y409v81275081'};
       notNode.Application = stubApp({
         ...modelsEnv,
         logics: {
           'not-user//Auth': {
               async login(params) {
-                expect(params.email).to.be.equal('email');
-                expect(params.password).to.be.equal('password');
-                expect(params.ip).to.be.deep.equal('127.0.0.1');
-                return {
-                  _id: '123123123',
-                  username: 'username',
-                  role: 'userRole'
-                };
+                expect(params).to.be.deep.equal(prepared);
+                return user;
               }
             }
           }
         });
       stubModuleEnv(routes, modelsEnv);
-      await routes.login(req, res, (err) => {
+      const result = await routes.login(req, res, (err) => {
         console.error(err);
         expect(false).to.be.ok;
-      });
+      }, prepared);
+      expect(result).to.be.deep.equal(user);
     });
 
     it('exception', async () => {

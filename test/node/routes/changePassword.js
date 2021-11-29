@@ -15,20 +15,13 @@ module.exports = ({
     const oldPass = 'old_pass';
     const newPass = 'new_pass';
     it('ok', async () => {
-      let res = stubResponse({
-          json(result) {
-            expect(result).to.be.ok;
-            expect(this._status).to.be.equal(200);
-          }
-        }),
+      let prepared = {
+        some: 'data'
+      };
+      let res = stubResponse({}),
         req = stubRequest({
-          body: {
-            oldPassword: oldPass,
-            newPassword:newPass
-          },
-          user: {
-            _id: 'some_id',
-            username: 'vasya'
+          user:{
+            info: '101'
           }
         });
       notNode.Application = stubApp({
@@ -36,13 +29,10 @@ module.exports = ({
         logics:{
           'not-user//Auth':{
             async changePassword(params){
-              expect(params).to.have.keys(['user', 'oldPass','newPass', 'ip']);
-              expect(params.oldPass).to.be.equal(oldPass);
-              expect(params.newPass).to.be.equal(newPass);
-              expect(params.ip).to.be.equal('127.0.0.1');
-              return {
-                status: 'ok'
-              };
+              expect(params).to.be.deep.equal({
+                user: {info: '101'},
+                ...prepared
+              });
             }
           }
         }
@@ -50,7 +40,7 @@ module.exports = ({
       await routes.changePassword(req, res, (err) => {
         console.error(err);
         expect(false).to.be.ok;
-      });
+      }, prepared);
     });
 
     it('exception', async () => {

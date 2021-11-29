@@ -15,8 +15,7 @@ const
 
 const
 	notNode = require('not-node'),
-	notAuth = require('not-node').Auth,
-	getIP = notAuth.getIP,
+	{objHas} = require('not-node').Common,
 	Log = require('not-log')(module, 'User/Routes'),
 	config = require('not-config').readerForModule('user');
 
@@ -31,103 +30,107 @@ function getAuthLogic(){
 	return notApp.getLogic('not-user//Auth');
 }
 
-/**
- *   Guest actions
- */
-
-exports.register = async (req, res, next) => {
-	try {
-		Log.debug('register');
-		const  ip = getIP(req);
-		let result = await (getLogic().register({
-			username:   req.body.username,
-			email:       req.body.email,
-			password:   req.body.password,
-			ip
-		}));
-		res.status(200).json(result);
+exports.before = async (req, res, next) => {
+	try{
+		const name = req.notRouteData.actionName;
+		Log.log('action name', name);
+		const FormValidator = notNode.Application.getForm(['not-user', name].join('//'));
+		if (FormValidator){
+			Log.log('FormValidator: ', FormValidator.FORM_NAME);
+			return await FormValidator.run(req, res, next);
+		}else{
+			Log.log('no form validator');
+			return {};
+		}
 	}catch(e){
-		Log.error(e);
 		next(e);
 	}
 };
 
-exports.confirmEmail = async (req, res, next) => {
+
+exports.after = (req, res, next, result)=>{
+	if(res.headersSent){return;}
+	if(result && objHas(result, '__redirect__')){
+		res.status(200).redirect(result.__redirect__);
+	}else{
+		res.status(200).json({
+			status: 'ok',
+			result
+		});
+	}
+};
+
+/**
+ *   Guest actions
+ **/
+exports.register = async (req, res, next, prepared) => {
+	try {
+		Log.debug('register');
+		return await (getLogic().register(prepared));
+	}catch(e){
+		next(e);
+	}
+};
+
+exports.confirmEmail = async (req, res, next, prepared) => {
 	try {
 		Log.debug('confirmEmail');
-		const code = req.query.code;
-		await (getLogic().confirmEmail(code));
+		await (getLogic().confirmEmail(prepared.code));
 		//!TODO change redirect destination to specific page with success message
-		res.redirect('/login');
+		return {__redirect__:'/login'};
 	} catch (e) {
 		next(e);
 	}
 };
 
-exports.login = async (req, res, next) => {
+exports.login = async (req, res, next, prepared) => {
 	try{
-		const notApp = notNode.Application;
-		notApp.log('login');
-		const
-			email = req.body.email,
-			password = req.body.password,
-			ip = getIP(req);
-		const user = await (getAuthLogic().login({email, password, ip}));
+		const user = await (getAuthLogic().login(prepared));
 		notNode.Auth.setAuth(req, user._id, user.role);
 		req.session.save();
 		Log.info(`'${user.username}' authorized as ${req.session.user} ${req.session.role}`);
-		res.status(200).json({
-			status: 'ok',
-			result: user
-		});
+		return user;
 	}catch(e){
 		next(e);
 	}
 };
 
-exports.requestLoginCodeOnEmail = async (req, res, next) => {
+exports.requestLoginCodeOnEmail = async (req, res, next, prepared) => {
 	try{
 		Log.debug('request login by code from email');
-		const email = req.body.email;
-		const result = await (getAuthLogic().requestLoginCodeOnEmail({email}));
-		res.status(200).json(result);
+		await (getAuthLogic().requestLoginCodeOnEmail(prepared));
 	}catch(e){
 		next(e);
 	}
 };
 
-exports.loginByCode = async (req, res, next) => {
+exports.loginByCode = async (req, res, next, prepared) => {
 	try{
 		Log.debug('login by code from email or sms');
-		const code = req.query.code,
-			ip = getIP(req);
-		const user = await (getAuthLogic().loginByCode({code, ip}));
+		const user = await (getAuthLogic().loginByCode(prepared));
 		notNode.Auth.setAuth(req, user._id, user.role);
 		req.session.save();
 		Log.info(`'${user.username}' authorized as ${req.session.user} ${req.session.role} via emailed/smsed one-time code`);
-		res.status(200).redirect('/');
+		return {__redirect__:'/'};
 	}catch(e){
 		next(e);
 	}
 };
 
-exports.requestPasswordReset = async (req, res, next) => {
+exports.requestPasswordReset = async (req, res, next, prepared) => {
 	try{
 		Log.debug('user/requestPasswordReset');
-		const email = req.body.email;
-		const result = await (getAuthLogic().requestPasswordReset({email}));
-		res.status(200).json(result);
+		return await (getAuthLogic().requestPasswordReset(prepared));
 	}catch(e){
 		next(e);
 	}
 };
 
-exports.resetPassword = async (req, res, next) => {
+exports.resetPassword = async (req, res, next, prepared) => {
 	try{
 		Log.debug('user/resetPassword');
-		const code = req.query.code;
-		await (getAuthLogic().resetPassword({code}));
-		res.redirect('/resetPasswordSuccess');
+		await (getAuthLogic().resetPassword(prepared));
+		return {__redirect__:'/resetPasswordSuccess'};
 	}catch(e){
 		next(e);
 	}
@@ -140,24 +143,18 @@ exports._logout = exports.logout = (req, res, next) => {
 	try{
 		Log.debug('user/(_)logout');
 		notNode.Auth.setGuest(req);
-		res.status(200).json({});
 	}catch(e){
 		next(e);
 	}
 };
 
-exports._changePassword = exports.changePassword = async (req, res, next) => {
+exports._changePassword = exports.changePassword = async (req, res, next, prepared) => {
 	try{
 		Log.debug('user/(_)changePassword');
-		const oldPass = req.body.oldPassword,
-			newPass = req.body.newPassword;
-		const result = await (getAuthLogic().changePassword({
+		return await (getAuthLogic().changePassword({
 			user: req.user,
-			oldPass,
-			newPass,
-			ip: getIP(req)
+			...prepared
 		}));
-		res.status(200).json(result);
 	}catch(e){
 		next(e);
 	}
@@ -176,9 +173,7 @@ exports.token = async (req, res, next) => {
 		if(notNode.Auth.isUser(req)){
 			params.user = req.user;
 		}
-		console.log(getAuthLogic());
-		const result = await (getAuthLogic().token(params));
-		res.status(200).json(result);
+		return await (getAuthLogic().token(params));
 	}catch(e){
 		next(e);
 	}
@@ -187,148 +182,81 @@ exports.token = async (req, res, next) => {
 exports.profile = async (req, res, next) => {
 	Log.debug('user/profile');
 	try{
-		const result = await (getLogic().profile({
+		return await (getLogic().profile({
 			user: req.user,
 			ip: notNode.Auth.getIP(req),
 		}));
-		res.status(200).json(result);
 	}catch(e){
 		next(e);
 	}
 };
 
-exports.update = async (req, res, next) => {
+exports.update = async (req, res, next, prepared) => {
 	Log.debug('user.update');
 	try{
-		const targetUserId = req.params._id,
-			activeUser = req.user;
-		const result = await (getLogic().update({
-			targetUserId,
-			activeUser,
-			data: req.body,
-			user: req.user,
-			ip: notNode.Auth.getIP(req),
-		}));
-		res.status(200).json(result);
+		return await (getLogic().update(prepared));
 	}catch(e){
 		next(e);
 	}
 };
 
-exports.status = (req, res, next) => {
+exports.status = async (req, res, next) => {
 	try{
-		Log.debug('user.status');
-		res.status(200).json({});
+		return notNode.Auth.extractAuthData(req);
 	}catch(e){
 		next(e);
 	}
 };
-
 
 
 /**
  *   Admin actions
  */
-
-exports._create = async (req, res, next) => {
+exports._create = async (req, res, next, prepared) => {
 	try {
 		Log.debug('user._create');
-		const activeUser = req.user,
-			ip = notNode.Auth.getIP(req);
-		const data = {
-			username: 	req.body.username,
-			email: 			req.body.email,
-			password: 	req.body.password,
-			role: 			req.body.role,
-			tel: 				req.body.tel,
-			country: 		req.body.country,
-			active: 		req.body.active,
-			ip
-		};
-		const result = await (getLogic().createUser({
-			activeUser,
-			data,
-			ip
-		}));
-		res.status(200).json(result);
+		return await (getLogic().createUser(prepared));
 	}catch(e){
 		next(e);
 	}
 };
 
-exports._steal = (req, res) => {
-	res.status(200).json({});
+exports._steal = (/*req, res*/) => {
+	return {};
 };
 
-exports._update = async (req, res, next) => {
+exports._update = async (req, res, next, prepared) => {
 	try{
 		Log.log('user/_update');
-		const targetUserId = req.params._id,
-			activeUser = req.user;
-		const result = await (getLogic().update({
-			targetUserId,
-			activeUser,
-			data: req.body,
-			ip: 	notNode.Auth.getIP(req),
-		}));
-		res.status(200).json(result);
+		return await (getLogic().update(prepared));
 	}catch(e){
 		next(e);
 	}
 };
 
-exports._delete = async (req, res, next) => {
+exports._delete = async (req, res, next, prepared) => {
 	try{
 		Log.log('user/_delete');
-		const targetUserId = req.params._id,
-			activeUser = req.user,
-			activeUserId = req.user._id,
-			ip =	notNode.Auth.getIP(req);
-		const result = await (getLogic().delete({
-			activeUser,
-			activeUserId,
-			targetUserId,
-			ip
-		}));
-		res.status(200).json(result);
+		return await (getLogic().delete(prepared));
 	}catch(e){
+		console.log(e);
 		next(e);
 	}
 };
 
-exports.get = async (req, res, next) => {
+exports.get = async (req, res, next, prepared) => {
 	try{
 		Log.log('user/get');
-		const targetUserId = req.params._id,
-			activeUser = req.user,
-			activeUserId = req.user._id,
-			ip =	notNode.Auth.getIP(req);
-		const result = await (getLogic().get({
-			activeUser,
-			activeUserId,
-			targetUserId,
-			ip
-		}));
-		res.status(200).json(result);
+		return await (getLogic().get(prepared));
 	}catch(e){
 		next(e);
 	}
 };
 
-exports._get = async (req, res, next) => {
+exports._get = async (req, res, next, prepared) => {
 	try{
 		Log.log('user/_get');
-		const targetUserId = req.params._id,
-			activeUser = req.user,
-			activeUserId = req.user._id,
-			ip =	notNode.Auth.getIP(req);
-		const result = await (getLogic().get({
-			activeUser,
-			activeUserId,
-			targetUserId,
-			ip
-		}));
-		res.status(200).json(result);
+		return await (getLogic().get(prepared));
 	}catch(e){
 		next(e);
 	}

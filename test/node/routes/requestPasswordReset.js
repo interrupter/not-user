@@ -16,22 +16,15 @@ module.exports = ({
     const url = '/resetPasswordSuccess';
     const mail = 'some@mail.it';
     it('ok', async () => {
-      let res = stubResponse({
-          redirect(path) {
-            expect(path).to.be.equal(url);
-          }
-        }),
-        req = stubRequest({
-          body: {
-            email: mail
-          }
-        });
+      let res = stubResponse({}),
+        req = stubRequest({}),
+        prepared = {some : 'data'};
       notNode.Application = stubApp({
         ...modelsEnv,
         logics:{
           'not-user//Auth':{
-            async requestPasswordReset({email}){
-              expect(email).to.be.equal(mail);
+            async requestPasswordReset(params){
+              expect(params).to.be.deep.equal(prepared);
             }
           }
         }
@@ -39,7 +32,7 @@ module.exports = ({
       await routes.requestPasswordReset(req, res, (err) => {
         console.error(err);
         expect(false).to.be.ok;
-      });
+      }, prepared);
     });
 
     it('exception', async () => {

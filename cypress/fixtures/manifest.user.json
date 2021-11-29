@@ -1,0 +1,77 @@
+{
+  "user": {
+    "model": "user",
+    "url": "/api/:modelName",
+    "showMessages": true,
+    "fields": {},
+    "actions": {
+      "confirmEmail": {
+        "method": "get",
+        "data": [
+          "record"
+        ],
+        "postFix": "/:actionName"
+      },
+      "logout": {
+        "method": "post",
+        "postFix": "/:actionName",
+        "messages": {
+          "success": "Вы вышли!"
+        }
+      },
+      "changePassword": {
+        "method": "post",
+        "data": [
+          "record",
+          "data"
+        ],
+        "postFix": "/:actionName"
+      },
+      "profile": {
+        "method": "post",
+        "postFix": "/:actionName"
+      },
+      "update": {
+        "method": "post",
+        "data": [
+          "record"
+        ],
+        "postFix": "/:record[_id]/:actionName"
+      },
+      "status": {
+        "method": "get",
+        "postFix": "/:actionName"
+      },
+      "token": {
+        "method": "get",
+        "postFix": "/:actionName"
+      },
+      "get": {
+        "method": "get",
+        "postFix": "/:record[_id]/:actionName"
+      },
+      "steal": {
+        "method": "post",
+        "postFix": "/:record[_id]/:actionName"
+      },
+      "create": {
+        "method": "put",
+        "data": [
+          "record"
+        ],
+        "postFix": "/:actionName"
+      },
+      "delete": {
+        "method": "delete",
+        "data": [
+          "record"
+        ],
+        "postFix": "/:record[_id]/:actionName"
+      },
+      "listAndCount": {
+        "method": "get",
+        "postFix": "/:actionName"
+      }
+    }
+  }
+}

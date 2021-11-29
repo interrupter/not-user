@@ -24,12 +24,9 @@ module.exports = ({
 
   describe('routes/user/update', function()  {
     it('update - ok', async () => {
-      let res = stubResponse({
-          json(result) {
-            expect(result.error).to.be.undefined;
-            expect(this._status).to.be.equal(200);
-          }
-        }),
+      let prepared = {
+        some: 'data'
+      },
         req = stubRequest({
           params: {
             _id: '_id_value'
@@ -45,22 +42,16 @@ module.exports = ({
         logics: {
           'not-user//User': {
             async update(params) {
-              expect(params.targetUserId).to.be.equal('_id_value');
-              expect(params.activeUser).to.be.deep.equal(testUser);
-              expect(params.data).to.be.deep.equal({
-                username: 'new_one',
-                active: false
-              });
-              return {status: 'ok'};
+              expect(params).to.be.deep.equal(prepared);
             }
           }
         }
       });
       stubModuleEnv(routes, modelsEnv);
-      await routes.update(req, res, (err) => {
+      await routes.update(req, {}, (err) => {
         console.error(err);
         expect(false).to.be.ok;
-      });
+      }, prepared);
 
     });
 

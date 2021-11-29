@@ -44,7 +44,7 @@ module.exports = ({
       try{
         await UserLogics.User.createRootUser(notNode.Application, data);
       }catch(e){
-        expect(e).to.be.instanceof(notRequestError);
+        expect(e).to.be.instanceof(notValidationError);
         expect(e.message).to.be.equal('not-user:user_uniqueness_verification_error');
       }
     });

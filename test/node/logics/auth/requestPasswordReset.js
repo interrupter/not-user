@@ -50,14 +50,14 @@ module.exports = ({
         ...modelsEnv,
         logics: {
           'not-user//UserMailer':{
-            async sendPasswordResetCode(){}
+            async sendPasswordResetCode(user){
+              expect(user).to.be.ok;
+            }
           }
         }
       });
       const result = await AuthLogics.Auth.requestPasswordReset({email: 'oneTimeTester@email.com'});
-      expect(result).to.be.ok;
-      expect(result.status).to.be.equal('ok');
-      expect(result.message).to.be.equal('not-user:request_password_reset_success_link');
+      expect(result).to.be.undefined;
     });
 
     it('failed, misformed email', async () => {

@@ -28,8 +28,17 @@
 					manifest: [],
 					index: ''
 				},
+				//modules.user.loginForm.modes
 				modules:{
 					user:{
+						loginForm:{
+							modes: [
+								'login',
+								'requestLoginCodeOnEmail',
+								'requestLoginCodeOnTelephone',
+								'loginByCode'
+							]
+						},
 						redirectTimout: 3000,
 						afterLoginURL: '/dashboard.html',
 						loginFormContainerSelector: '#test-ground'

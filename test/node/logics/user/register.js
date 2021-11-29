@@ -35,8 +35,7 @@ module.exports = ({
         }
       });
       const result = await UserLogics.User.register(data);
-      expect(result).to.be.ok;
-      expect(result.status).to.be.equal('ok');
+      expect(result).to.be.undefined;
     });
 
     it('failed, exception throwned; user with this username and email exist', async() => {

@@ -17,7 +17,7 @@ module.exports = ({
   User
 }) => {
   describe('update', function() {
-  
+
     let oneTimeUsers = [];
     const telNum = '+75551234567';
 
@@ -62,8 +62,7 @@ module.exports = ({
           telephone: telNum
         }
       });
-      expect(result).to.be.ok;
-      expect(result.status).to.be.equal('ok');
+      expect(result).to.be.undefined;
       const resultUserData = await User.User.findById(oneTimeUsers[2]._id);
       expect(resultUserData.telephone).to.be.equal(telNum);
     });

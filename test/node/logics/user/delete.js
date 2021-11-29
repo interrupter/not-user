@@ -60,8 +60,7 @@ module.exports = ({
         ip,
         activeUser: oneTimeUsers[3]
       });
-      expect(result).to.be.ok;
-      expect(result.status).to.be.equal('ok');
+      expect(result).to.be.undefined;
       const resultUserData = await User.User.findById(oneTimeUsers[1]._id);
       expect(resultUserData.__closed).to.be.true;
     });
@@ -75,8 +74,7 @@ module.exports = ({
         targetUserId: mongoose.Types.ObjectId(),
         ip
       });
-      expect(result).to.be.ok;
-      expect(result.status).to.be.equal('ok');
+      expect(result).to.be.undefined;
     });
 
     it('ok; targetUserId have supremacy', async () => {

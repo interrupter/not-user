@@ -183,21 +183,15 @@ describe('models/user', function() {
     });
 
     describe('toggleActive', function() {
-      it('item exists and has `active` field', (done) => {
-        (User.User.add({
+      it('item exists and has `active` field', async () => {
+        let user = await (User.User.add({
           email: 'tester@email.com',
           username: 'testerUser',
           emailConfirmed: false,
           password: 'qwertyStory'
-        })).then(async (user) => {
-          try {
-            let userAfter = await User.User.toggleActive(user._id);
-            expect(userAfter.active).to.be.false;
-            done();
-          } catch (e) {
-            done(e);
-          }
-        }).catch(done);
+        }));
+        let userAfter = await User.User.toggleActive(user._id);
+        expect(userAfter.active).to.be.false;
       });
 
       it('item does exists', (done) => {

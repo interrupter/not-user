@@ -16,23 +16,15 @@ module.exports = ({
   describe('routes/user/loginByEmail', function() {
     const url = '/';
     it('ok', async () => {
-      let res = stubResponse({
-          redirect(path) {
-            expect(path).to.be.equal(url);
-          }
-        }),
-        req = stubRequest({
-          query: {
-            code: 'oneTimePasses[0].code'
-          }
-        });
+      let res = stubResponse({}),
+        req = stubRequest({}),
+        prepared = {some: 'data'};
       notNode.Application = stubApp({
         ...modelsEnv,
         logics:{
           'not-user//Auth':{
-            async loginByCode({code, ip}){
-              expect(code).to.be.equal('oneTimePasses[0].code');
-              expect(ip).to.be.equal('127.0.0.1');
+            async loginByCode(params){
+              expect(params).to.be.deep.equal(prepared);
               return {
                 _id: '123123123',
                 role: 'role'
@@ -41,10 +33,12 @@ module.exports = ({
           }
         }
       });
-      await routes.loginByCode(req, res, (err) => {
+      const result = await routes.loginByCode(req, res, (err) => {
         console.error(err);
         expect(false).to.be.ok;
-      });
+      }, prepared);
+      expect(result).to.be.ok;
+      expect(result.__redirect__).to.be.equal(url);
     });
 
     it('exception', async () => {

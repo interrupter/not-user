@@ -1,8 +1,12 @@
 
 
 describe('notUser.Guest', function() {
-  before(async () => {
-    await cy.exec('npm run buildtest:guest');
+  before( () => {
+    cy.exec('npm run buildtest:guest');
+  });
+
+  beforeEach(()=>{
+    cy.intercept('GET', '/api/manifest', { fixture: 'manifest.guest.json' });
   });
 
   it('Login by email/password - not valid, client side', function() {
@@ -15,6 +19,12 @@ describe('notUser.Guest', function() {
 
   it('Login by email/password - not valid, server side', function() {
     cy.visit('http://localhost:7357/login.ui.html');
+    cy.intercept('POST', '/api/user/login', {
+      body: {
+        status: 'error',
+        error: 'email_not_valid'
+      },
+    });
     cy.get('input[type="email"]').type('invalid.email');
     cy.get('input[type="password"]').type('invalid.password');
     cy.get('.user-login-form-submit').should('be.disabled');
@@ -53,7 +63,7 @@ describe('notUser.Guest', function() {
     cy.get('input[type="email"]').type('some.invalid@email.ru');
     cy.get('.user-login-form-submit').should('be.enabled');
     cy.get('.user-login-form-submit').click();
-    cy.get('.user-login-form-email .is-danger').should('exist');
+    cy.get('.user-login-form-email+.is-danger').should('exist');
     cy.get('article.message.is-danger').should('exist');
     cy.get('.user-login-form-submit').should('be.disabled');
   });

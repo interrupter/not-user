@@ -85,14 +85,14 @@ module.exports = ({
         ...modelsEnv,
         logics:{
           'not-user//UserMailer': {
-            async sendOneTimeLoginCode(){}
+            async sendOneTimeLoginCode(user){
+              expect(user).to.be.ok;
+            }
           }
         }
       });
       let result = await AuthLogics.Auth.requestLoginCodeOnEmail({email: 'test@mail.org'});
-      expect(result).to.be.ok;
-      expect(result.status).to.be.equal('ok');
-      expect(result.message).to.be.equal('not-user:request_login_by_link_success');
+      expect(result).to.be.undefined;
     });
   });
 

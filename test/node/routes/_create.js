@@ -1,16 +1,11 @@
+const {notRequestError} = require('not-error');
 
+const notNode = require('not-node');
 module.exports = ({
-    routes,
-    config,
-    JWT,
-    notNode,
     expect,
-    stubApp,
-    stubResponse,
+    routes,
     stubRequest,
-    stubModuleEnv,
-    modelsEnv,
-    User
+    stubApp,
 })=>{
   const testUser = {
     username: 'test',
@@ -23,75 +18,52 @@ module.exports = ({
   };
 
   const newUser = {
-    username: 'new_one',
+    username:   'new_one',
     email: 			'req.body.email',
     password: 	'req.body.password',
     role: 			'req.body.role',
     tel: 				'req.body.tel',
     country: 		'req.body.country',
-    active: false
+    active:     false
   }
 
   describe('routes/user/_create', function()  {
     it('ok', async () => {
-      let res = stubResponse({
-          json(result) {
-            expect(result.error).to.be.undefined;
-            expect(this._status).to.be.equal(200);
-          }
-        }),
+      let
         req = stubRequest({
           params: {
             _id: '_id_value'
           },
           user: testUser,
-          body:newUser
+          body: newUser
         });
-      notNode.Application = stubApp({
-        ...modelsEnv,
-        logics: {
-          'not-user//User': {
-            async createUser(params) {
-              expect(params).to.have.keys(['activeUser','data', 'ip']);
-              expect(params.activeUser).to.be.deep.equal(testUser);
-              expect(params.data).to.be.deep.equal({
-                ...newUser,
-                ip: '127.0.0.1'
-              });
-              return {status: 'ok'};
-            }
-          }
-        }
-      });
-      stubModuleEnv(routes, modelsEnv);
-      await routes._create(req, res, (err) => {
-        console.error(err);
-        expect(false).to.be.ok;
-      });
-
+      await routes._create(req, {}, ()=>{});
     });
 
     it('exception', async () => {
-      let res = stubResponse({}),
+      let
+        prepared = {some: 'data'},
         req = stubRequest({
           body: {
             email: 'register@mail.org'
           }
         });
-      stubModuleEnv(routes, modelsEnv);
-      notNode.Application = stubApp({
-        ...modelsEnv,
-        logics: {
-          'not-user//User': {
-            async createUser() {
-              throw new Error('Some error!');
+        notNode.Application = stubApp({
+          logics: {
+            'not-user//User': {
+              async createUser(params) {
+                expect(params).to.be.deep.equal(prepared);
+                throw new notRequestError('', {})
+              }
             }
           }
-        }
-      });
-      await routes._create(req, res, (err) => {
-        expect(err).to.be.instanceof(Error);
-      });
+        });
+      let throwed = false;
+      await routes._create(req, {}, (err)=>{
+        throwed = true;
+        expect(err).to.be.instanceof(notRequestError);
+      }, prepared);
+      expect(throwed).to.be.true;
     });
   });
 

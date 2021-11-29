@@ -70,9 +70,7 @@ module.exports = ({
         ip
       });
       expect(res).to.be.ok;
-      expect(res.status).to.be.equal('ok');
-      expect(res.result).to.be.ok;
-      expect(res.result._id.toString()).to.be.equal(oneTimeUsers[1]._id.toString());
+      expect(res._id.toString()).to.be.equal(oneTimeUsers[1]._id.toString());
     });
 
     it('failed, fake _id', async () => {
@@ -98,7 +96,6 @@ module.exports = ({
     });
 
     it('ok, same _id', async () => {
-
         notNode.Application = stubApp({
           ...modelsEnv,
           logics:{
@@ -113,9 +110,7 @@ module.exports = ({
           ip
         });
         expect(res).to.be.ok;
-        expect(res.status).to.be.equal('ok');
-        expect(res.result).to.be.ok;
-        expect(res.result._id.toString()).to.be.equal(oneTimeUsers[2]._id.toString());
+        expect(res._id.toString()).to.be.equal(oneTimeUsers[2]._id.toString());
     });
 
   });

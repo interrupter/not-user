@@ -15,22 +15,15 @@ module.exports = ({
   describe('routes/user/confirmEmail', function() {
     const url = '/login';
     it('ok', async () => {
-      let res = stubResponse({
-          redirect(path) {
-            expect(path).to.be.equal(url);
-          }
-        }),
-        req = stubRequest({
-          query: {
-            code: 'oneTimePasses[0].code'
-          }
-        });
+      let res = stubResponse({}),
+        req = stubRequest({}),
+        prepared = {code: 'some_code'};
       notNode.Application = stubApp({
         ...modelsEnv,
         logics:{
           'not-user//User':{
             async confirmEmail(code){
-              expect(code).to.be.equal('oneTimePasses[0].code');
+              expect(code).to.be.equal(prepared.code);
             }
           }
         }
@@ -38,7 +31,7 @@ module.exports = ({
       await routes.confirmEmail(req, res, (err) => {
         console.error(err);
         expect(false).to.be.ok;
-      });
+      }, prepared);
     });
 
     it('exception', async () => {

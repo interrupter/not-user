@@ -1,5 +1,7 @@
-const notNode = require('not-node'),
-  Increment = notNode.Increment,
+const notNode = require('not-node');
+notNode.Fields.importFromDir(__dirname + '/../../node_modules/not-node/src/core/fields');
+notNode.Fields.importFromDir(__dirname + '/../../src/fields');
+const  Increment = notNode.Increment,
   Proto = require('not-node').Proto,
   OneTimeCode = require('not-one-time-code/src/models/oneTimeCode'),
   User = require('../../src/models/user.js'),
@@ -36,6 +38,7 @@ exports.init = (from, done) => {
     .then(()=>{
       console.log(from, 'connected');
       connecting = false; connected = true;
+      //console.log(notNode.Fields.LIB);
       if (typeof User.User == 'undefined'){
         Proto.fabricate(User, {}, mongoose);
       }

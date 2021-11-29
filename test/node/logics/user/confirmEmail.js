@@ -28,7 +28,8 @@ module.exports = ({
         email: 'emailConfirmationTest1@email.com',
         username: 'emailConfirmationTest1123',
         emailConfirmed: false,
-        password: 'emailConfirmationTest1'
+        password: 'emailConfirmationTest1',
+        role: ['user']
       })));
 
       oneTimePasses.push(
@@ -49,8 +50,7 @@ module.exports = ({
         }
       });
         let result = await UserLogics.User.confirmEmail(oneTimePasses[0].code);
-        expect(result).to.be.ok;
-        expect(result.status).to.be.equal('ok');
+        expect(result).to.be.undefined;
         const userAfterConfirmation = await User.User.findById(oneTimeUser._id);
         expect(userAfterConfirmation.emailConfirmed).to.be.true;
     });

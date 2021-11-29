@@ -1,7 +1,8 @@
-const notApp = require('not-node').Application;
+const notNode = require('not-node');
+
 module.exports = async ()=>{
   try{
-    let User = notApp.getModel('User');
+    let User = notNode.Application.getModel('User');
     await (User.add({
       username: 'VasyaPupkin',
       email:    'vasya@pupkin.hacker',
@@ -9,7 +10,8 @@ module.exports = async ()=>{
       ip:        '127.0.0.1',
       telephone: '+1-234-234-2345'
     }));
+    console.log('test user added');
   }catch(e){
-    notApp.logger.error(e);
+    console.error(e);
   }
 }

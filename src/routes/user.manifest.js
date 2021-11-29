@@ -1,8 +1,17 @@
+const initFromSchema = require('not-node').Fields.fromSchema;
+const modelSchema = require('../models/user').thisSchema;
+
+const FIELDS = initFromSchema(modelSchema, [
+	'username',
+	'email',
+	'password',
+]);
+
 module.exports = {
 	model: 'user',
 	url: '/api/:modelName',
 	showMessages: true,
-	fields: {},
+	fields: FIELDS,
 	actions:{
 		/**
 		Guest action
@@ -143,7 +152,8 @@ module.exports = {
 			rules:[{
 				auth: true
 			},{
-				auth: false
+				return: ['auth', 'sid', 'ip'],
+				auth: false,
 			}],
 			postFix: '/:actionName'
 		},
@@ -190,7 +200,6 @@ module.exports = {
 			data: ['record'],
 			postFix: '/:actionName'
 		},
-
 		delete:{
 			method: 'delete',
 			rules:[{

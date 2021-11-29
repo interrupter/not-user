@@ -62,12 +62,11 @@ module.exports = ({
         ip: '127.0.0.1'
       });
       expect(result).to.be.ok;
-      expect(result.status).to.be.equal('ok');
+      expect(result._id).to.be.ok;
     });
 
 
     it('failure, mailer exception', async () => {
-
       notNode.Application = stubApp({
         ...modelsEnv,
         logics: {

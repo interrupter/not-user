@@ -32,19 +32,20 @@ class ncLogin extends notController {
 		if(UserCommon.isError(res)){
 			notCommon.report(res);
 		}else{
-			if(res.errors && Object.keys(res.errors).length > 0){
-				if (!Array.isArray(res.error)){
-					res.error = [];
+			if(res.status === 'error'){
+				if(res.errors && Object.keys(res.errors).length > 0){
+					if (!Array.isArray(res.error)){
+						res.error = [];
+					}
+					Object.keys(res.errors).forEach((fieldName)=>{
+						this.formUI.setFieldInvalid(fieldName, res.errors[fieldName]);
+						res.error.push(...res.errors[fieldName]);
+					});
 				}
-				Object.keys(res.errors).forEach((fieldName)=>{
-					this.formUI.setFieldInvalid(fieldName, res.errors[fieldName]);
-					res.error.push(...res.errors[fieldName]);
-				});
-			}
-			if(res.error){
-				this.formUI.setFormError(res.error);
-			}
-			if(!res.error ){
+				if(res.message){
+					this.formUI.setFormError(res.message);
+				}
+			}else{
 				this.formUI.showSuccess();
 			}
 		}

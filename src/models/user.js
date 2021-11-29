@@ -1,30 +1,20 @@
 const
+	initFields = require('not-node').Fields.initFields,
 	phrase = require('not-locale').modulePhrase('not-user'),
 	crypto = require('crypto'),
 	{
-		notError
+		notError,
+		notValidationError,
+		notRequestError
 	} = require('not-error'),
 	Auth = require('not-node').Auth,
 	generator = require('generate-password'),
-	Schema = require('mongoose').Schema,
-	validator = require('validator');
+	validator = require('validator'),
+	{DEFAULT_ROLES_LIST,DEFAULT_HASH_ALGO} = require('../const.js');
 
-const DEFAULT_TTL = 3; //in minutes
-const DEFAULT_TTL_MIN = 1; //in minutes
-const DEFAULT_TTL_MAX = 60; //in minutes
+const MODEL_NAME = 'User';
 
-exports.DEFAULT_TTL = DEFAULT_TTL;
-exports.DEFAULT_TTL_MIN = DEFAULT_TTL_MIN;
-exports.DEFAULT_TTL_MAX = DEFAULT_TTL_MAX;
-
-//stronger -> weaker
-const DEFAULT_ROLES_LIST = ['root', 'admin', 'client', 'user', 'guest'];
-exports.DEFAULT_ROLES_LIST = DEFAULT_ROLES_LIST;
-const EXTRA_ROLES_LIST = ['confirmed'];
-exports.EXTRA_ROLES_LIST = EXTRA_ROLES_LIST;
-
-exports.DEFAULT_HASH_ALGO = 'sha256';
-exports.thisModelName = 'User';
+exports.thisModelName = MODEL_NAME;
 exports.keepNotExtended = false;
 
 exports.enrich = {
@@ -32,210 +22,85 @@ exports.enrich = {
 	increment: true,
 	validators: true
 };
+const FIELDS = [
+	'username',
+	'email',
+	'emailConfirmed',
+	'telephone',
+	'telephoneConfirmed',
+	'hashedPassword',
+	'salt',
+	'created',
+	'role',
+	'active',
+	'ip',
+	'country',
+	'confirm'
+];
 
-exports.thisSchema = {
-	username: {
-		type: String,
-		unique: true,
-		searchable: true,
-		required: true,
-		validate: [{
-			validator: 'isLength',
-			arguments: [3, 60],
-			message: 'username_length_is_not_valid'
-		}, {
-			validator(val) {
-				return !validator.isEmail(val);
-			},
-			message: 'username_cant_be_email'
-		}],
-		safe: {
-			read: ['*']
-		}
-	},
-	email: {
-		type: String,
-		unique: true,
-		searchable: true,
-		required: true,
-		validate: [{
-			validator: 'isEmail',
-			message: 'email_is_not_valid'
-		}],
-		safe: {
-			update: ['@owner', 'root', 'admin'],
-			read: ['@owner', 'root', 'admin']
-		}
-	},
-	emailConfirmed: {
-		type: Boolean,
-		searchable: true,
-		required: true,
-		default: false,
-		validate: [{
-			validator(val) {
-				return (val === true) || (val === false);
-			},
-			message: 'active_state_value_is_not_valid'
-		}],
-		safe: {
-			update: ['@owner', 'root', 'admin'],
-			read: ['@owner', 'root', 'admin']
-		}
-	},
-	telephone: {
-		type: String,
-		unique: false,
-		searchable: true,
-		required: false,
-		validate: [{
-			validator(val) {
-				return validator.isMobilePhone(val.replace(/\D/g, ''));
-			},
-			message: 'telephone_value_is_not_valid'
-		}],
-		safe: {
-			update: ['@owner', 'root', 'admin'],
-			read: ['@owner', 'root', 'admin']
-		}
-	},
-	telephoneConfirmed: {
-		type: Boolean,
-		searchable: true,
-		required: true,
-		default: false,
-		validate: [{
-			validator(val) {
-				return (val === true) || (val === false);
-			},
-			message: 'active_state_value_is_not_valid'
-		}],
-		safe: {
-			update: ['@owner', 'root', 'admin'],
-			read: ['@owner', 'root', 'admin']
-		}
-	},
-	//хэш пароля
-	hashedPassword: {
-		type: String,
-		required: true,
-		validate: [{
-			validator: 'isHash',
-			arguments: [exports.DEFAULT_HASH_ALGO],
-			message: 'hashedPassword_is_not_valid'
-		}]
-	},
-	//соль для хэширования
-	salt: {
-		type: String,
-		required: true
-	},
-	//дата создания
-	created: {
-		type: Date,
-		default: Date.now,
-		safe: {
-			update: ['*'],
-			read: ['*']
-		}
-	},
-	role: {
-		type: [String],
-		required: true,
-		searchable: true,
-		default: ['user'],
-		validate: [{
-			validator(val) {
-				if (val.length === 0) {
-					return false;
-				}
-				if (val.length > 6) {
-					return false;
-				}
-				let count = 0;
-				let extraIsInvalid = false;
-				val.forEach((role) => {
-					if (exports.DEFAULT_ROLES_LIST.includes(role)) {
-						count++;
-					}else if(! exports.EXTRA_ROLES_LIST.includes(role)){
-						extraIsInvalid = true;
-					}
-				});
-				if (count !== 1) {
-					return false;
-				}
-				if(extraIsInvalid){
-					return false;
-				}
-				return true;
-			},
-			message: 'user_role_is_not_valid'
-		}],
-		safe: {
-			update: ['root', 'admin'],
-			read: ['@owner', 'root', 'admin']
-		}
-	},
-	//статус пользователя, активен или нет
-	active: {
-		type: Boolean,
-		required: true,
-		searchable: true,
-		default: true,
-		validate: [{
-			validator(val) {
-				return (val === true) || (val === false);
-			},
-			message: 'active_state_value_is_not_valid'
-		}],
-		safe: {
-			update: ['@system', 'root', 'admin'],
-			read: ['@owner', 'root', 'admin']
-		}
-	},
-	ip: {
-		type: String,
-		required: false,
-		validate: [{
-			validator: 'isIP',
-			message: 'ip_address_is_not_valid'
-		}],
-		safe: {
-			update: ['@system'],
-			read: ['@owner', 'root', 'admin']
-		}
-	},
-	country: {
-		type: String,
-		required: false,
-		searchable: true,
-		default: 'ru',
-		validate: [{
-			validator(val) {
-				return val === 'ru';
-			},
-			message: 'selected_user_language_is_not_valid'
-		}],
-		safe: {
-			update: ['@system', '@owner', 'root', 'admin'],
-			read: ['*']
-		}
-	},
-	confirm: {
-		type: Schema.Types.Mixed,
-		required: false,
-		searchable: true,
-		safe: {
-			update: ['@system', 'root', 'admin']
-		}
-	}
-};
+exports.thisSchema = initFields(FIELDS, 'model');
 
 
 exports.indexes = [
 	[{__latest: 1, __closed: 1, username:1 }, { unique: true }],
 	[{__latest: 1, __closed: 1, email:1 }, { unique: true }]
 ];
+
+function validateEmailOrThrow(email){
+	try{
+		let val = validator.isEmail(email);
+		if(!val){
+			throw new notValidationError(
+				phrase('email_not_valid'),
+				{
+					email: [phrase('email_not_valid')]
+				},
+				null,
+				{email}
+			);
+		}
+	}catch(e){
+		if(e instanceof notValidationError){
+			throw e;
+		}else{
+			throw new notValidationError(
+				phrase('email_not_valid'),
+				{email:[phrase('email_not_valid')]},
+				e,
+				{email}
+			);
+		}
+	}
+}
+
+function checkPasswordOrThrow(user, password){
+	if (user.checkPassword(password)) {
+		return user;
+	} else {
+		throw new notRequestError(
+			phrase('password_incorrect'),
+			{
+				code: 404,
+				//error messages
+				errors:{
+					password: [phrase('password_incorrect')]
+				}
+			}
+		);
+	}
+}
+
+function throwUserNotFound(errors = {}, params = {}, e = null){
+	throw new notRequestError(
+		phrase('user_not_found'),
+		{
+			code: 404,
+			errors,
+			params
+		},
+		e
+	);
+}
 
 exports.thisStatics = {
 	DEFAULT_ROLES_LIST,
@@ -247,64 +112,41 @@ exports.thisStatics = {
 		});
 	},
 	authorize: async function(email, password) {
+		validateEmailOrThrow(email);
+		let user = await this.getByEmail(email);
+		if (user) {
+			return checkPasswordOrThrow(user, password);
+		} else {
+			throwUserNotFound({email: [phrase('user_not_found')]}, {email});
+		}
+	},
+	toggleActive: async function(id){
 		try{
-			let val = validator.isEmail(email);
-			if(!val){
-				throw new notError(phrase('email_not_valid'), {email});
+			let user = await	this.findById(id);
+			if (user) {
+				user.active = !user.active;
+				await user.save();
+				return user;
+			}else{
+				throwUserNotFound({id: [phrase('user_not_found')]}, {id});
 			}
 		}catch(e){
-			if(e instanceof notError){
-				throw e;
-			}else{
-				throw new notError(phrase('email_not_valid'), {email}, e);
+			if(e instanceof notRequestError){throw e;}
+			else{
+				throwUserNotFound({id: [phrase('user_not_found')]}, {id}, e);
 			}
 		}
-		let user = await this.findOne(
-			{
-				email: email
-			}).exec();
-		if (user) {
-			if (user.checkPassword(password)) {
-				return user;
-			} else {
-				throw new notError(phrase('password_incorrect'));
-			}
-		} else {
-			throw new notError(phrase('user_not_found'));
-		}
-	},
-	toggleActive: function(id) {
-		return new Promise((resolve, reject) => {
-			this.findById(id)
-				.then((user) => {
-					if (user) {
-						user.active = !user.active;
-						user.save()
-							.then(resolve)
-							.catch(reject);
-					} else {
-						reject(new notError(phrase('user_not_found')));
-					}
-				})
-				.catch((err) => {
-					reject(new notError(phrase('user_not_found')).adopt(err));
-				});
-		});
 	},
 	clearFromUnsafe: function(data) {
-		var unsafeList = ['hashedPassword', 'salt'];
+		let unsafeList = ['hashedPassword', 'salt'];
 		for (let i of unsafeList) {
 			delete data[i];
 		}
 		return data;
 	},
-	fieldValueExists: function(key, val) {
-		return this.findOne({
-			[key]: val
-		}).exec()
-			.then((user) => {
-				return !!user;
-			});
+	async fieldValueExists(key, val){
+		let user = await this.makeQuery('findOne', {[key]: val}).exec();
+		return !!user;
 	},
 	usernameExists: function(username) {
 		return this.fieldValueExists('username', username);
@@ -313,7 +155,7 @@ exports.thisStatics = {
 		return this.fieldValueExists('email', email);
 	},
 	getByFieldValue: function(key, val) {
-		return this.findOne({
+		return this.makeQuery('findOne', {
 			[key]: val
 		}).exec();
 	},
@@ -334,10 +176,10 @@ exports.thisStatics = {
 			}else{
 				const errors = {};
 				if(results[0]){
-					errors.username = phrase('username_taken');
+					errors.username = [phrase('username_taken')];
 				}
 				if(results[1]){
-					errors.email = phrase('email_taken');
+					errors.email = [phrase('email_taken')];
 				}
 				return errors;
 			}
@@ -358,7 +200,9 @@ exports.thisStatics = {
 		}
 		let safeData = this.extractSafeFields('update', data, roles, actorId, system);
 		//может быть пусто, тогда не тратим время
-		if(Object.keys(safeData).length === 0) throw new notError(phrase('insufficient_level_of_privilegies'));
+		if(Object.keys(safeData).length === 0) {
+			throw new notError(phrase('insufficient_level_of_privilegies'));
+		}
 		if (exports.enrich.versioning) {
 			return this.findOneAndUpdate(
 				{
@@ -385,7 +229,9 @@ exports.thisStatics = {
 		}
 	},
 	extractSafeFields(action, data, roles, actorId, system = false) {
+		console.log(action, roles, this.isOwner(data, actorId), system);
 		let fields = this.getSafeFieldsForRoleAction(action, roles, this.isOwner(data, actorId), system);
+		console.log(fields);
 		let result = {};
 		fields.forEach((field) => {
 			if (Object.prototype.hasOwnProperty.call(data, field)) {
@@ -405,6 +251,7 @@ exports.thisStatics = {
 		}
 		for (let t in exports.thisSchema) {
 			let field = exports.thisSchema[t];
+			console.log(t, field);
 			if (Object.prototype.hasOwnProperty.call(field, 'safe')) {
 				if (Object.prototype.hasOwnProperty.call(field.safe, action)) {
 					if (field.safe[action] === '*') {
@@ -449,9 +296,18 @@ exports.thisVirtuals = {
 	},
 	'password': {
 		'set': function(password) {
-			this._plainPassword = password;
-			this.salt = Math.random() + '';
-			this.hashedPassword = this.encryptPassword(password);
+			if (exports.User.validatePassword(password)){
+				this._plainPassword = password;
+				this.salt = Math.random() + '';
+				this.hashedPassword = this.encryptPassword(password);
+			}else{
+				throw new notValidationError(
+					phrase('password_length_not_valid'),
+					{
+						password: [phrase('password_length_not_valid')]
+					}
+				);
+			}
 		},
 		'get': function() {
 			return this._plainPassword;
@@ -461,7 +317,7 @@ exports.thisVirtuals = {
 
 exports.thisMethods = {
 	encryptPassword(password) {
-		return crypto.createHmac(exports.DEFAULT_HASH_ALGO, this.salt).update(password).digest('hex');
+		return crypto.createHmac(DEFAULT_HASH_ALGO, this.salt).update(password).digest('hex');
 	},
 	createNewPassword() {
 		let pass = exports[exports.thisModelName].randomPassword();
@@ -476,19 +332,25 @@ exports.thisMethods = {
 		}
 	},
 	registerAs(role) {
+		if(!Array.isArray(this.role)){
+			this.role = [];
+		}
 		if (this.role.indexOf(role) == -1) {
 			this.role.push(role);
 		}
 		return this;
 	},
 	deregisterAs(role) {
+		if(!Array.isArray(this.role)){
+			this.role = [];
+		}
 		if (this.role.indexOf(role) > -1) {
 			this.role.splice(this.role.indexOf(role), 1);
 		}
 		return this;
 	},
 	isRole(role) {
-		return this.role.indexOf(role) > -1;
+		return Array.isArray(this.role) && this.role.indexOf(role) > -1;
 	},
 	isRoot() {
 		return this.isRole('root');

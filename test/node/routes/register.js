@@ -12,42 +12,30 @@ module.exports = ({
     modelsEnv
 })=>{
   describe('routes/user/register', function() {
-    const bodyInput = {
+    const prepared = {
       username:   'req.body.username',
       email:       'req.body.email',
       password:   'req.body.password',
     };
     it('ok', async () => {
-      let req = stubRequest({
-        body: bodyInput
-      }),
-        res = stubResponse({
-          json(result){
-            expect(this._status).to.be.equal(200);
-            expect(result.status).to.be.equal('ok');
-          }
-        });
+      let req = stubRequest({}),
+        res = stubResponse({});
         notNode.Application = stubApp({
           ...modelsEnv,
           logics: {
             'not-user//User': {
               async register(params) {
-                expect(params).to.have.keys(['username', 'email', 'password', 'ip']);
-                expect(Object.keys(params).length).to.be.equal(4);
-                expect(params.username).to.be.equal(bodyInput.username);
-                expect(params.email).to.be.equal(bodyInput.email);
-                expect(params.password).to.be.equal(bodyInput.password);
-                return {
-                  status: 'ok'
-                };
+                expect(params).to.deep.equal(prepared);
+                return {registration:1};
               }
             }
           }
         });
-      await routes.register(req, res, (err) => {
+      const result = await routes.register(req, res, (err) => {
         console.log(err);
         expect(false).to.be.ok;
-      });
+      }, prepared);
+      expect(result).to.be.deep.equal({registration:1});
     });
 
     it('exception', async () => {

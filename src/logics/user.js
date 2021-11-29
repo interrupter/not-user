@@ -2,7 +2,8 @@ const notNode = require('not-node');
 const phrase = require('not-locale').modulePhrase('not-user');
 const Log = require('not-log')(module, 'user:logics');
 const {
-	notRequestError
+	notRequestError,
+	notValidationError
 } = require('not-error');
 
 const MODEL_NAME = 'User';
@@ -27,10 +28,9 @@ exports[MODEL_NAME] = class UserLogic {
 		//user key data is not duplicating another
 		let unique = await User.isUnique(newUser.username, newUser.email);
 		if (unique !== true) {
-			throw new notRequestError(
-				phrase('user_uniqueness_verification_error'), {
-					errors: unique
-				}
+			throw new notValidationError(
+				phrase('user_uniqueness_verification_error'),
+				unique
 			);
 		}
 		//saving
@@ -58,9 +58,6 @@ exports[MODEL_NAME] = class UserLogic {
 			target: newUser._id,
 			targetID: newUser.userID
 		});
-		return {
-			status: 'ok'
-		};
 	}
 
 	static async loadUser(targetId) {
@@ -98,9 +95,6 @@ exports[MODEL_NAME] = class UserLogic {
 		const user = await UserLogic.loadUser(oneTimeCode.payload.owner);
 		user.confirmEmail();
 		await user.save();
-		return {
-			status: 'ok'
-		};
 	}
 
 	static async profile({
@@ -110,10 +104,7 @@ exports[MODEL_NAME] = class UserLogic {
 		const notApp = notNode.Application;
 		const User = notApp.getModel('not-user//User');
 		let user = await User.getOne(activeUser._id);
-		return {
-			status: 'ok',
-			result: User.clearFromUnsafe(user.toObject(), activeUser.role)
-		};
+		return User.clearFromUnsafe(user.toObject(), activeUser.role);
 	}
 
 	static checkUserSupremacy({
@@ -135,9 +126,13 @@ exports[MODEL_NAME] = class UserLogic {
 					phrase('insufficient_level_of_privilegies'), {
 						code: 405,
 						error: phrase('insufficient_level_of_privilegies'),
-						ip,
-						activeUserId: activeUser._id,
-						targetUserId: targetUser._id
+						params:{
+							ip,
+							activeUserId: activeUser._id,
+							activeUserRole: activeUser.role,
+							targetUserId: targetUser._id,
+							targetUserRole: targetUser.role
+						}
 					}
 				);
 			}
@@ -186,10 +181,6 @@ exports[MODEL_NAME] = class UserLogic {
 			targetId: targetUser._id,
 			targetRole: targetUser.role,
 		});
-		//if no errors
-		return {
-			status: 'ok'
-		};
 	}
 
 	static async createUser({
@@ -216,10 +207,7 @@ exports[MODEL_NAME] = class UserLogic {
 			targetRole: targetUser.role,
 			ip
 		});
-		return {
-			status: 'ok',
-			result: User.clearFromUnsafe(targetUser.toObject())
-		};
+		return User.clearFromUnsafe(targetUser.toObject());
 	}
 
 	static async createRootUser(app, {
@@ -287,9 +275,6 @@ exports[MODEL_NAME] = class UserLogic {
 				ip
 			});
 		}
-		return {
-			status: 'ok'
-		};
 	}
 
 	static async get({
@@ -309,11 +294,7 @@ exports[MODEL_NAME] = class UserLogic {
 				ip
 			});
 		}
-		const data = User.clearFromUnsafe(targetUser.toObject());
-		return {
-			status: 'ok',
-			result: data
-		};
+		return User.clearFromUnsafe(targetUser.toObject());
 	}
 
 };

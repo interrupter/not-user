@@ -1,4 +1,6 @@
-const {notRequestError} = require('not-error');
+const {
+  notValidationError
+} = require('not-error');
 
 module.exports = ({
   UserLogics,
@@ -51,29 +53,30 @@ module.exports = ({
 
     it('exception, model validation exception', async () => {
 
-      try{
+      try {
         await UserLogics.User.createNewUserDocument({
           username: '',
           email: '',
           password: new Date(),
         });
-      }catch(e){
+      } catch (e) {
         expect(e).to.instanceof(Error);
       }
     });
 
     it('exception, username and email are not unique exception', async () => {
 
-      try{
+      try {
         await UserLogics.User.createNewUserDocument({
           username: savedDoc.username,
           email: savedDoc.email,
           password: 'new Date()',
         });
-      }catch(e){
-        expect(e).to.instanceof(notRequestError);
-        expect(e.getResult().errors).to.be.deep.equal({
-           username: 'not-user:username_taken', email: 'not-user:email_taken'
+      } catch (e) {
+        expect(e).to.instanceof(notValidationError);
+        expect(e.getFieldsErrors()).to.be.deep.equal({
+          username: ['not-user:username_taken'],
+          email: ['not-user:email_taken']
         });
       }
     });

@@ -80,8 +80,7 @@ module.exports = ({
       const result = await AuthLogics.Auth.resetPassword({
         code: oneTimePasses[0].code
       });
-      expect(result).to.be.ok;
-      expect(result.status).to.be.equal('ok');
+      expect(result).to.be.undefined;
     });
 
     it('failed, wrong code payload action', async () => {

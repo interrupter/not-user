@@ -14,24 +14,15 @@ module.exports = ({
 })=>{
   describe('routes/user/requestLoginCodeOnEmail', function() {
     it('ok', async () => {
-      let res = stubResponse({
-          json(result) {
-            expect(result).to.be.ok;
-            expect(this._status).to.be.equal(200);
-          }
-        }),
-        req = stubRequest({
-          body: {
-            email: 'email@post.now'
-          }
-        });
+      let res = stubResponse({}),
+        req = stubRequest({}),
+        prepared = {data: 'some'};
       notNode.Application = stubApp({
         ...modelsEnv,
         logics:{
           'not-user//Auth':{
-            async requestLoginCodeOnEmail({email}){
-              expect(email).to.be.equal('email@post.now');
-              return {status: 'ok'}
+            async requestLoginCodeOnEmail(params){
+              expect(params).to.be.deep.equal(prepared);
             }
           }
         }
@@ -39,7 +30,7 @@ module.exports = ({
       await routes.requestLoginCodeOnEmail(req, res, (err) => {
         console.error(err);
         expect(false).to.be.ok;
-      });
+      },prepared);
     });
 
     it('exception', async () => {
