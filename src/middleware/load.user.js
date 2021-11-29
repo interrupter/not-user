@@ -23,8 +23,8 @@ module.exports = async (req, res, next) => {
 				Log.error(`No user with such id@${req.session.user} where founded!`);
 				notAuth.cleanse(req);
 			}
-			next();
 		}
+		next();
 	}catch(e){
 		Log.error(`Error while loading user information`);
 		App.report(new notError(`Error while loading user information`, {}, e));

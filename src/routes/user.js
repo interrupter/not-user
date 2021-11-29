@@ -183,7 +183,7 @@ exports.profile = async (req, res, next) => {
 	Log.debug('user/profile');
 	try{
 		return await (getLogic().profile({
-			user: req.user,
+			activeUser: req.user,
 			ip: notNode.Auth.getIP(req),
 		}));
 	}catch(e){
