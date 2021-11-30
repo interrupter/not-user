@@ -1,83 +1,98 @@
-import ncUController from '../common/ncUController.js';
+import UserCommon from '../common/user';
 
-import UserCommon from '../common/user.js';
 import LoginComponent from './login.svelte';
 
-class ncLogin extends ncUController {
+import {notController, Form} from 'not-bulma';
+
+class ncLogin extends notController {
 	constructor(app) {
-		super(app, 'Login');
-		this.buildPage();
+		super(app, 'LoginForm');
+		this.setModelName('user');
+		this.mode = 'login';
+		this.buildFrame(this.mode);
+		this.buildForm(this.mode);
 		return this;
 	}
 
-	initItem() {
-		let newRecord = this.make.user({
-			'_id': undefined,
-			username: '',
-			tel: '',
-			code: '',
-			email: '',
-			password: ''
-		});
-		return newRecord;
-	}
-
-	buildPage() {
-		this.item = this.initItem();
+	buildFrame(mode) {
 		const target = document.querySelector(this.app.getOptions('modules.user.loginFormContainerSelector'));
 		if(!target){
 			location.href = '/login';
 		}
 		target.innerHTML = '';
-		this.formUI = new LoginComponent({
+		this.frame = new LoginComponent({
 			target,
 			props: {
-				user:   this.item,
-				login:  {
-					enabled: false,
-					required: false,
-					value: '',
-				},
+				mode,
 				MODES: this.app.getOptions('modules.user.loginForm.modes', ['login'])
 			}
 		});
-		this.formUI.$on('rejectLogin', ()=>{
-			window.location.assign('/');
-		});
-		this.formUI.$on('login', ({detail})=>{
-			this.item.setAttrs(detail);
-			this.formUI.setLoading();
-			this.item.$login({
-				username: detail.username,
-				password: detail.password,
-				email: detail.email,
-				tel: detail.tel,
-			})
-				.then((res)=>{
-					this.showResult(res);
-					if(!res.error){
-						setTimeout(() => UserCommon.goDashboard(this.app), 3000);
-					}
-				})
-				.catch(this.showResult.bind(this));
-		});
-
-		this.formUI.$on('requestLoginCodeOnEmail', ({detail})=>{
-			this.item.setAttrs(detail);
-			this.formUI.setLoading();
-			this.item.$requestLoginCodeOnEmail()
-				.then(this.showResult.bind(this))
-				.catch(this.showResult.bind(this));
-		});
-
-		this.formUI.$on('loginByCode', ({detail})=>{
-			this.item.setAttrs(detail);
-			this.formUI.setLoading();
-			this.item.$loginByCode()
-				.then(this.showResult.bind(this))
-				.catch(this.showResult.bind(this));
-		});
+		this.frame.$on('mode', (ev)=>{this.setMode(ev.detail);});
 	}
+
+	buildForm(action = 'login') {
+		this.form = Form.build({
+			target: document.querySelector('.user-login-form'),
+			manifest: this.app.getInterfaceManifest('user'),
+			action,
+			options: {},
+			validators: {},
+			data:{}
+		});
+		this.
+		this.form.$on('submit', (ev) => this.submit(ev.detail));
+		this.form.$on('reject', () => {location.href = '/';});
+	}
+
+	async submit(data){
+		try{
+			const fields = Object.keys(data);
+			this.form.setLoading();
+			const result = await this.getModel('user', data)[`$${this.mode}`]();
+			if(result.status === 'ok'){
+				this.frame.$set({status: 'ok', message: result.message});
+				this.form.showSuccess();
+				setTimeout(() => UserCommon.goDashboard(this.app), 1000);
+			}else{
+				this.setFormErrors(result, fields);
+			}
+		}catch(e){
+			this.frame.$set({status: 'error', message: e.message});
+		}finally{
+			this.form.resetLoading();
+		}
+	}
+
+	setMode(val){
+		if(val !== this.mode){
+			this.mode = val;
+			this.form.$destroy();
+			this.buildForm(this.mode);
+		}
+	}
+
+	setFormErrors(result, fields){
+		if(result.message){
+			this.frame.$set({
+				status: 'error',
+				message: result.message
+			});
+		}
+		if(result.errors && Object.keys(result.errors).length > 0 ){
+			fields.forEach(fieldName => {
+				if(Object.keys(result.errors).includes(fieldName)){
+					this.form.setFormFieldInvalid(fieldName, result.errors[fieldName]);
+				}else{
+					this.form.setFormFieldValid(fieldName);
+				}
+			});
+		}else{
+			fields.forEach(fieldName => {
+				this.form.setFormFieldValid(fieldName);
+			});
+		}
+	}
+
 }
 
 export default ncLogin;
