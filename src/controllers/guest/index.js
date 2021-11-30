@@ -1,4 +1,4 @@
-import ncLogin from 		'./ncLogin';
+import ncLogin from 		'./ncUniversal';
 import ncRegister from 	'./ncRegister';
 import ncRestore from 	'./ncRestore';
 

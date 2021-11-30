@@ -41,13 +41,7 @@ module.exports = ({
       expect(result.__redirect__).to.be.equal(url);
     });
 
-    it('exception', async () => {
-      let res = stubResponse({}),
-        req = stubRequest({});
-      await routes.loginByCode(req, res, (err) => {
-        expect(err).to.instanceof(Error);
-      });
-    });
+    
   });
 
 };

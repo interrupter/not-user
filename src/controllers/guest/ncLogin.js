@@ -1,16 +1,11 @@
-
-import {
-	notController,
-	notCommon
-} from 'not-bulma';
+import ncUController from '../common/ncUController.js';
 
 import UserCommon from '../common/user.js';
 import LoginComponent from './login.svelte';
 
-class ncLogin extends notController {
+class ncLogin extends ncUController {
 	constructor(app) {
-		super(app, 'User.Login');
-		this.setModelName('user');
+		super(app, 'Login');
 		this.buildPage();
 		return this;
 	}
@@ -27,34 +22,15 @@ class ncLogin extends notController {
 		return newRecord;
 	}
 
-	showResult(res) {
-		this.formUI.resetLoading();
-		if(UserCommon.isError(res)){
-			notCommon.report(res);
-		}else{
-			if(res.status === 'error'){
-				if(res.errors && Object.keys(res.errors).length > 0){
-					if (!Array.isArray(res.error)){
-						res.error = [];
-					}
-					Object.keys(res.errors).forEach((fieldName)=>{
-						this.formUI.setFieldInvalid(fieldName, res.errors[fieldName]);
-						res.error.push(...res.errors[fieldName]);
-					});
-				}
-				if(res.message){
-					this.formUI.setFormError(res.message);
-				}
-			}else{
-				this.formUI.showSuccess();
-			}
-		}
-	}
-
 	buildPage() {
 		this.item = this.initItem();
+		const target = document.querySelector(this.app.getOptions('modules.user.loginFormContainerSelector'));
+		if(!target){
+			location.href = '/login';
+		}
+		target.innerHTML = '';
 		this.formUI = new LoginComponent({
-			target: document.querySelector(this.app.getOptions('modules.user.loginFormContainerSelector')),
+			target,
 			props: {
 				user:   this.item,
 				login:  {

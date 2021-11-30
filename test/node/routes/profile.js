@@ -39,8 +39,8 @@ module.exports = ({
         logics: {
           'not-user//User': {
             async profile(params) {
-              expect(params).to.have.keys(['user', 'ip']);
-              expect(params.user).to.be.deep.equal({
+              expect(params).to.have.keys(['activeUser', 'ip']);
+              expect(params.activeUser).to.be.deep.equal({
                 '_id': '12345',
                 username: 'vasya'
               });
@@ -63,23 +63,6 @@ module.exports = ({
       });
     });
 
-    it('exception', async () => {
-      const req = stubRequest({}),
-        res = stubResponse({});
-      notNode.Application = stubApp({
-        ...modelsEnv,
-        logics: {
-          'not-user//User': {
-            async profile() {
-              throw new Error('Some error');
-            }
-          }
-        }
-      });
-      await routes.profile(req, res, (err) => {
-        expect(err).to.be.instanceof(Error);
-      });
-    });
   });
 
 };

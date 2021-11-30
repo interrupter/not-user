@@ -26,17 +26,7 @@ module.exports = ({
       });
     });
 
-    it('exception', async () => {
-      const req = stubRequest({}),
-        res = stubResponse({
-          json() {
-            throw new Error('Some error');
-          }
-        });
-      await routes.status(req, res, (err) => {
-        expect(err).to.be.instanceof(Error);
-      });
-    });
+  
 
   });
 

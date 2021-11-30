@@ -10,6 +10,6 @@ module.exports = {
 	},
 	ui:{
 		component: 'UIPassword',
-		label: 'not-user:field_password_label'
+		label: 'not-user:field_password_repeat_label'
 	},
 };

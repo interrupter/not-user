@@ -37,28 +37,7 @@ module.exports = ({
       expect(result).to.be.deep.equal(user);
     });
 
-    it('exception', async () => {
-      const req = stubRequest({}),
-        res = stubResponse({
-          json() {
-            expect(true).to.be.ok;
-          }
-        });
-      notNode.Application = stubApp({
-        ...modelsEnv,
-        logics: {
-          'not-user//Auth': {
-              async login() {
-                throw new Error('Some erro');
-              }
-            }
-          }
-        });
-      stubModuleEnv(routes, modelsEnv);
-      await routes.login(req, res, (err) => {
-        expect(err).to.be.instanceof(Error);
-      });
-    });
+    
 
   });
 

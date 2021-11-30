@@ -1,16 +1,12 @@
-import {
-	notController,
-	notCommon
-} from 'not-bulma';
+import ncUController from '../common/ncUController.js';
 
 import UserCommon from '../common/user.js';
 import RegisterComponent from './register.svelte';
 
 
-class ncRegister extends notController {
+class ncRegister extends ncUController {
 	constructor(app) {
-		super(app, 'User.Register');
-		this.setModelName('user');
+		super(app, 'Register');
 		this.buildPage();
 		return this;
 	}
@@ -26,16 +22,15 @@ class ncRegister extends notController {
 		});
 	}
 
-	showError(e) {
-		this.item.error = true;
-		this.item.message = e.error;
-		notCommon.report(e);
-	}
-
 	buildPage() {
 		this.item = this.initItem();
+		const target = document.querySelector(this.app.getOptions('modules.user.registerFormContainerSelector'));
+		if(!target){
+			location.href = '/register';
+		}
+		target.innerHTML = '';
 		this.formUI = new RegisterComponent({
-			target: document.querySelector(this.app.getOptions('modules.user.registerFormContainerSelector')),
+			target,
 			props: {
 				user:   this.item,
 				login:  {
@@ -58,29 +53,6 @@ class ncRegister extends notController {
 				})
 				.catch(this.showResult.bind(this));
 		});
-	}
-
-	showResult(res) {
-		this.formUI.resetLoading();
-		if(UserCommon.isError(res)){
-			notCommon.report(res);
-		}else{
-			if(res.errors && Object.keys(res.errors).length > 0){
-				if (!Array.isArray(res.error)){
-					res.error = [];
-				}
-				Object.keys(res.errors).forEach((fieldName)=>{
-					this.formUI.setFieldInvalid(fieldName, res.errors[fieldName]);
-					res.error.push(...res.errors[fieldName]);
-				});
-			}
-			if(res.error){
-				this.formUI.setFormError(res.error);
-			}
-			if(!res.error ){
-				this.formUI.showSuccess();
-			}
-		}
 	}
 }
 

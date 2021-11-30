@@ -38,27 +38,6 @@ module.exports = ({
       expect(result).to.be.deep.equal({registration:1});
     });
 
-    it('exception', async () => {
-      let res = stubResponse({}),
-        req = stubRequest({
-          body: {
-            username: 'usernameTest',
-            email: 'register@mail.org',
-            password: 'register_mail.org',
-          }
-        });
-      notNode.Application = stubApp({
-        logics: {
-          'not-user//User': {
-            async register(){
-              throw new Error('some error');
-            }
-          }
-        }
-      });
-      await routes.register(req, res, (err) => {
-        expect(err).to.be.instanceof(Error);
-      });
-    });
+    
   });
 };

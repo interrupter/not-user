@@ -40,24 +40,6 @@ module.exports = ({
 			await routes._delete({}, {}, () => {}, prepared);
 		});
 
-		it('exception', async () => {
-			let res = stubResponse({}),
-				req = stubRequest({});
-			stubModuleEnv(routes, modelsEnv);
-			notNode.Application = stubApp({
-				...modelsEnv,
-				logics: {
-					'not-user//User': {
-						async delete() {
-							throw new Error('Some error!');
-						}
-					}
-				}
-			});
-			await routes._delete(req, res, (err) => {
-				expect(err).to.be.instanceof(Error);
-			});
-		});
 	});
 
 };

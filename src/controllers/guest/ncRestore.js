@@ -1,15 +1,11 @@
-import {
-	notController,
-	notCommon
-} from 'not-bulma';
+import ncUController from '../common/ncUController.js';
 
 import UserCommon from '../common/user.js';
 import RestoreComponent from './restore.svelte';
 
-class ncRestore extends notController {
+class ncRestore extends ncUController {
 	constructor(app) {
-		super(app, 'User.Restore');
-		this.setModelName('user');
+		super(app, 'Restore');
 		this.buildPage();
 		return this;
 	}
@@ -20,33 +16,13 @@ class ncRestore extends notController {
 		};
 	}
 
-	showResult(res) {
-		this.formUI.resetLoading();
-		if(UserCommon.isError(res)){
-			notCommon.report(res);
-		}else{
-			if(res.errors && Object.keys(res.errors).length > 0){
-				if (!Array.isArray(res.error)){
-					res.error = [];
-				}
-				Object.keys(res.errors).forEach((fieldName)=>{
-					this.formUI.setFieldInvalid(fieldName, res.errors[fieldName]);
-					res.error.push(...res.errors[fieldName]);
-				});
-			}
-			if(res.error){
-				this.formUI.setFormError(res.error);
-			}
-			if(!res.error ){
-				this.formUI.showSuccess();
-			}
-		}
-	}
-
 	buildPage() {
 		this.item = this.initItem();
+		const target = document.querySelector(this.app.getOptions('modules.user.loginFormContainerSelector'));
+		if(!target){return;}
+		target.innerHTML = '';
 		this.formUI = new RestoreComponent({
-			target: document.querySelector(this.app.getOptions('modules.user.loginFormContainerSelector')),
+			target,
 			props: {
 				user:   this.item
 			}

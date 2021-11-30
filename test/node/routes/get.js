@@ -33,24 +33,6 @@ module.exports = ({
       }, prepared);
     });
 
-    it('exception', async () => {
-      const req = stubRequest({}),
-        res = stubResponse({});
-      notNode.Application = stubApp({
-        ...modelsEnv,
-        logics: {
-          'not-user//User': {
-            async get() {
-              throw new Error('Some error');
-            }
-          }
-        }
-      });
-      await routes.get(req, res, (err) => {
-        expect(err).to.be.instanceof(Error);
-      });
-    });
-
   });
 
   describe('routes/user/_get', function() {
@@ -76,24 +58,6 @@ module.exports = ({
         console.error(err);
         expect(false).to.be.ok;
       }, prepared);
-    });
-
-    it('exception', async () => {
-      const req = stubRequest({}),
-        res = stubResponse({});
-      notNode.Application = stubApp({
-        ...modelsEnv,
-        logics: {
-          'not-user//User': {
-            async get() {
-              throw new Error('Some error');
-            }
-          }
-        }
-      });
-      await routes._get(req, res, (err) => {
-        expect(err).to.be.instanceof(Error);
-      });
     });
 
   });

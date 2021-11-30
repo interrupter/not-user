@@ -33,23 +33,7 @@ module.exports = ({
       },prepared);
     });
 
-    it('exception', async () => {
-      let res = stubResponse({}),
-        req = stubRequest({});
-      notNode.Application = stubApp({
-        ...modelsEnv,
-        logics:{
-          'not-user//Auth':{
-            async requestLoginCodeOnEmail(){
-              throw new Error('New');
-            }
-          }
-        }
-      });
-      await routes.requestLoginCodeOnEmail(req, res, (err) => {
-        expect(err).to.instanceof(Error);
-      });
-    });
+    
   });
 
 };

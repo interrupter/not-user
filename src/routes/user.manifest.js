@@ -5,6 +5,8 @@ const FIELDS = initFromSchema(modelSchema, [
 	'username',
 	'email',
 	'password',
+	'code',
+	'telephone'
 ]);
 
 module.exports = {
@@ -22,14 +24,11 @@ module.exports = {
 			rules:[{
 				auth: false
 			}],
-			fields: {
-				default:  [
-					'username',
-					'email',
-					'password',
-					'submit'
-				]
-			},
+			fields: [
+				'username',
+				'email',
+				'password'
+			],
 			postFix: '/:actionName'
 		},
 		confirmEmail:{
@@ -51,14 +50,11 @@ module.exports = {
 			}],
 			return: ['_id','role', 'active', 'email', 'username'],
 			postFix: '/:actionName',
-			title: 'Вход',
-			fields: {
-				default:  [
-					'email',
-					'password',
-					'submit'
-				]
-			}
+			title: 'not-user:form_login_title',
+			fields: [
+				'email',
+				'password'
+			]
 		},
 		requestLoginCodeOnEmail:{
 			method: 'post',
@@ -67,13 +63,22 @@ module.exports = {
 				auth: false
 			}],
 			postFix: '/:actionName',
-			title: 'Вход одноразовой ссылкой',
-			fields: {
-				default:  [
-					'email',
-					'submit'
-				]
-			}
+			title: 'not-user:form_requestLoginCodeOnEmail_title',
+			fields: [
+				'email'
+			]
+		},
+		requestLoginCodeOnTelephone:{
+			method: 'post',
+			data: ['record'],
+			rules:[{
+				auth: false
+			}],
+			postFix: '/:actionName',
+			title: 'not-user:form_requestLoginCodeOnTelephone_title',
+			fields: [
+				'telephone'
+			]
 		},
 		loginByCode:{
 			method: 'get',
@@ -81,25 +86,27 @@ module.exports = {
 			rules:[{
 				auth: false
 			}],
-			postFix: '/:actionName'
+			postFix: '/:actionName',
+			title: 'not-user:form_loginByCode_title',
+			fields: [
+				'code'
+			]
 		},
 		requestPasswordReset:{
 			method: 'post',
-			title: 'Восстановление пароля',
+			title: 'not-user:form_requestPasswordReset_title',
 			rules:[{
 				auth: false
 			}],
-			fields: {
-				default:  [
-					'email',
-					'submit'
-				]
-			},
+			fields: [
+				'email',
+				'submit'
+			],
 			postFix: '/:actionName'
 		},
 		resetPassword:{
 			method: 'get',
-			title: 'Восстановление пароля',
+			title: 'not-user:form_resetPassword_title',
 			rules:[{
 				auth: false
 			}],

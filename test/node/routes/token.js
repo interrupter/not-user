@@ -25,23 +25,6 @@ module.exports = ({
   };
 
   describe('routes/user/token', () => {
-    it('token - exception throwed', async () => {
-      notNode.Application = stubApp({
-        ...modelsEnv,
-        logics: {
-          'not-user//Auth': {
-            async token() {
-              throw new Error('Error');
-            }
-          }
-        }
-      });
-      let res = stubResponse({}),
-        req = stubRequest({});
-      await routes.token(req, res, (err) => {
-        expect(err).to.be.instanceof(Error);
-      });
-    });
 
     it('token - ok; params set, but not user', async () => {
       config.set('modules:user:secret', '');

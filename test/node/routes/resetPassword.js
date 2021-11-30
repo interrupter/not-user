@@ -38,12 +38,6 @@ module.exports = ({
       expect(result.__redirect__).to.be.deep.equal(url);
     });
 
-    it('exception', async () => {
-      let res = stubResponse({}),
-        req = stubRequest({});
-      await routes.resetPassword(req, res, (err) => {
-        expect(err).to.instanceof(Error);
-      });
-    });
+    
   });
 }

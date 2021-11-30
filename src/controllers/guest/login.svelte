@@ -1,10 +1,12 @@
 <script>
+	import { fly } from 'svelte/transition';
 	import UserCommon from '../common/user.js';
 	import {UICommon, UIError, UISuccess} from 'not-bulma';
 	const CLASS_ERR = UICommon.CLASS_ERR;
 	const CLASS_OK = UICommon.CLASS_OK;
 
 	import LockBlockComponent from './lock.block.svelte';
+	import LoginModeLogin from './login/login.svelte';
 	import {createEventDispatcher} from 'svelte';
 
 	let dispatch = createEventDispatcher();
@@ -103,6 +105,7 @@
 	}
 
 	let setModeBind = {};
+
 	MODES.forEach((thisMode)=>{
 		setModeBind[thisMode] = setMode.bind(this, thisMode);
 	});
@@ -279,187 +282,26 @@
 				{#if description.__enabled}
 				<h6 class="subtitle is-6">{description[mode]}</h6>
 				{/if}
+
 				{#if mode=='login'}
-				{#if email.enabled}
-				<div class="user-form-field user-login-form-email field">
-					<label class="label" for="user-login-form-email">{email.label}</label>
-  				<div class="control has-icons-left has-icons-right">
-    				<input
-							id="user-login-form-email"
-							class="input {emailClasses}"
-							bind:value={email.value}
-							required={email.required}
-							placeholder="{email.placeholder}"
-						 	invalid="{validationErrors.email}"
-							on:change={onChange} on:input={onInput}
-							name="email" type="email"
-							autocomplete="email"
-							aria-controls="input-field-helper-email"
-							aria-describedby="input-field-helper-email"
-							/>
-    				<span class="icon is-small is-left"><i class="fas fa-envelope"></i></span>
-    				<span class="icon is-small is-right">
-							{#if validationErrors.email}
-							<i class="fas fa-exclamation-triangle"></i>
-							{:else}
-							<i class="fas fa-check"></i>
-							{/if}
-						</span>
-  				</div>
-  				<p class="help {emailClasses}" id="input-field-helper-email">{emailHelper}</p>
-				</div>
+				<LoginModeLogin
+					{email}
+					{emailHelper}
+					{emailClasses}
+					{username}
+					{usernameHelper}
+					{usernameClasses}
+					{password}
+					{passwordHelper}
+					{passwordClasses}
+					{validationErrors}
+					{onChange}
+					{onInput}
+				></LoginModeLogin>
 				{/if}
-				{#if username.enabled}
-				<div class="field user-form-field user-login-form-username">
-  				<label class="label" for="user-login-form-username">{username.label}</label>
-  				<div class="control has-icons-left has-icons-right">
-    				<input
-							id="user-login-form-username"
-							class="input {usernameClasses}"
-							type="text"
-							name="username"
-							invalid="{validationErrors.username}"
-							required={username.required}
-							placeholder="{username.placeholder}"
-							bind:value={username.value}
-							on:change={onChange}
-							on:input={onInput}
-							autocomplete="username"
-							aria-controls="input-field-helper-username"
-							aria-describedby="input-field-helper-username"
-							/>
-    				<span class="icon is-small is-left"><i class="fas fa-user"></i></span>
-    				<span class="icon is-small is-right">
-							{#if validationErrors.username}
-							<i class="fas fa-exclamation-triangle"></i>
-							{:else}
-							<i class="fas fa-check"></i>
-							{/if}
-						</span>
-  				</div>
-  				<p class="help {usernameClasses}" id="input-field-helper-username">{usernameHelper}</p>
-				</div>
-				{/if}
-				{#if password.enabled}
-				<div class="field user-form-field user-login-form-password">
-  				<label class="label" for="user-login-form-password">{password.label}</label>
-  				<div class="control has-icons-left has-icons-right">
-    				<input
-							id="user-login-form-password"
-							class="input {passwordClasses}"
-							type="password"
-							name="password"
-							invalid="{validationErrors.password}"
-							required={password.required}
-							placeholder="{password.placeholder}"
-							bind:value={password.value}
-							on:change={onChange}
-							on:input={onInput}
-							autocomplete="password"
-							aria-controls="input-field-helper-password"
-							aria-describedby="input-field-helper-password"
-							/>
-    				<span class="icon is-small is-left"><i class="fas fa-lock"></i></span>
-  				</div>
-  				<p class="help {passwordClasses}" id="input-field-helper-password">{passwordHelper}</p>
-				</div>
-				{/if}
-				{/if}
-				{#if mode=='requestLoginCodeOnEmail'}
-				<div class="field user-form-field user-login-form-email">
-  				<label class="label" for="user-login-form-email">{email.label}</label>
-  				<div class="control has-icons-left has-icons-right">
-    				<input
-							id="user-login-form-email"
-							class="input {emailClasses}"
-							type="email"
-							name="email"
-							invalid="{validationErrors.email}"
-							required={email.required}
-							placeholder="{email.placeholder}"
-							bind:value={email.value}
-							on:change={onChange}
-							on:input={onInput}
-							autocomplete="email"
-							aria-controls="input-field-helper-email"
-							aria-describedby="input-field-helper-email"
-							/>
-    				<span class="icon is-small is-left"><i class="fas fa-envelope"></i></span>
-    				<span class="icon is-small is-right">
-							{#if validationErrors.email}
-							<i class="fas fa-exclamation-triangle"></i>
-							{:else}
-							<i class="fas fa-check"></i>
-							{/if}
-						</span>
-  				</div>
-  				<p class="help {emailClasses}" id="input-field-helper-login">{emailHelper}</p>
-				</div>
-				{/if}
-
-				{#if mode=='requestLoginCodeOnTelephone'}
-				<div class="field user-form-field user-login-form-tel">
-  				<label class="label" for="user-login-form-tel">{tel.label}</label>
-  				<div class="control has-icons-left has-icons-right">
-    				<input
-							id="user-login-form-tel"
-							class="input {telClasses}"
-							type="tel"
-							name="tel"
-							invalid="{validationErrors.tel}"
-							required={tel.required}
-							placeholder="{tel.placeholder}"
-							bind:value={tel.value}
-							on:change={onChange}
-							on:input={onInput}
-							autocomplete="tel"
-							aria-controls="input-field-helper-tel"
-							aria-describedby="input-field-helper-tel"
-							/>
-    				<span class="icon is-small is-left"><i class="fas fa-envelope"></i></span>
-    				<span class="icon is-small is-right">
-							{#if validationErrors.tel}
-							<i class="fas fa-exclamation-triangle"></i>
-							{:else}
-							<i class="fas fa-check"></i>
-							{/if}
-						</span>
-  				</div>
-  				<p class="help {telClasses}" id="input-field-helper-tel">{telHelper}</p>
-				</div>
-				{/if}
-
-				{#if mode=='loginByCode'}
-				<div class="field user-form-field user-login-form-code">
-  				<label class="label" for="user-login-form-code">{code.label}</label>
-  				<div class="control has-icons-left has-icons-right">
-    				<input
-							id="user-login-form-code"
-							class="input {codeClasses}"
-							type="text"
-							name="code"
-							invalid="{validationErrors.code}"
-							required={true}
-							placeholder="{code.placeholder}"
-							bind:value={code.value}
-							on:change={onChange}
-							on:input={onInput}
-							autocomplete="code"
-							aria-controls="input-field-helper-code"
-							aria-describedby="input-field-helper-code"
-							/>
-    				<span class="icon is-small is-left"><i class="fas fa-user"></i></span>
-    				<span class="icon is-small is-right">
-							{#if validationErrors.code}
-							<i class="fas fa-exclamation-triangle"></i>
-							{:else}
-							<i class="fas fa-check"></i>
-							{/if}
-						</span>
-  				</div>
-  				<p class="help {codeClasses}" id="input-field-helper-code">{codeHelper}</p>
-				</div>
-				{/if}
+				{#if mode=='requestLoginCodeOnEmail'}{/if}
+				{#if mode=='requestLoginCodeOnTelephone'}{/if}
+				{#if mode=='loginByCode'}{/if}
 
 				{#if errorMessage!=false }
 				<UIError title="" message={errorMessage}></UIError>
@@ -491,6 +333,7 @@
 	.help{
 		min-height: 1em;
 	}
+
 	.user-login-form-paper-head{
 		display: block;
 		width: 100%;

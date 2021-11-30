@@ -29,6 +29,17 @@ module.exports = ({
 
   describe('routes/user/_create', function()  {
     it('ok', async () => {
+      let prepared = {some:'data'};
+      notNode.Application = stubApp({
+        logics: {
+          'not-user//User': {
+            async createUser(params) {
+              expect(params).to.deep.equal(prepared);
+              return {registration:1};
+            }
+          }
+        }
+      });
       let
         req = stubRequest({
           params: {
@@ -37,34 +48,9 @@ module.exports = ({
           user: testUser,
           body: newUser
         });
-      await routes._create(req, {}, ()=>{});
+      await routes._create(req, {}, ()=>{},prepared);
     });
 
-    it('exception', async () => {
-      let
-        prepared = {some: 'data'},
-        req = stubRequest({
-          body: {
-            email: 'register@mail.org'
-          }
-        });
-        notNode.Application = stubApp({
-          logics: {
-            'not-user//User': {
-              async createUser(params) {
-                expect(params).to.be.deep.equal(prepared);
-                throw new notRequestError('', {})
-              }
-            }
-          }
-        });
-      let throwed = false;
-      await routes._create(req, {}, (err)=>{
-        throwed = true;
-        expect(err).to.be.instanceof(notRequestError);
-      }, prepared);
-      expect(throwed).to.be.true;
-    });
   });
 
 };

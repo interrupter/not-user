@@ -43,12 +43,6 @@ module.exports = ({
       }, prepared);
     });
 
-    it('exception', async () => {
-      let res = stubResponse({}),
-        req = stubRequest({});
-      await routes.changePassword(req, res, (err) => {
-        expect(err).to.instanceof(Error);
-      });
-    });
+  
   });
 }

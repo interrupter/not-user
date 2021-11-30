@@ -34,12 +34,6 @@ module.exports = ({
       }, prepared);
     });
 
-    it('exception', async () => {
-      let res = stubResponse({}),
-        req = stubRequest({});
-      await routes.confirmEmail(req, res, (err) => {
-        expect(err).to.instanceof(Error);
-      });
-    });
+  
   });
 }

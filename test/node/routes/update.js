@@ -55,27 +55,6 @@ module.exports = ({
 
     });
 
-    it('update - exception', async () => {
-      let res = stubResponse({}),
-        req = stubRequest({
-          body: {
-            email: 'register@mail.org'
-          }
-        });
-      stubModuleEnv(routes, modelsEnv);
-      notNode.Application = stubApp({
-        ...modelsEnv,
-        logics: {
-          'not-user//User': {
-            async update() {
-              throw new Error('Some error!');
-            }
-          }
-        }
-      });
-      await routes.update(req, res, (err) => {
-        expect(err).to.be.instanceof(Error);
-      });
-    });
+    
   });
 };
