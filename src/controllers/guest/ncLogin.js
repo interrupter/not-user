@@ -1,96 +1,31 @@
-import UserCommon from '../common/user';
+import ncFormFrame from './ncFormFrame';
 
-import LoginComponent from './login.svelte';
+const MODES_TITLES = {
+	login: 'not-user:form_mode_login_label',
+	requestLoginCodeOnEmail: 'not-user:form_mode_requestLoginCodeOnEmail_label',
+	requestLoginCodeOnTelephone: 'not-user:form_mode_requestLoginCodeOnTelephone_label',
+	loginByCode: 'not-user:form_mode_loginByCode_label'
+};
 
-import {notController, Form} from 'not-bulma';
-
-class ncLogin extends notController {
+class ncLogin extends ncFormFrame {
 	constructor(app) {
-		super(app, 'LoginForm');
-		this.setModelName('user');
-		this.mode = 'login';
-		this.buildFrame(this.mode);
-		this.buildForm(this.mode);
-		return this;
+		super({app, name: 'Login', mode: 'login'});
 	}
 
-	buildFrame(mode) {
-		const target = document.querySelector(this.app.getOptions('modules.user.loginFormContainerSelector'));
-		if(!target){
-			location.href = '/login';
-		}
-		target.innerHTML = '';
-		this.frame = new LoginComponent({
-			target,
-			props: {
-				mode,
-				MODES: this.app.getOptions('modules.user.loginForm.modes', ['login'])
-			}
-		});
-		this.frame.$on('mode', (ev)=>{this.setMode(ev.detail);});
+	getTargetContainer(){
+		return document.querySelector(this.app.getOptions('modules.user.loginFormContainerSelector'));
 	}
 
-	buildForm(action = 'login') {
-		this.form = Form.build({
-			target: document.querySelector('.user-login-form'),
-			manifest: this.app.getInterfaceManifest('user'),
-			action,
-			options: {},
-			validators: {},
-			data:{}
-		});
-		this.
-		this.form.$on('submit', (ev) => this.submit(ev.detail));
-		this.form.$on('reject', () => {location.href = '/';});
+	getMainURL(){
+		return '/login';
 	}
 
-	async submit(data){
-		try{
-			const fields = Object.keys(data);
-			this.form.setLoading();
-			const result = await this.getModel('user', data)[`$${this.mode}`]();
-			if(result.status === 'ok'){
-				this.frame.$set({status: 'ok', message: result.message});
-				this.form.showSuccess();
-				setTimeout(() => UserCommon.goDashboard(this.app), 1000);
-			}else{
-				this.setFormErrors(result, fields);
-			}
-		}catch(e){
-			this.frame.$set({status: 'error', message: e.message});
-		}finally{
-			this.form.resetLoading();
-		}
-	}
-
-	setMode(val){
-		if(val !== this.mode){
-			this.mode = val;
-			this.form.$destroy();
-			this.buildForm(this.mode);
-		}
-	}
-
-	setFormErrors(result, fields){
-		if(result.message){
-			this.frame.$set({
-				status: 'error',
-				message: result.message
-			});
-		}
-		if(result.errors && Object.keys(result.errors).length > 0 ){
-			fields.forEach(fieldName => {
-				if(Object.keys(result.errors).includes(fieldName)){
-					this.form.setFormFieldInvalid(fieldName, result.errors[fieldName]);
-				}else{
-					this.form.setFormFieldValid(fieldName);
-				}
-			});
-		}else{
-			fields.forEach(fieldName => {
-				this.form.setFormFieldValid(fieldName);
-			});
-		}
+	getFrameProps(mode){
+		return {
+			mode,
+			MODES: this.app.getOptions('modules.user.loginForm.modes', ['login']),
+			MODES_TITLES
+		};
 	}
 
 }

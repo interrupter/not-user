@@ -32,6 +32,7 @@ const TOKEN_TTL = 3600;
 exports[MODEL_NAME] = class AuthLogic {
 
 	static async login({password, email, ip}){
+		Log.log('login');
 		const User = notNode.Application.getModel('not-user//User');
 		let user = await User.authorize(email, password);
 		user.ip = ip;

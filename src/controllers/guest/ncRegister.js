@@ -1,59 +1,30 @@
-import ncUController from '../common/ncUController.js';
+import ncFormFrame from './ncFormFrame';
 
-import UserCommon from '../common/user.js';
-import RegisterComponent from './register.svelte';
+const MODES_TITLES = {
+	register: 'not-user:form_mode_register_label'
+};
 
-
-class ncRegister extends ncUController {
+class ncRegister extends ncFormFrame {
 	constructor(app) {
-		super(app, 'Register');
-		this.buildPage();
-		return this;
+		super({app, name: 'Register', mode: 'register'});
 	}
 
-	initItem() {
-		return this.make.user({
-			'_id': undefined,
-			username: '',
-			tel: '',
-			email: '',
-			password: '',
-			password2: ''
-		});
+	getTargetContainer(){
+		return document.querySelector(this.app.getOptions('modules.user.registerFormContainerSelector'));
 	}
 
-	buildPage() {
-		this.item = this.initItem();
-		const target = document.querySelector(this.app.getOptions('modules.user.registerFormContainerSelector'));
-		if(!target){
-			location.href = '/register';
-		}
-		target.innerHTML = '';
-		this.formUI = new RegisterComponent({
-			target,
-			props: {
-				user:   this.item,
-				login:  {
-					enabled: false,
-					required: false,
-					value: '',
-				}
-			}
-		});
-
-		this.formUI.$on('register', ({detail})=>{
-			this.item.setAttrs(detail);
-			this.formUI.setLoading();
-			this.item.$register()
-				.then((res)=>{
-					this.showResult(res);
-					if(!res.error){
-						setTimeout(() => UserCommon.goDashboard(this.app), 3000);
-					}
-				})
-				.catch(this.showResult.bind(this));
-		});
+	getMainURL(){
+		return '/register';
 	}
+
+	getFrameProps(mode){
+		return {
+			mode,
+			MODES: this.app.getOptions('modules.user.registerForm.modes', ['register']),
+			MODES_TITLES
+		};
+	}
+
 }
 
 export default ncRegister;

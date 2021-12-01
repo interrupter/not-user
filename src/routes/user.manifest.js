@@ -5,6 +5,7 @@ const FIELDS = initFromSchema(modelSchema, [
 	'username',
 	'email',
 	'password',
+	'passwordRepeat',
 	'code',
 	'telephone'
 ]);
@@ -24,10 +25,13 @@ module.exports = {
 			rules:[{
 				auth: false
 			}],
+			data: ['record'],
 			fields: [
 				'username',
+				'telephone',
 				'email',
-				'password'
+				'password',
+				'passwordRepeat'
 			],
 			postFix: '/:actionName'
 		},
@@ -98,6 +102,7 @@ module.exports = {
 			rules:[{
 				auth: false
 			}],
+			data: ['record'],
 			fields: [
 				'email',
 				'submit'
