@@ -1,5 +1,4 @@
 const {MODULE_NAME} = require('../const');
-
 //DB related validation tools
 const Form = require('not-node').Form;
 //form
@@ -23,7 +22,7 @@ module.exports = class ActiveUserForm extends Form{
 	}
 
 	/**
-	* doens't Extract data bc final object passed
+	* doesn't Extract data bc final object passed
 	* @param {Object} data object
 	* @return {Object}        forma data
 	**/

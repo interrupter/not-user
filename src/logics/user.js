@@ -18,10 +18,9 @@ exports[MODEL_NAME] = class UserLogic {
 		Log.debug('UserLogic//createNewUserDocument');
 		const notApp = notNode.Application;
 		const User = notApp.getModel('User');
-		const userID = await notNode.Increment.next(MODEL_NAME);
 		let newUser = new User({
 			...data,
-			userID
+			userID: 0
 		});
 		//validate safety of data
 		await newUser.validate();
@@ -71,9 +70,10 @@ exports[MODEL_NAME] = class UserLogic {
 		}).exec();
 		if (!targetUser) {
 			throw new notRequestError(
-				phrase('user_not_found'), {
+				phrase('user_not_found'),
+				{
 					code: 403,
-					error: phrase('user_not_found')
+					params: {targetId}
 				}
 			);
 		}
@@ -287,7 +287,7 @@ exports[MODEL_NAME] = class UserLogic {
 		const User = notApp.getModel('not-user//User');
 		const targetUser = await UserLogic.loadUser(targetUserId);
 		//if user not quering his own info, check rights
-		if ((targetUserId !== activeUser._id)) {
+		if ((targetUserId.toString() !== activeUser._id.toString())) {
 			UserLogic.checkUserSupremacy({
 				activeUser,
 				targetUser,

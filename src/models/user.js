@@ -42,8 +42,8 @@ exports.thisSchema = initFields(FIELDS, 'model');
 
 
 exports.indexes = [
-	[{__latest: 1, __closed: 1, username:1 }, { unique: true }],
-	[{__latest: 1, __closed: 1, email:1 }, { unique: true }]
+	[{__latest: 1, __closed: 1, __version: 1, username:1 }, { unique: true }],
+	[{__latest: 1, __closed: 1, __version: 1, email:1 }, { unique: true }]
 ];
 
 function validateEmailOrThrow(email){
@@ -156,6 +156,11 @@ exports.thisStatics = {
 	},
 	getByFieldValue: function(key, val) {
 		return this.makeQuery('findOne', {
+			[key]: val
+		}).exec();
+	},
+	getByFieldValueWithoutVersioningRespect: function(key, val) {
+		return this.findOne({
 			[key]: val
 		}).exec();
 	},

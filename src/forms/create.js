@@ -1,3 +1,5 @@
+const notNode = require('not-node');
+const {notValidationError} = require('not-error');
 const {MODULE_NAME} = require('../const');
 //DB related validation tools
 const Form = require('not-node').Form;
@@ -5,10 +7,16 @@ const Form = require('not-node').Form;
 const	getIP = require('not-node').Auth.getIP;
 //form
 const FIELDS = [
-	'activeUser',
-	['data', {required: true}, 'newUserData'],
+	'username',
+	'email',
+	'password',
+	'role',
+	'tel',
+	'country',
+	'active',
 	'ip'
 ];
+
 const FORM_NAME = `${MODULE_NAME}:CreateForm`;
 
 /**
@@ -26,7 +34,7 @@ module.exports = class CreateForm extends Form{
 	**/
 	extract(req){
 		const ip = getIP(req);
-		const data = {
+		return {
 			username: 	req.body.username,
 			email: 			req.body.email,
 			password: 	req.body.password,
@@ -36,10 +44,24 @@ module.exports = class CreateForm extends Form{
 			active: 		req.body.active,
 			ip
 		};
-		return {
-			activeUser: req.user,
-			data,
-			ip
-		};
+	}
+
+	async validate(data){
+		await this.MODEL.validate(data, this.getFields());
+		const model = notNode.Application.getModel('not-user//User');
+		const result = await model.getByFieldValueWithoutVersioningRespect('username', data.username);
+		if (result){
+			throw new notValidationError(
+        'not-user:username_used_by_some_user',
+        {
+          username: ['not-user:username_used_by_some_user']
+        },
+        undefined,
+        {
+          username: data.username
+        }
+      );
+		}
+		return true;
 	}
 };

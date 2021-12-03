@@ -28,83 +28,107 @@
 
 <h2 class="title is-2">Пользователь ({user.userID}#{user.username})</h2>
 <div class="container mt-2">
-
-  <div class="columns">
-    <div class="column title is-5">ID</div>
-    <div class="column subtitle is-5">{user.userID}</div>
-  </div>
-
-  <div class="columns">
-    <div class="column title is-5">Имя пользователя</div>
-    <div class="column subtitle is-5">{user.username}</div>
-  </div>
-
-  <div class="columns">
-    <div class="column title is-5">Email</div>
-    <div class="column subtitle is-5">
-      {user.email}
-      {#if user.emailConfirmed }
-      <span class="tag is-success">Подтверждён</span>
-      {:else }
-      <span class="tag is-danger">Не подтверждён</span>
-      {/if}
+  <div class="list">
+    <div class="list-item">
+      <div class="list-item-content">
+        <div class="list-item-title">ID</div>
+        <div class="list-item-description">{user.userID}</div>
+      </div>
     </div>
-  </div>
 
-  <div class="columns">
-    <div class="column title is-5">Телефон</div>
-    <div class="column subtitle is-5">
-      {#if user.telephone && typeof user.telephone !== 'undefined' && user.telephone !== 'undefined'}
-      {user.telephone}
-      {#if user.telephoneConfirmed }
-      <span class="tag is-success">Подтверждён</span>
-      {:else }
-      <span class="tag is-danger">Не подтверждён</span>
-      {/if}
-      {:else }
-      Не указан
-      {/if}
+    <div class="list-item">
+      <div class="list-item-content">
+        <div class="list-item-title">Имя пользователя</div>
+        <div class="list-item-description">{user.username}</div>
+      </div>
     </div>
-  </div>
 
-  <div class="columns">
-    <div class="column title is-5">Дата создания</div>
-    <div class="column subtitle is-5">{user.created}</div>
-  </div>
-
-  <div class="columns">
-    <div class="column title is-5">Роли</div>
-    <div class="column subtitle is-5">
-      <UITagControl variants={UserCommon.ROLES} items={userRoles} readonly={true} />
+    <div class="list-item">
+      <div class="list-item-content">
+        <div class="list-item-title">Email</div>
+        <div class="list-item-description">
+          {user.email}
+          {#if user.emailConfirmed }
+          <span class="tag is-success">Подтверждён</span>
+          {:else }
+          <span class="tag is-danger">Не подтверждён</span>
+          {/if}
+        </div>
+      </div>
     </div>
-  </div>
 
-  <div class="columns">
-    <div class="column title is-5">Активен</div>
-    <div class="column">
-      {#if user.active }
-      <span class="tag is-success">Активен</span>
-      {:else }
-      <span class="tag is-danger">Не активирован</span>
-      {/if}
+    <div class="list-item">
+      <div class="list-item-content">
+        <div class="list-item-title">Телефон</div>
+        <div class="list-item-description">
+          {#if user.telephone && typeof user.telephone !== 'undefined' && user.telephone !== 'undefined'}
+          {user.telephone}
+          {#if user.telephoneConfirmed }
+          <span class="tag is-success">Подтверждён</span>
+          {:else }
+          <span class="tag is-danger">Не подтверждён</span>
+          {/if}
+          {:else }
+          Не указан
+          {/if}
+        </div>
+      </div>
     </div>
-  </div>
 
-  <div class="columns">
-    <div class="column title is-5">IP</div>
-    <div class="column subtitle is-5">{user.ip}</div>
-  </div>
+    <div class="list-item">
+      <div class="list-item-content">
+        <div class="list-item-title">Дата создания</div>
+        <div class="list-item-description">{user.created.split('T')[0]}</div>
+      </div>
+    </div>
 
-  <div class="columns">
-    <div class="column title is-5">Страна</div>
-    <div class="column subtitle is-5">{user.country}</div>
-  </div>
 
-  <div class="columns">
-    <div class="column title is-5">Пароль</div>
-    <div class="column subtitle is-5">
-      <button on:click={goChangePassword} class="button is-small is-warning">Измененить</button>
-      <p class="help">Рекомендуется регулярно менять пароль.</p>
+    <div class="list-item">
+      <div class="list-item-content">
+        <div class="list-item-title">Роли</div>
+        <div class="list-item-description"><UITagControl variants={UserCommon.ROLES} items={userRoles} readonly={true} /></div>
+      </div>
+    </div>
+
+    <div class="list-item">
+      <div class="list-item-content">
+        <div class="list-item-title">Активен</div>
+        <div class="list-item-description">
+          {#if user.active }
+          <span class="tag is-success">Активен</span>
+          {:else }
+          <span class="tag is-danger">Не активирован</span>
+          {/if}
+        </div>
+      </div>
+    </div>
+
+    <div class="list-item">
+      <div class="list-item-content">
+        <div class="list-item-title">IP</div>
+        <div class="list-item-description">
+          {user.ip}
+        </div>
+      </div>
+    </div>
+
+    <div class="list-item">
+      <div class="list-item-content">
+        <div class="list-item-title">Страна</div>
+        <div class="list-item-description">
+          {user.country}
+        </div>
+      </div>
+    </div>
+
+    <div class="list-item">
+      <div class="list-item-content">
+        <div class="list-item-title">Пароль</div>
+        <div class="list-item-description">
+          <button on:click={goChangePassword} class="button is-small is-warning">Измененить</button>
+          <p class="help">Рекомендуется регулярно менять пароль.</p>
+        </div>
+      </div>
     </div>
   </div>
 

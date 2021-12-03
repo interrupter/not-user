@@ -1,3 +1,4 @@
+const {MODULE_NAME} = require('../const');
 const
 	UserActions = [],
 	AdminActions = [
@@ -5,6 +6,8 @@ const
 	],
 	MODEL_NAME = 'User',
 	MODEL_OPTIONS = {
+		short: true,
+		MODULE_NAME,
 		MODEL_NAME,
 		MODEL_TITLE: 'Пользователь',
 		populate: {
@@ -14,7 +17,6 @@ const
 	modMeta = require('not-meta');
 
 const
-	{MODULE_NAME} = require('../const'),
 	say = require('not-locale').sayForModule(MODULE_NAME),
 	notNode = require('not-node'),
 	{objHas} = require('not-node').Common,
@@ -36,7 +38,7 @@ exports.before = async (req, res, next) => {
 	Log.log('before');
 	const name = req.notRouteData.actionName;
 	Log.log('action name', name);
-	const FormValidator = notNode.Application.getForm(['not-user', name].join('//'));
+	const FormValidator = notNode.Application.getForm(['not-user', name.replace('_', '')].join('//'));
 	if (FormValidator){
 		Log.log('FormValidator: ', FormValidator.FORM_NAME);
 		const result = await FormValidator.run(req, res, next);
@@ -69,23 +71,15 @@ exports.after = (req, res, next, result)=>{
  *   Guest actions
  **/
 exports.register = async (req, res, next, prepared) => {
-	try {
-		Log.debug('register');
-		return await (getLogic().register(prepared));
-	}catch(e){
-		next(e);
-	}
+	Log.debug('register');
+	return await (getLogic().register(prepared));
 };
 
 exports.confirmEmail = async (req, res, next, prepared) => {
-	try {
-		Log.debug('confirmEmail');
-		await (getLogic().confirmEmail(prepared.code));
-		//!TODO change redirect destination to specific page with success message
-		return {__redirect__:'/login'};
-	} catch (e) {
-		next(e);
-	}
+	Log.debug('confirmEmail');
+	await (getLogic().confirmEmail(prepared.code));
+	//!TODO change redirect destination to specific page with success message
+	return {__redirect__:'/login'};
 };
 
 exports.login = async (req, res, next, prepared) => {
@@ -98,116 +92,76 @@ exports.login = async (req, res, next, prepared) => {
 };
 
 exports.requestLoginCodeOnEmail = async (req, res, next, prepared) => {
-	try{
-		Log.debug('request login by code from email');
-		await (getAuthLogic().requestLoginCodeOnEmail(prepared));
-	}catch(e){
-		next(e);
-	}
+	Log.debug('request login by code from email');
+	await (getAuthLogic().requestLoginCodeOnEmail(prepared));
 };
 
 exports.loginByCode = async (req, res, next, prepared) => {
-	try{
-		Log.debug('login by code from email or sms');
-		const user = await (getAuthLogic().loginByCode(prepared));
-		notNode.Auth.setAuth(req, user._id, user.role);
-		req.session.save();
-		Log.info(`'${user.username}' authorized as ${req.session.user} ${req.session.role} via emailed/smsed one-time code`);
-		return {__redirect__:'/'};
-	}catch(e){
-		next(e);
-	}
+	Log.debug('login by code from email or sms');
+	const user = await (getAuthLogic().loginByCode(prepared));
+	notNode.Auth.setAuth(req, user._id, user.role);
+	req.session.save();
+	Log.info(`'${user.username}' authorized as ${req.session.user} ${req.session.role} via emailed/smsed one-time code`);
+	return {__redirect__:'/'};
 };
 
 exports.requestPasswordReset = async (req, res, next, prepared) => {
-	try{
-		Log.debug('user/requestPasswordReset');
-		return await (getAuthLogic().requestPasswordReset(prepared));
-	}catch(e){
-		next(e);
-	}
+	Log.debug('user/requestPasswordReset');
+	return await (getAuthLogic().requestPasswordReset(prepared));
 };
 
 exports.resetPassword = async (req, res, next, prepared) => {
-	try{
-		Log.debug('user/resetPassword');
-		await (getAuthLogic().resetPassword(prepared));
-		return {__redirect__:'/resetPasswordSuccess'};
-	}catch(e){
-		next(e);
-	}
+	Log.debug('user/resetPassword');
+	await (getAuthLogic().resetPassword(prepared));
+	return {__redirect__:'/resetPasswordSuccess'};
 };
 
 /**
  *   Authorized user actions
  */
 exports._logout = exports.logout = (req, res, next) => {
-	try{
-		Log.debug('user/(_)logout');
-		notNode.Auth.setGuest(req);
-	}catch(e){
-		next(e);
-	}
+	Log.debug('user/(_)logout');
+	notNode.Auth.setGuest(req);
 };
 
 exports._changePassword = exports.changePassword = async (req, res, next, prepared) => {
-	try{
-		Log.debug('user/(_)changePassword');
-		return await (getAuthLogic().changePassword({
-			user: req.user,
-			...prepared
-		}));
-	}catch(e){
-		next(e);
-	}
+	Log.debug('user/(_)changePassword');
+	return await (getAuthLogic().changePassword({
+		user: req.user,
+		...prepared
+	}));
 };
 
 exports.token = async (req, res, next) => {
-	try{
-		Log.debug('user/token');
-		const secret = config.get('secret');
-		let tokenTTL = config.get('tokenTTL');
-		const params = {
-			secret,
-			tokenTTL,
-			ip: notNode.Auth.getIP(req),
-		};
-		if(notNode.Auth.isUser(req)){
-			params.user = req.user;
-		}
-		return await (getAuthLogic().token(params));
-	}catch(e){
-		next(e);
+	Log.debug('user/token');
+	const secret = config.get('secret');
+	let tokenTTL = config.get('tokenTTL');
+	const params = {
+		secret,
+		tokenTTL,
+		ip: notNode.Auth.getIP(req),
+	};
+	if(notNode.Auth.isUser(req)){
+		params.user = req.user;
 	}
+	return await (getAuthLogic().token(params));
 };
 
 exports.profile = async (req, res, next) => {
 	Log.debug('user/profile');
-	try{
-		return await (getLogic().profile({
-			activeUser: req.user,
-			ip: notNode.Auth.getIP(req),
-		}));
-	}catch(e){
-		next(e);
-	}
+	return await (getLogic().profile({
+		activeUser: req.user,
+		ip: notNode.Auth.getIP(req),
+	}));
 };
 
 exports.update = async (req, res, next, prepared) => {
 	Log.debug('user.update');
-	try{
-		return await (getLogic().update(prepared));
-	}catch(e){
-		next(e);
-	}
+	return await (getLogic().update(prepared));
 };
 
 exports.status = async (req, res, next) => {
-	try{
-		return notNode.Auth.extractAuthData(req);
-	}catch(e){
-		next(e);
-	}
+	return notNode.Auth.extractAuthData(req);
 };
 
 
@@ -215,12 +169,13 @@ exports.status = async (req, res, next) => {
  *   Admin actions
  */
 exports._create = async (req, res, next, prepared) => {
-	try {
-		Log.debug('user._create');
-		return await (getLogic().createUser(prepared));
-	}catch(e){
-		next(e);
-	}
+	Log.debug('user._create');
+	const data = {
+		activeUser: req.user,
+		data: 			prepared,
+		ip: 				notNode.Auth.getIP(req)
+	};
+	return await (getLogic().createUser(data));
 };
 
 exports._steal = (/*req, res*/) => {
@@ -228,40 +183,23 @@ exports._steal = (/*req, res*/) => {
 };
 
 exports._update = async (req, res, next, prepared) => {
-	try{
-		Log.log('user/_update');
-		return await (getLogic().update(prepared));
-	}catch(e){
-		next(e);
-	}
+	Log.log('user/_update');
+	return await (getLogic().update(prepared));
 };
 
 exports._delete = async (req, res, next, prepared) => {
-	try{
-		Log.log('user/_delete');
-		return await (getLogic().delete(prepared));
-	}catch(e){
-		console.log(e);
-		next(e);
-	}
+	Log.log('user/_delete');
+	return await (getLogic().delete(prepared));
 };
 
 exports.get = async (req, res, next, prepared) => {
-	try{
-		Log.log('user/get');
-		return await (getLogic().get(prepared));
-	}catch(e){
-		next(e);
-	}
+	Log.log('user/get');
+	return await (getLogic().get(prepared));
 };
 
 exports._get = async (req, res, next, prepared) => {
-	try{
-		Log.log('user/_get');
-		return await (getLogic().get(prepared));
-	}catch(e){
-		next(e);
-	}
+	Log.log('user/_get', prepared);
+	return await (getLogic().get(prepared));
 };
 
 modMeta.extend(modMeta.Route, module.exports, AdminActions, MODEL_OPTIONS, '_');

@@ -20,7 +20,7 @@ module.exports = async (req, res, next) => {
 				req.user = res.locals.user = user;
 				notAuth.setRole(req, user.role);
 			} else {
-				Log.error(`No user with such id@${req.session.user} where founded!`);
+				Log.error(`No user with such id@${req.session.user}`);
 				notAuth.cleanse(req);
 			}
 		}
