@@ -12,19 +12,19 @@ const FORM_NAME = `${MODULE_NAME}:RequestPasswordResetForm`;
 	*
 	**/
 module.exports = class RequestPasswordResetForm extends Form{
-	constructor(){
-		super({FIELDS, FORM_NAME});
-	}
+  constructor(){
+    super({FIELDS, FORM_NAME});
+  }
 
-	/**
+  /**
 	* Extracts data
 	* @param {ExpressRequest} req expressjs request object
 	* @return {Object}        forma data
 	**/
-	extract(req){
-		return {
-			code: req.body.email,
-			ip: getIP(req)
-		};
-	}
+  extract(req){
+    return {
+      code: req.body.email,
+      ip: getIP(req)
+    };
+  }
 };

@@ -5,9 +5,9 @@
 const notNode = require('not-node');
 
 const MODEL_NAME = 'UserMailer';
-exports.thisLogicName = MODEL_NAME;
+module.exports.thisLogicName = MODEL_NAME;
 
-exports[MODEL_NAME] = class UserMailerLogic {
+module.exports[MODEL_NAME] = class UserMailerLogic {
 
   static async sendConfirmationEmail({
     user
@@ -15,11 +15,11 @@ exports[MODEL_NAME] = class UserMailerLogic {
     const notApp = notNode.Application;
     const OneTimeCode = notApp.getModel('OneTimeCode');
     let oneTimeCode = await OneTimeCode.createCode({
-        email: user.email,
-        owner: user._id,
-        action: 'confirmEmail'
-      },
-      60 /* TTL == 60 minutes */
+      email: user.email,
+      owner: user._id,
+      action: 'confirmEmail'
+    },
+    60 /* TTL == 60 minutes */
     );
     notApp.inform({
       recipient: {

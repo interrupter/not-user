@@ -1,34 +1,38 @@
 {
-    "parserOptions": {
-        "ecmaVersion": 10,
-        "sourceType": "module"
+  "parser": "@babel/eslint-parser",
+  "parserOptions": {
+    "requireConfigFile": false,
+    "sourceType": "module",
+    "allowImportExportEverywhere": false,
+    "ecmaFeatures": {
+      "globalReturn": false
     },
-    "env": {
-        "browser": true,
-        "es6": true,
-        "node": true,
-        "mongo": true,
-        "mocha": true
-    },
-	"globals":{
-		"ENV": true
-	},
-    "extends": "eslint:recommended",
-    "rules": {
-        "indent": [
-            "error",
-            "tab", {
-                "SwitchCase": 0
-            }
-        ],
-        "linebreak-style": [
-            "error",
-            "unix"
-        ],
-        "semi": [
-            "error",
-            "always"
-        ],
-        "no-useless-escape": [0]
-    }
+    "ecmaVersion": 2020
+  },
+  "env": {
+    "es6": true,
+    "node": true,
+    "mongo": true,
+    "browser": true,
+    "mocha": true
+  },
+  "extends": [
+    "eslint:recommended",
+		"plugin:sonarjs/recommended",
+    "plugin:promise/recommended"
+  ],
+	"plugins": ["promise"],
+  "rules": {
+    
+    "indent": ["error", 2],
+    "linebreak-style": [
+      "error",
+      "unix"
+    ],
+    "semi": [
+      "error",
+      "always"
+    ],
+    "no-useless-escape": [0]
+  }
 }

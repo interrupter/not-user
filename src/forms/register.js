@@ -12,21 +12,21 @@ const FORM_NAME = `${MODULE_NAME}:RegisterForm`;
 	*
 	**/
 module.exports = class RegisterForm extends Form{
-	constructor(){
-		super({FIELDS, FORM_NAME});
-	}
+  constructor(){
+    super({FIELDS, FORM_NAME});
+  }
 
-	/**
+  /**
 	* Extracts data
 	* @param {ExpressRequest} req expressjs request object
 	* @return {Object}        forma data
 	**/
-	extract(req){
-		return {
-			username:   req.body.username,
-			email:       req.body.email,
-			password:   req.body.password,
-			ip: getIP(req)
-		};
-	}
+  extract(req){
+    return {
+      username:   req.body.username,
+      email:       req.body.email,
+      password:   req.body.password,
+      ip: getIP(req)
+    };
+  }
 };

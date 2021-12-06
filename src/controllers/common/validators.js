@@ -1,81 +1,50 @@
-import {Form} from 'not-bulma';
-
-function passValidator(value) {
-  let errors = [];
-  if (!Form.validator.isLength(value, {
-      min: 6
-    })) {
-    errors.push('Минимальный размер пароля 6 знаков');
-  }
-  return errors;
-}
-
+import vUsername from '../../fields/validators/username.js';
+import vEmail from '../../fields/validators/email.js';
+import vTelephone from '../../fields/validators/telephone.js';
+import vPassword from '../../fields/validators/password.js';
+import vCode from '../../fields/validators/code.js';
+import vRole from '../../fields/validators/role.js';
+import vCountry from '../../fields/validators/country.js';
+import vActive from '../../fields/validators/active.js';
 
 const Validators = {
+  //val - value of field
+  //env - resources (constants, config reader, third party libs) needed for validation and provided from module level
+  //(val:any, env: Object)=>Promise<Boolean>
   fields: {
-    username(value) {
-      let errors = [];
-      if (!Form.validator.isLength(value, {
-          min: 6
-        })) {
-        errors.push('Минимальная длина 6 знаков');
-      }
-      return errors;
-    },
-    password: passValidator,
-    passwordRepeat: passValidator,
-    telephone(value) {
-      let errors = [];
-      const str = value.replaceAll(/[^0-9\+]/g,'');
-      if (!Form.validator.isMobilePhone(str)) {
-        errors.push('Необходимо ввести полный номер телефона из 11 цифр');
-      }
-      return errors;
-    },
-    email(value) {
-      let errors = [];
-      if (!Form.validator.isEmail(value)) {
-        errors.push('Необходимо ввести email адрес');
-      }
-      return errors;
-    },
-    code(value) {
-      let errors = [];
-      if (!Form.validator.isUUID(value, 4)) {
-        errors.push('Необходимо ввести валидный код');
-      }
-      return errors;
-    }
+    username:   vUsername,
+    password:   vPassword,
+    telephone:  vTelephone,
+    email:      vEmail,
+    code:       vCode,
+    role:       vRole,
+    country:    vCountry,
+    active:     vActive,
   },
+  //form - object with form values
+  //env - resources needed for validation and provided from module level
+  //(form:Object, env: Object)=>Promise<Boolean>
   forms:{
-    register(form) {
-      let errors = {
-        clean: true,
-        fields: {},
-        form: []
-      };
-      if (form.password !== form.passwordRepeat) {
-        errors.clean = false;
-        errors.fields.password = ['Пароли должны совпадать'];
-        errors.fields.passwordRepeat = ['Пароли должны совпадать'];
-        errors.form.push('Некоторые поля заполнены некорректно');
+    create:[
+      async(data, errors/*, env*/)=>{
+        if (data.password !== data.passwordRepeat) {
+          errors.clean = false;
+          if (!Array.isArray(errors.fields.passwordRepeat)){
+            errors.fields.passwordRepeat = ['Пароли должны совпадать'];
+            errors.form.errors.push('Некоторые поля заполнены некорректно');
+          }
+        }
       }
-      return errors;
-    },
-    edit(form) {
-      let errors = {
-        clean: true,
-        fields: {},
-        form: []
-      };
-      if (form.password !== form.passwordRepeat) {
-        errors.clean = false;
-        errors.fields.password = ['Пароли должны совпадать'];
-        errors.fields.passwordRepeat = ['Пароли должны совпадать'];
-        errors.form.push('Некоторые поля заполнены некорректно');
+    ],
+    register:[
+      async(data, errors/*, env*/)=>{
+        if (data.password !== data.passwordRepeat) {
+          errors.clean = false;
+          errors.fields.passwordRepeat = ['Пароли должны совпадать'];
+          errors.form.push('Некоторые поля заполнены некорректно');
+        }
       }
-      return errors;
-    }
+    ]
   }
 };
 

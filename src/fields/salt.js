@@ -1,8 +1,8 @@
 //соль для хэширования
 
 module.exports = {
-	model:{
-		type: String,
-		required: true
-	}
+  model:{
+    type: String,
+    required: true
+  }
 };

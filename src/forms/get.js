@@ -5,10 +5,10 @@ const Form = require('not-node').Form;
 const	getIP = require('not-node').Auth.getIP;
 //form
 const FIELDS = [
-	['targetUserId', {required: true}, 'userId'],
-	['activeUserId', {required: true}, 'userId'],
-	['activeUser', {}, 'requiredObject'],
-	'ip'
+  ['targetUserId', {required: true}, 'userId'],
+  ['activeUserId', {required: true}, 'userId'],
+  ['activeUser', {}, 'requiredObject'],
+  'ip'
 ];
 const FORM_NAME = `${MODULE_NAME}:GetForm`;
 
@@ -16,21 +16,21 @@ const FORM_NAME = `${MODULE_NAME}:GetForm`;
 	*
 	**/
 module.exports = class GetForm extends Form{
-	constructor(){
-		super({FIELDS, FORM_NAME});
-	}
+  constructor(){
+    super({FIELDS, FORM_NAME});
+  }
 
-	/**
+  /**
 	* Extracts data
 	* @param {ExpressRequest} req expressjs request object
 	* @return {Object}        forma data
 	**/
-	extract(req){
-		return {
-			targetUserId: req.params._id,
-			activeUser: req.user,
-			activeUserId: req.user._id,
-			ip: getIP(req)
-		};
-	}
+  extract(req){
+    return {
+      targetUserId: req.params._id,
+      activeUser: req.user,
+      activeUserId: req.user._id,
+      ip: getIP(req)
+    };
+  }
 };
