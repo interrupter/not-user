@@ -4,8 +4,6 @@ import {
   ncCRUD, Form
 } from 'not-bulma';
 
-//Form.addVariants('country', [{id: 'ru', title: 'RU'}]);
-
 const MODULE_NAME = '';
 const MODEL_NAME = 'User';
 
@@ -24,6 +22,21 @@ class ncUser extends ncCRUD {
     this.setOptions('names', LABELS);
     this.setOptions('Validators', app.getService('nsUser').augmentValidators(Validators));
     this.setOptions('params', params);
+    this.setOptions('update', {
+      actionName: 'get',
+      options: {
+        fields:{
+          email: {
+            readonly: true,
+            disabled: true
+          },
+          username: {
+            readonly: true,
+            disabled: true
+          },
+        }
+      }
+    });
     this.setOptions('list', {
       interface: {
         combined: true,
@@ -103,30 +116,43 @@ class ncUser extends ncCRUD {
     return this;
   }
 
+  getItemTitle(itm){
+    return `${itm.userID}#${itm.username}`;
+  }
+
   async preloadRoles(){
     try{
-      let results = await this.make.role({}).$listAll();
-      if(results.status === 'ok'){
-        const data = results.result;
-        Form.addVariants('role', [
-          ...(data.primary.filter(name => !['root', 'guest'].includes(name)).map(name => {
-            return {
-              id: name,
-              title: name,
-              type: 'warning'
-            };
-          })),
-          ...(data.secondary.map(name => {
-            return {
-              id: name,
-              title: name,
-              type: 'info'
-            };
-          }))
-        ]);
-      }else{
-        throw new Error(results.message);
+      let roles = this.app.getOptions('modules.user.roles');
+      if(!roles){
+        let results = await this.make.role({}).$listAll();
+        if(results.status === 'ok'){
+          const data = results.result;
+          const availablePrimary = data.primary.filter(name => !['root', 'guest'].includes(name));
+          roles = {
+            primary: availablePrimary,
+            secondary: data.secondary,
+          };
+          this.app.setOptions('modules.user.roles', roles);
+        }else{
+          throw new Error(results.message);
+        }
       }
+      Form.addVariants('role', [
+        ...roles.primary.map(name => {
+          return {
+            id: name,
+            title: name,
+            type: 'warning'
+          };
+        }),
+        ...(roles.secondary.map(name => {
+          return {
+            id: name,
+            title: name,
+            type: 'info'
+          };
+        }))
+      ]);
     }catch(e){
       this.report(e);
     }

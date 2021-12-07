@@ -17,10 +17,11 @@ module.exports = [{
 },
 {
   validator(val, {config}) {
-    const ROLES_PRIMARY = config.get('roles.primary') || DEFAULT_ROLES_LIST;
+    const ROLES_PRIMARY = config.get('roles.primary',DEFAULT_ROLES_LIST);
     let count = 0;
     val.forEach((role) => {
-      if (ROLES_PRIMARY.includes(role)) {
+      const roleName = (typeof role === 'string')?role:role.id;
+      if (ROLES_PRIMARY.includes(roleName)) {
         count++;
       }
     });
@@ -30,11 +31,12 @@ module.exports = [{
 },
 {
   validator(val, {config}) {
-    const ROLES_PRIMARY = config.get('roles.primary') || DEFAULT_ROLES_LIST;
-    const ROLES_SECONDARY = config.get('roles.secondary') || EXTRA_ROLES_LIST;
+    const ROLES_PRIMARY = config.get('roles.primary', DEFAULT_ROLES_LIST);
+    const ROLES_SECONDARY = config.get('roles.secondary',EXTRA_ROLES_LIST);
     let extraIsInvalid = false;
     val.forEach((role) => {
-      if (!ROLES_PRIMARY.includes(role) && !ROLES_SECONDARY.includes(role)) {
+      const roleName = (typeof role === 'string')?role:role.id;
+      if (!ROLES_PRIMARY.includes(roleName) && !ROLES_SECONDARY.includes(roleName)) {
         extraIsInvalid = true;
       }
     });

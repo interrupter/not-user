@@ -3,10 +3,66 @@
     LOCALE,
     UICommon
   } from 'not-bulma';
+
   import {
-    createEventDispatcher
+    createEventDispatcher,
+    onMount
   } from 'svelte';
+
   let dispatch = createEventDispatcher();
+
+
+  function enrich(val = []){
+    if(Array.isArray(val)){
+      return val.map((role) => {
+        return getRoleTagObject(role);
+      }).filter(itm => typeof itm !== 'undefined');;
+    }else{
+      return [];
+    }
+  }
+
+  function getRoleTagObject(itm){
+    if(typeof itm === 'string'){
+      return variants.find(variant => variant.id === itm);
+    }else{
+      return itm;
+    }
+  }
+
+  function deplete(val = []){
+    if(Array.isArray(val)){
+      return val.map((role) => {
+        return getRoleString(role);
+      }).filter(itm => typeof itm !== 'undefined');
+    }else{
+      return [];
+    }
+  }
+
+  function getRoleString(itm){
+    if(typeof itm === 'string'){
+      return itm;
+    }else if (
+      typeof itm === 'object' &&
+      Object.prototype.hasOwnProperty.call(itm, 'id') &&
+      typeof itm.id === 'string'
+      ){
+      return itm.id;
+    }else{
+      return undefined;
+    }
+  }
+
+  onMount(()=>{
+    _value = enrich(value);
+    _value = _value;
+    value = deplete(value);
+    value = value;
+  });
+
+  export let inputStarted = false;
+  export let value = [];//exposed true form
   /**
   item = {
     id,        //unique
@@ -14,23 +70,17 @@
     type       //for coloring items, usual html template names danger, success, etc
   }
   **/
-
-  export let inputStarted = false;
-  export let value = [];
+  let _value = [];//local copy enriched with data for gui
   export let variants = [];
   export let placeholder = 'placeholder';
   export let fieldname = 'role';
-  export let required = true;
+  //export let required = true;
   export let readonly = false;
   export let valid = true;
   export let validated = false;
   export let errors = false;
   export let formErrors = false;
   export let formLevelError = false;
-
-  export let beforeAdd = ( /*item, list*/ ) => {
-    return true;
-  };
 
   $: allErrors = [].concat(errors ? errors : [], formErrors ? formErrors : []);
   $: helper = allErrors ? allErrors.join(', ') : placeholder;
@@ -40,9 +90,11 @@
   function remove(e) {
     e && e.preventDefault();
     let id = e.currentTarget.dataset.id;
-    let item = value.find(el => el.id === id);
+    let item = _value.find(el => el.id === id);
     if (item) {
-      value.splice(value.indexOf(item), 1);
+      _value.splice(_value.indexOf(item), 1);
+      _value = _value;
+      value = deplete(_value);
       value = value;
       inputStarted = true;
       dispatch('change', {
@@ -57,11 +109,10 @@
     e && e.preventDefault();
     let id = e.currentTarget.parentNode.querySelector('select').value;
     let item = variants.find(el => el.id === id);
-    if (!beforeAdd(item, value)) {
-      return false;
-    }
-    if (item && (value.indexOf(item) === -1)) {
-      value.push(item);
+    if (item && (_value.indexOf(item) === -1)) {
+      _value.push(item);
+      _value = _value;
+      value = deplete(_value);
       value = value;
       dispatch('change', {
         field: 'role',
@@ -76,7 +127,7 @@
 
 <div class="columns">
   <div class="column {classes}">
-    {#each value as item}
+    {#each _value as item}
     <span class="mx-1 tag is-{item.type}">{$LOCALE[item.title]}
       {#if !readonly }
       <button data-id="{item.id}" class="delete is-small" on:click="{remove}"></button>

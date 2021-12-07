@@ -2,6 +2,7 @@ const initFromSchema = require('not-node').Fields.fromSchema;
 const modelSchema = require('../models/user').thisSchema;
 
 const FIELDS = initFromSchema(modelSchema, [
+  '_id',
   'username',
   'email',
   'password',
@@ -161,6 +162,15 @@ module.exports = {
       },{
         auth: true
       }],
+      fields:[
+        '_id',
+        'username',
+        'email',
+        'telephone',
+        'active',
+        'country',
+        'role'
+      ],
       data: ['record'],
       postFix: idActionPath
     },
@@ -191,6 +201,15 @@ module.exports = {
       },{
         auth: true
       }],
+      fields:[
+        '_id',
+        'username',
+        'email',
+        'telephone',
+        'active',
+        'country',
+        'role'
+      ],
       postFix: idActionPath
     },
     /**
