@@ -31,7 +31,7 @@ class ncFormFrame extends notController {
   }
 
   buildForm(action) {
-    this.form = Form.build({
+    const {ui, validator } = Form.build({
       target: document.querySelector(`.user-frame-form`),
       manifest: this.app.getInterfaceManifest('user'),
       action,
@@ -39,6 +39,8 @@ class ncFormFrame extends notController {
       validators: this.app.getService('nsUser').augmentValidators(validators),
       data:{}
     });
+    this.validator = validator;
+    this.form = ui;
     this.form.$on('submit', (ev) => this.submit(ev.detail));
     this.form.$on('reject', () => {location.href = '/';});
   }

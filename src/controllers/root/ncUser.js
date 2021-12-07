@@ -46,10 +46,7 @@ class ncUser extends ncCRUD {
       sorter: {
         userID: -1
       },
-      actions: [{
-        title: 'Создать',
-        action: this.goCreate.bind(this)
-      }],
+      actions: [],
       showSearch: true,
       idField: '_id',
       fields: [{
