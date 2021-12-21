@@ -5,15 +5,19 @@ const Form = require('not-node').Form;
 //not-node
 const	getIP = require('not-node').Auth.getIP;
 //form
-const FIELDS = ['email', 'password', 'ip'];
+const FIELDS = [
+  ['email', 'not-user//email'],
+  ['password', 'not-user//password'],
+  ['ip', 'not-user//ip']
+];
 const FORM_NAME = `${MODULE_NAME}:LoginForm`;
 
 /**
 	*
 	**/
 module.exports = class LoginForm extends Form{
-  constructor(){
-    super({FIELDS, FORM_NAME});
+  constructor({app}){
+    super({FIELDS, FORM_NAME, app});
   }
 
   /**

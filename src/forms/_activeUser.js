@@ -3,13 +3,13 @@ const {MODULE_NAME} = require('../const');
 const Form = require('not-node').Form;
 //form
 const FIELDS = [
-  'username',
-  'email',
-  'emailConfirmed',
-  'created',
-  'role',
-  'active',
-  'country'
+  ['username', 'not-user//username'],
+  ['email', 'not-user//email'],
+  ['emailConfirmed', 'not-user//emailConfirmed'],
+  ['created', 'not-user//created'],
+  ['role', 'not-user//role'],
+  ['active', 'not-user//active'],
+  ['country', 'not-user//country']
 ];
 const FORM_NAME = `${MODULE_NAME}:ActiveUserForm`;
 
@@ -17,8 +17,8 @@ const FORM_NAME = `${MODULE_NAME}:ActiveUserForm`;
 	*
 	**/
 module.exports = class ActiveUserForm extends Form{
-  constructor(){
-    super({FIELDS, FORM_NAME});
+  constructor({app}){
+    super({FIELDS, FORM_NAME, app});
   }
 
   /**

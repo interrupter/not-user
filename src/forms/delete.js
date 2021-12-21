@@ -6,10 +6,10 @@ const Form = require('not-node').Form;
 const	getIP = require('not-node').Auth.getIP;
 //form
 const FIELDS = [
-  ['targetUserId', {required: true}, 'userId'],
-  ['activeUserId', {required: true}, 'userId'],
-  ['activeUser', {}, 'requiredObject'],
-  'ip'
+  ['targetUserId', {required: true}, 'not-node//userId'],
+  ['activeUserId', {required: true}, 'not-node//userId'],
+  ['activeUser', 'not-node//requiredObject'],
+  ['ip', 'not-user//ip']
 ];
 const FORM_NAME = `${MODULE_NAME}:DeleteForm`;
 
@@ -17,8 +17,8 @@ const FORM_NAME = `${MODULE_NAME}:DeleteForm`;
 	*
 	**/
 module.exports = class DeleteForm extends Form{
-  constructor(){
-    super({FIELDS, FORM_NAME});
+  constructor({app}){
+    super({FIELDS, FORM_NAME, app});
   }
 
   /**

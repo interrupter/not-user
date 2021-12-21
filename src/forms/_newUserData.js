@@ -5,24 +5,25 @@ const {MODULE_NAME} = require('../const');
 const Form = require('not-node').Form;
 //form
 const FIELDS = [
-  'username',
-  'email',
-  'password',
-  'role',
-  'tel',
-  'country',
-  'active',
-  'ip'
+  ['username', 'not-user//username'],
+  ['email', 'not-user//email'],
+  ['password', 'not-user//password'],
+  ['role', 'not-user//role'],
+  ['telephone', 'not-user//telephone'],
+  ['country', 'not-user//country'],
+  ['active', 'not-user//active'],
+  ['ip', 'not-user//ip']
 ];
 
 const FORM_NAME = `${MODULE_NAME}:NewUserForm`;
 
+const validateUsernameAvailability = require('./validators/validateUsernameAvailability');
 /**
 	*
 	**/
 module.exports = class NewUserForm extends Form{
-  constructor(){
-    super({FIELDS, FORM_NAME});
+  constructor({app}){
+    super({FIELDS, FORM_NAME, app});
   }
 
   /**
@@ -34,21 +35,10 @@ module.exports = class NewUserForm extends Form{
     return data;
   }
 
-  async validate(data) {
-    await this.MODEL.validate(data, this.getFields());
-    const model = notNode.Application.getModel('not-user//User');
-    const result = await model.getByFieldValueWithoutVersioningRespect('username', data.username);
-    if (result){
-      throw new notValidationError(
-        'not-user:username_used_by_some_user',
-        {
-          username: ['not-user:username_used_by_some_user']
-        },
-        undefined,
-        {
-          username: data.username
-        }
-      );
-    }
+  getFormValidationRules(){
+    return [
+      validateUsernameAvailability
+    ];
   }
+
 };

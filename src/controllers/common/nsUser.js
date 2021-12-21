@@ -20,6 +20,4 @@ export default class nsUser{
       validator: Form.validator
     };
   }
-
-
 }

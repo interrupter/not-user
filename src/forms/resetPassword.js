@@ -5,15 +5,18 @@ const Form = require('not-node').Form;
 //not-node
 const	getIP = require('not-node').Auth.getIP;
 //form
-const FIELDS = ['code', 'ip'];
+const FIELDS = [
+  ['code', 'not-user//code'],
+  ['ip', 'not-user//ip']
+];
 const FORM_NAME = `${MODULE_NAME}:ResetPasswordForm`;
 
 /**
 	*
 	**/
 module.exports = class ResetPasswordForm extends Form{
-  constructor(){
-    super({FIELDS, FORM_NAME});
+  constructor({app}){
+    super({FIELDS, FORM_NAME, app});
   }
 
   /**

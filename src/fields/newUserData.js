@@ -8,7 +8,7 @@ module.exports = {
     type: Schema.Types.Mixed,
     required: true,
     validate: [{
-      validator(val) {
+      validator(val, envs) {
         return notNode.Application.getForm('not-user//_newUserData').run(val);
       },
       message: 'newUserData_data_is_not_valid'

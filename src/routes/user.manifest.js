@@ -1,17 +1,15 @@
-const initFromSchema = require('not-node').Fields.fromSchema;
-const modelSchema = require('../models/user').thisSchema;
-
-const FIELDS = initFromSchema(modelSchema, [
-  '_id',
-  'username',
-  'email',
-  'password',
-  'passwordRepeat',
-  'conuntry',
-  'role',
-  'code',
-  'telephone'
-]);
+const FIELDS = [
+  ['_id', 'not-node//ID'],
+  ['userID', 'not-node//ID'],
+  ['username', 'not-user//username'],
+  ['email', 'not-user//email'],
+  ['password', 'not-user//password'],
+  ['passwordRepeat', 'not-user//passwordRepeat'],
+  ['country', 'not-user//country'],
+  ['role', 'not-user//role'],
+  ['code', 'not-user//code'],
+  ['telephone', 'not-user//telephone']
+];
 
 const actionNamePath = '/:actionName';
 const idActionPath = '/:record[_id]/:actionName';
@@ -21,6 +19,7 @@ module.exports = {
   url: '/api/:modelName',
   showMessages: true,
   fields: FIELDS,
+  privateFields: ['salt', 'hashedPassword'],
   actions:{
     /**
 		Guest action

@@ -7,10 +7,10 @@ const	getIP = require('not-node').Auth.getIP;
 //form
 const FIELDS = [
   ['targetUserId', {required: true}, 'userId'],
-  ['activeUser', {}, 'requiredObject'],
-  ['data', {}, 'requiredObject'],
-  ['user', {}, 'requiredObject'],
-  'ip'
+  ['activeUser', 'not-node//requiredObject'],
+  ['data', 'not-node//requiredObject'],
+  ['user', 'not-node//requiredObject'],
+  ['ip', 'not-user//ip']
 ];
 const FORM_NAME = `${MODULE_NAME}:UpdateForm`;
 
@@ -18,8 +18,8 @@ const FORM_NAME = `${MODULE_NAME}:UpdateForm`;
 	*
 	**/
 module.exports = class UpdateForm extends Form{
-  constructor(){
-    super({FIELDS, FORM_NAME});
+  constructor({app}){
+    super({FIELDS, FORM_NAME, app});
   }
 
   /**

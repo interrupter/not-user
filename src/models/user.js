@@ -1,6 +1,5 @@
 const
   {log} = require('not-log')(module, 'Model'),
-  initFields = require('not-node').Fields.initFields,
   {objHas} = require('not-node').Common,
   phrase = require('not-locale').modulePhrase('not-user'),
   crypto = require('crypto'),
@@ -27,23 +26,22 @@ module.exports.enrich = {
   validators: true
 };
 const FIELDS = [
-  'username',
-  'email',
-  'emailConfirmed',
-  'telephone',
-  'telephoneConfirmed',
-  'hashedPassword',
-  'salt',
-  'created',
-  'role',
-  'active',
-  'ip',
-  'country',
-  'confirm'
+  ['username', 'not-user//username'],
+  ['email', 'not-user//email'],
+  ['emailConfirmed', 'not-user//emailConfirmed'],
+  ['telephone', 'not-user//telephone'],
+  ['telephoneConfirmed', 'not-user//telephoneConfirmed'],
+  ['hashedPassword', 'not-user//hashedPassword'],
+  ['salt', 'not-user//salt'],
+  ['created', 'not-user//created'],
+  ['role', 'not-user//role'],
+  ['active', 'not-user//active'],
+  ['ip', 'not-user//ip'],
+  ['country', 'not-user//country'],
+  ['confirm', 'not-user//confirm'],
 ];
 
-module.exports.thisSchema = initFields(FIELDS, 'model');
-
+module.exports.FIELDS = FIELDS;
 
 module.exports.indexes = [
   [{__latest: 1, __closed: 1, __version: 1, username:1 }, { unique: true }],

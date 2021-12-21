@@ -7,26 +7,30 @@ const Form = require('not-node').Form;
 const	getIP = require('not-node').Auth.getIP;
 //form
 const FIELDS = [
-  'username',
-  'email',
-  'password',
-  'passwordRepeat',
-  'role',
-  'telephone',
-  'country',
-  'active',
-  'ip'
+  ['username', 'not-user//username'],
+  ['email', 'not-user//email'],
+  ['password', 'not-user//password'],
+  ['passwordRepeat', 'not-user//password'],
+  ['role', 'not-user//role'],
+  ['telephone', 'not-user//telephone'],
+  ['country', 'not-user//country'],
+  ['active', 'not-user//active'],
+  ['ip', 'not-user//ip']
 ];
 
 const FORM_NAME = `${MODULE_NAME}:CreateForm`;
+
+//form validators
+const validateUsernameAvailability = require('./validators/validateUsernameAvailability');
+const validatePasswords = require('./validators/validatePasswords');
 
 /**
 	*
 	**/
 module.exports = class CreateForm extends Form{
 
-  constructor(){
-    super({FIELDS, FORM_NAME});
+  constructor({app}){
+    super({FIELDS, FORM_NAME, app});
   }
 
   /**
@@ -49,43 +53,11 @@ module.exports = class CreateForm extends Form{
     };
   }
 
-  async validateUsernameAvailability({username}){
-    const model = notNode.Application.getModel('not-user//User');
-    const result = await model.getByFieldValueWithoutVersioningRespect('username', username);
-    if (result){
-      throw new notValidationError(
-        'not-user:username_used_by_some_user',
-        {
-          username: ['not-user:username_used_by_some_user']
-        },
-        undefined,
-        {
-          username
-        }
-      );
-    }
-  }
-
-  validatePasswords({password, passwordRepeat, username}){
-    if (password!== passwordRepeat){
-      throw new notValidationError(
-        'not-user:passwordRepeat_should_be_same_as_password',
-        {
-          passwordRepeat: ['not-user:passwordRepeat_should_be_same_as_password']
-        },
-        undefined,
-        {
-          username
-        }
-      );
-    }
-  }
-
-  async validate(data){
-    await this.MODEL.validate(data, this.getFields());
-    this.validatePasswords(data);
-    await this.validateUsernameAvailability(data);
-    return true;
+  getFormValidationRules(){
+    return [
+      validateUsernameAvailability,
+      validatePasswords,
+    ];
   }
 
 };

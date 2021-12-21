@@ -4,15 +4,18 @@ const Form = require('not-node').Form;
 //not-node
 const	getIP = require('not-node').Auth.getIP;
 //form
-const FIELDS = ['email', 'ip'];
+const FIELDS = [
+  ['email', 'not-user//email'],
+  ['ip', 'not-user//ip']
+];
 const FORM_NAME = `${MODULE_NAME}:RequestLoginCodeOnEmailForm`;
 
 /**
 	*
 	**/
 module.exports = class RequestLoginCodeOnEmailForm extends Form{
-  constructor(){
-    super({FIELDS, FORM_NAME});
+  constructor({app}){
+    super({FIELDS, FORM_NAME, app});
   }
 
   /**

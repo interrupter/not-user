@@ -9,5 +9,11 @@ module.exports = {
     safe: {
       update: ['@system', 'root', 'admin']
     }
-  }
+  },
+  ui:{
+    component: 'UITextfield',
+    label: 'not-user:field_confirm_label',
+    placeholder: 'not-user:field_confirm_placeholder',
+    readonly: true
+  },
 };

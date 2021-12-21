@@ -5,9 +5,9 @@ const Form = require('not-node').Form;
 const	getIP = require('not-node').Auth.getIP;
 //form
 const FIELDS = [
-  ['oldPass', {}, 'password'],
-  ['newPass', {}, 'password'],
-  'ip'
+  ['oldPass', 'not-user//password'],
+  ['newPass', 'not-user//password'],
+  ['ip', 'not-user//ip']
 ];
 const FORM_NAME = `${MODULE_NAME}:ChangePasswordForm`;
 
@@ -15,8 +15,8 @@ const FORM_NAME = `${MODULE_NAME}:ChangePasswordForm`;
 	*
 	**/
 module.exports = class ChangePasswordForm extends Form{
-  constructor(){
-    super({FIELDS, FORM_NAME});
+  constructor({app}){
+    super({FIELDS, FORM_NAME, app});
   }
 
   /**
