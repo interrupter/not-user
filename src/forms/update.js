@@ -4,12 +4,13 @@ const {MODULE_NAME} = require('../const');
 const Form = require('not-node').Form;
 //not-node
 const	getIP = require('not-node').Auth.getIP;
+const requiredObject = 'not-node//requiredObject';
 //form
 const FIELDS = [
   ['targetUserId', {required: true}, 'userId'],
-  ['activeUser', 'not-node//requiredObject'],
-  ['data', 'not-node//requiredObject'],
-  ['user', 'not-node//requiredObject'],
+  ['activeUser', requiredObject],
+  ['data', requiredObject],
+  ['user', requiredObject],
   ['ip', 'not-user//ip']
 ];
 const FORM_NAME = `${MODULE_NAME}:UpdateForm`;

@@ -1,5 +1,3 @@
-const notNode = require('not-node');
-const {notValidationError} = require('not-error');
 const {MODULE_NAME} = require('../const');
 //DB related validation tools
 const Form = require('not-node').Form;
