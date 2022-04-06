@@ -1,3 +1,4 @@
+const _getValidatorEnvGetter = require('../validationEnv.js');
 const {MODULE_NAME} = require('../const');
 
 //DB related validation tools
@@ -31,5 +32,9 @@ module.exports = class LoginForm extends Form{
       password: req.body.password,
       ip: getIP(req)
     };
+  }
+
+  getValidatorEnvGetter(){
+    return _getValidatorEnvGetter;
   }
 };

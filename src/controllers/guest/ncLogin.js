@@ -1,31 +1,53 @@
 import ncFormFrame from './ncFormFrame.js';
 
-const MODES_TITLES = {
-  login: 'not-user:form_mode_login_label',
-  requestLoginCodeOnEmail: 'not-user:form_mode_requestLoginCodeOnEmail_label',
-  requestLoginCodeOnTelephone: 'not-user:form_mode_requestLoginCodeOnTelephone_label',
-  loginByCode: 'not-user:form_mode_loginByCode_label'
-};
+import LoginForm from './forms/login.js';
+import LoginByCodeForm from './forms/loginByCode.js';
+import RequestLoginCodeOnTelephoneForm from './forms/requestLoginCodeOnTelephone.js';
+import RequestLoginCodeOnEmailForm from './forms/requestLoginCodeOnEmail.js';
+
+
+const FORMS = [
+  {
+    mode: 'login',
+    title: 'not-user:form_mode_login_label',
+    form: LoginForm
+  },
+  {
+    mode: 'requestLoginCodeOnEmail',
+    title: 'not-user:form_mode_requestLoginCodeOnEmail_label',
+    form: RequestLoginCodeOnEmailForm
+  },
+  {
+    mode: 'requestLoginCodeOnTelephone',
+    title: 'not-user:form_mode_requestLoginCodeOnTelephone_label',
+    form: RequestLoginCodeOnTelephoneForm
+  },
+  {
+    mode: 'loginByCode',
+    title: 'not-user:form_mode_loginByCode_label',
+    form: LoginByCodeForm
+  }
+];
 
 class ncLogin extends ncFormFrame {
   constructor(app) {
-    super({app, name: 'Login', mode: 'login'});
+    super({
+      app,
+      name: 'Login',
+      mode: 'login'
+    });
   }
 
-  getTargetContainer(){
+  getTargetContainer() {
     return document.querySelector(this.app.getOptions('modules.user.loginFormContainerSelector'));
   }
 
-  getMainURL(){
+  getMainURL() {
     return '/login';
   }
 
-  getFrameProps(mode){
-    return {
-      mode,
-      MODES: this.app.getOptions('modules.user.loginForm.modes', ['login']),
-      MODES_TITLES
-    };
+  getFormsSet() {
+    return FORMS;
   }
 
 }

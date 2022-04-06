@@ -1,8 +1,6 @@
 module.exports = [{
-  validator: 'isLength',
-  arguments: {
-    min: 3,
-    max: 60
+  validator:(val, {validator})=>{
+    return validator.isLength(val, {min: 6, max: 60});
   },
   message: 'username_length_is_not_valid'
 }, {

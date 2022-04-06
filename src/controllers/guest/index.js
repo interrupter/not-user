@@ -13,11 +13,6 @@ let manifest = {
         controller: ncRegister
       }
     ]
-  },
-  templates: {},
-  paths: {
-    common: '/client/common',
-    modules: '/client/modules'
   }
 };
 

@@ -1,8 +1,10 @@
 export default class UserCommon{
   static DEFAULT_USER_AFTER_LOGIN_URL = '/dashboard';
   static DEFAULT_REDIRECT_TIMEOUT = 5000;
+
   static CLASS_OK = 'is-success';
   static CLASS_ERR = 'is-danger';
+  
   static getUserAfterLoginRedirectURL(app){
     return app.getOptions('modules.user.afterLoginURL', this.DEFAULT_USER_AFTER_LOGIN_URL);
   }

@@ -1,9 +1,11 @@
 <script>
-  import { FormElements } from 'not-bulma';
-	const {UITagControl} = FormElements;
+  import { Elements } from 'not-bulma';
+	const {UITag} = Elements.Forms;
+
   import {createEventDispatcher, onMount} from 'svelte';
-  import UserCommon from './user.js';
   let dispatch = createEventDispatcher();
+
+  import UserCommon from './user.js';  
 
   export let user = {};
   export let userRoles = [];
@@ -86,7 +88,7 @@
     <div class="list-item">
       <div class="list-item-content">
         <div class="list-item-title">Роли</div>
-        <div class="list-item-description"><UITagControl variants={UserCommon.ROLES} items={userRoles} readonly={true} /></div>
+        <div class="list-item-description"><UITag variants={UserCommon.ROLES} items={userRoles} readonly={true} /></div>
       </div>
     </div>
 

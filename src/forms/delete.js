@@ -1,3 +1,4 @@
+const _getValidatorEnvGetter = require('../validationEnv.js');
 const {MODULE_NAME} = require('../const');
 //DB related validation tools
 
@@ -33,5 +34,9 @@ module.exports = class DeleteForm extends Form{
       activeUserId: req.user._id,
       ip: getIP(req)
     };
+  }
+
+  getValidatorEnvGetter(){
+    return _getValidatorEnvGetter;
   }
 };

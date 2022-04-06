@@ -1,8 +1,10 @@
 <script>
   import {
     LOCALE,
-    UICommon
+    Elements
   } from 'not-bulma';
+
+  const {UICommon} = Elements;
 
   import {
     createEventDispatcher,
@@ -10,7 +12,6 @@
   } from 'svelte';
 
   let dispatch = createEventDispatcher();
-
 
   function enrich(val = []){
     if(Array.isArray(val)){

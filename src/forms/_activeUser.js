@@ -1,3 +1,5 @@
+const _getValidatorEnvGetter = require('../validationEnv.js');
+
 const {MODULE_NAME} = require('../const');
 //DB related validation tools
 const Form = require('not-node').Form;
@@ -17,6 +19,7 @@ const FORM_NAME = `${MODULE_NAME}:ActiveUserForm`;
 	*
 	**/
 module.exports = class ActiveUserForm extends Form{
+
   constructor({app}){
     super({FIELDS, FORM_NAME, app});
   }
@@ -28,5 +31,9 @@ module.exports = class ActiveUserForm extends Form{
 	**/
   extract(data){
     return data;
+  }
+
+  getValidatorEnvGetter(){
+    return _getValidatorEnvGetter;
   }
 };

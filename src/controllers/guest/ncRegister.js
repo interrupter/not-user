@@ -1,8 +1,13 @@
 import ncFormFrame from './ncFormFrame.js';
 
-const MODES_TITLES = {
-  register: 'not-user:form_mode_register_label'
-};
+import RegisterForm from './forms/register.js';
+
+const FORMS = [
+  {
+    mode: 'register',
+    title: 'not-user:form_mode_register_label',
+    form: RegisterForm
+  }];
 
 class ncRegister extends ncFormFrame {
   constructor(app) {
@@ -17,12 +22,8 @@ class ncRegister extends ncFormFrame {
     return '/register';
   }
 
-  getFrameProps(mode){
-    return {
-      mode,
-      MODES: this.app.getOptions('modules.user.registerForm.modes', ['register']),
-      MODES_TITLES
-    };
+  getFormsSet() {
+    return FORMS;
   }
 
 }

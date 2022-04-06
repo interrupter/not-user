@@ -1,6 +1,7 @@
 <script>
-  import { FormElements } from 'not-bulma';
-	const {UITagControl} = FormElements;
+  import { Elements } from 'not-bulma';
+	const {UITag} = Elements.Forms;
+  
   import {onMount} from 'svelte';
   import UserCommon from './user.js';
 
@@ -85,7 +86,7 @@
     <div class="list-item">
       <div class="list-item-content">
         <div class="list-item-title">Роли</div>
-        <div class="list-item-description"><UITagControl variants={UserCommon.ROLES} items={userRoles} readonly={true} /></div>
+        <div class="list-item-description"><UITag variants={UserCommon.ROLES} items={userRoles} readonly={true} /></div>
       </div>
     </div>
     {/if}

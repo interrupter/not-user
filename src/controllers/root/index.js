@@ -49,9 +49,7 @@ let manifest = {
         url: 		'/user'
       }]
     }
-  },
-  templates: {},
-  paths: {}
+  }
 };
 
 export {ncLogout, manifest};

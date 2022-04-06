@@ -3,12 +3,12 @@ import UserUIProfile from '../common/ui.profile.svelte';
 import UserUIChangePassword from '../common/ui.change.password.svelte';
 
 import {
-  notController,
-  notCommon,
-  Breadcrumbs,
-  UIError,
-  UISuccess
+  Frame,
+  Elements
 } from 'not-bulma';
+
+const {notBreadcrumbs, notController, notCommon} = Frame;
+const {UIError, UISuccess} = Elements.Notification;
 
 const MODULE_NAME = '';
 const MODEL_NAME = 'User';
@@ -40,7 +40,7 @@ class ncProfile extends notController {
         action: 'profile'
       })
     });
-    Breadcrumbs.setHead(BREADCRUMBS).render({
+    notBreadcrumbs.setHead(BREADCRUMBS).render({
       root: '',
       target: this.els.top,
       navigate: (url) => this.app.getWorking('router').navigate(url)
@@ -53,7 +53,7 @@ class ncProfile extends notController {
   }
 
   setBreadcrumbs(tail) {
-    Breadcrumbs.setTail(tail).update();
+    notBreadcrumbs.setTail(tail).update();
   }
 
   backToList() {
@@ -119,11 +119,13 @@ class ncProfile extends notController {
       this.setBreadcrumbs([{
         title: 'Просмотр'
       }]);
+
       if (this.ui.details) {
         return;
       } else {
         this.$destroyUI();
       }
+
       let res = await this.getModel()({}).$profile();
       if (res.status === 'ok') {
         this.ui.update = new UserUIProfile({

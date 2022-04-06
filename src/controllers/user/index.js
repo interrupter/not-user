@@ -14,8 +14,6 @@ let manifest = {
       }
     ]
   },
-  templates: {},
-  paths: {},
   menu: {
     top: {
       sections: [{

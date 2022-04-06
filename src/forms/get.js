@@ -1,3 +1,4 @@
+const _getValidatorEnvGetter = require('../validationEnv.js');
 const {MODULE_NAME} = require('../const');
 //DB related validation tools
 const Form = require('not-node').Form;
@@ -32,5 +33,9 @@ module.exports = class GetForm extends Form{
       activeUserId: req.user._id,
       ip: getIP(req)
     };
+  }
+
+  getValidatorEnvGetter(){
+    return _getValidatorEnvGetter;
   }
 };

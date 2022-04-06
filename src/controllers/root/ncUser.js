@@ -1,8 +1,10 @@
 import Validators from '../common/validators.js';
 
 import {
-  ncCRUD, Form
+  Frame
 } from 'not-bulma';
+
+const {notCRUD, notFormUtils} = Frame;
 
 const MODULE_NAME = '';
 const MODEL_NAME = 'User';
@@ -12,9 +14,10 @@ const LABELS = {
   single: 'Пользователь',
 };
 
-class ncUser extends ncCRUD {
+class ncUser extends notCRUD {
   static MODULE_NAME = MODULE_NAME;
   static MODEL_NAME = MODEL_NAME;
+
   constructor(app, params) {
     super(app, `${MODULE_NAME}.${MODEL_NAME}`);
     this.setModuleName(MODULE_NAME.toLowerCase());
@@ -22,6 +25,7 @@ class ncUser extends ncCRUD {
     this.setOptions('names', LABELS);
     this.setOptions('Validators', app.getService('nsUser').augmentValidators(Validators));
     this.setOptions('params', params);
+
     this.setOptions('update', {
       actionName: 'get',
       options: {
@@ -37,6 +41,7 @@ class ncUser extends ncCRUD {
         }
       }
     });
+
     this.setOptions('list', {
       interface: {
         combined: true,
@@ -108,8 +113,9 @@ class ncUser extends ncCRUD {
     });
 
     this.preloadRoles()
-      .then(()=>this.start())
+      .then(() => this.start())
       .catch(this.report);
+
     return this;
   }
 
@@ -134,7 +140,7 @@ class ncUser extends ncCRUD {
           throw new Error(results.message);
         }
       }
-      Form.addVariants('role', [
+      notFormUtils.addVariants('role', [
         ...roles.primary.map(name => {
           return {
             id: name,

@@ -1,7 +1,8 @@
 import {
-  notController,
-  notCommon
+  Frame
 } from 'not-bulma';
+
+const {notController} = Frame;
 
 class ncLogout extends notController {
   constructor(app) {
@@ -15,7 +16,7 @@ class ncLogout extends notController {
           return true;
         })
         .catch((err) => {
-          notCommon.report(err);
+          this.report(err);
         });
     } else {
       window.history.back();

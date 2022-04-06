@@ -1,9 +1,10 @@
-import {Form, FormValidationBuilder} from 'not-bulma';
+import { Builder } from 'not-validation';
+import Validator from 'validator';
 
 export default class nsUser{
+
   constructor(app){
     this.app = app;
-    this.validatorsBuilder = new FormValidationBuilder(app, () => this.getValidatorEnv() );
   }
 
   destroy(){
@@ -11,13 +12,13 @@ export default class nsUser{
   }
 
   augmentValidators(validators){
-    return this.validatorsBuilder.augmentValidators(validators);
+    return Builder(validators, () => this.getValidatorEnv());
   }
 
   getValidatorEnv(){
     return {
       config:   this.app.getConfigReaderForModule('user'),
-      validator: Form.validator
+      validator: Validator
     };
   }
 }

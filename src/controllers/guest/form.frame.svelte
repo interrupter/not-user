@@ -1,12 +1,9 @@
 <script>
-  import {LOCALE} from 'not-bulma';
-  import LockBlockComponent from './lock.block.svelte';
+  import {LOCALE, Elements} from 'not-bulma';
 
-  import {
-    UISuccess,
-    UIError,
-    UIButtons
-  } from 'not-bulma';
+  const {UISuccess, UIError} = Elements.Notifications;
+  const {UIButtons} = Elements.Buttons;
+  import LockBlockComponent from './lock.block.svelte';
 
   import {
     createEventDispatcher,
@@ -60,9 +57,9 @@
   <UISuccess title="" message={message}></UISuccess>
   {:else}
   <div class="user-login-form-paper user-frame-form"></div>
-  {#if status==='error' }
-  <!--<UIError title="" message={message}></UIError>-->
-  {/if}
+    {#if status==='error' }
+    <!--<UIError title="" message={message}></UIError>-->
+    {/if}
   <UIButtons centered={true} bind:values={MODES_BUTTONS} classes={'mt-4'} />
   {/if}
 </div>

@@ -1,9 +1,10 @@
 <script>
   import {
-    UICommon,
-    UISuccess,
-    UIError
+    Elements
   } from 'not-bulma';
+
+  const {UICommon} = Elements;
+  const { UISuccess,UIError} = Elements.Notifications;
 
   import {
   	createEventDispatcher

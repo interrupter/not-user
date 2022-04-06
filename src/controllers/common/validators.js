@@ -1,3 +1,5 @@
+import {notValidationError} from 'not-error';
+
 import vUsername from '../../fields/validators/username.js';
 import vEmail from '../../fields/validators/email.js';
 import vTelephone from '../../fields/validators/telephone.js';
@@ -10,15 +12,14 @@ import vActive from '../../fields/validators/active.js';
 const ERR_MSG_FORM_IS_DIRTY = 'not-user:form_is_dirty';
 const ERR_MSG_FORM_PASSWORDS_SHOULD_BE_EQUAL = 'not-user:form_passwords_should_be_equal';
 
-
-const createUserValidation = async(data, errors/*, env*/)=>{
+const createUserValidation = async(data) => {
   if (data.password !== data.passwordRepeat) {
-    errors.clean = false;
-    if (!Array.isArray(errors.form.fields.passwordRepeat)){
-      errors.form.fields.passwordRepeat = [];
-    }
-    errors.form.fields.passwordRepeat.push(ERR_MSG_FORM_PASSWORDS_SHOULD_BE_EQUAL);
-    if (!errors.form.errors.includes(ERR_MSG_FORM_IS_DIRTY)){errors.form.errors.push(ERR_MSG_FORM_IS_DIRTY);}
+    throw new notValidationError(ERR_MSG_FORM_PASSWORDS_SHOULD_BE_EQUAL, {
+      form: [ERR_MSG_FORM_IS_DIRTY],
+      fields: {
+        passwordRepeat: [ERR_MSG_FORM_PASSWORDS_SHOULD_BE_EQUAL]
+      }
+    });
   }
 };
 
