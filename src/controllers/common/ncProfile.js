@@ -8,7 +8,7 @@ import {
 } from 'not-bulma';
 
 const {notBreadcrumbs, notController, notCommon} = Frame;
-const {UIError, UISuccess} = Elements.Notification;
+const {UIError, UISuccess} = Elements.Notifications;
 
 const MODULE_NAME = '';
 const MODEL_NAME = 'User';
