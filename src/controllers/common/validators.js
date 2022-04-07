@@ -1,4 +1,4 @@
-import {notValidationError} from 'not-error';
+import notValidationError from 'not-error/src/validation.error.browser.js';
 
 import vUsername from '../../fields/validators/username.js';
 import vEmail from '../../fields/validators/email.js';
