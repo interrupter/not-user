@@ -1,10 +1,10 @@
 import {
-  Form
+  notFormUtils
 } from 'not-bulma';
 
 import UIRole from './role.svelte';
 
-Form.addComponent('UIRole', UIRole);
+notFormUtils.addComponent('UIRole', UIRole);
 
 import nsUser from './nsUser.js';
 
