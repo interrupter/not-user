@@ -90,8 +90,8 @@ module.exports.login = async (req, res, next, prepared) => {
   Log.info(`'${user.username}' authorized as ${req.session.user} ${req.session.role}`);
   const token = await module.exports.token(req);
   return {
-    user,
-    token: token.token
+    ...user,
+    ...token
   };
 };
 
