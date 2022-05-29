@@ -17,6 +17,9 @@ export default class LoginForm extends notForm{
     this.on('reject', () => {
       location.href = '/';
     });
+    this.on('success', () => {
+      location.href = '/dashboard';
+    });
   }
 
   getFormValidators(){

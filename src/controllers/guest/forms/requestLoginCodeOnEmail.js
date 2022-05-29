@@ -16,7 +16,7 @@ export default class RequestLoginCodeOnEmailForm extends notForm{
     this.on('submit', e => this.onSubmit(e));
     this.on('reject', () => {
       location.href = '/';
-    });
+    });    
   }
 
   getFormValidators(){
