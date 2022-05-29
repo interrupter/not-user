@@ -57,7 +57,7 @@ module.exports = {
       rules:[{
         auth: false
       }],
-      return: ['_id','role', 'active', 'email', 'username'],
+      return: ['_id','role', 'active', 'email', 'username', 'token'],
       postFix: actionNamePath,
       title: 'not-user:form_login_title',
       fields: [

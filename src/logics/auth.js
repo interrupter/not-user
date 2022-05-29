@@ -167,15 +167,7 @@ module.exports[MODEL_NAME] = class AuthLogic {
   static composeUserTokenPayload({user, tokenTTL}){
     return {
       _id:       					user._id,
-      username: 					user.username,
-      email:     					user.email,
-      emailConfirmed: 		user.emailConfirmed,
-      telephone: 					user.telephone,
-      telephoneConfirmed: user.telephoneConfirmed,
-      created: 						user.created,
       role: 							user.role,
-      active: 						user.active,
-      country: 						user.country,
       exp: 								Date.now() / 1000 + tokenTTL
     };
   }

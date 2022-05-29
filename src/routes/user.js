@@ -88,7 +88,11 @@ module.exports.login = async (req, res, next, prepared) => {
   notNode.Auth.setAuth(req, user._id, user.role);
   req.session.save();
   Log.info(`'${user.username}' authorized as ${req.session.user} ${req.session.role}`);
-  return user;
+  const token = await module.exports.token(req);
+  return {
+    user,
+    token: token.token
+  };
 };
 
 module.exports.requestLoginCodeOnEmail = async (req, res, next, prepared) => {
