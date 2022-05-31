@@ -115,7 +115,17 @@ module.exports.loginByCode = async (req, res, next, prepared) => {
   notNode.Auth.setAuth(req, user._id, user.role);
   req.session.save();
   Log.info(`'${user.username}' authorized as ${req.session.user} ${req.session.role} via emailed/smsed one-time code`);
-  return {__redirect__:'/'};
+  const token = await module.exports.token(req);
+  if(req.query.noRedirect){
+    return {
+      ...user,
+      ...token
+    };
+  }else{
+    return {
+      __redirect__: '/'
+    }
+  }
 };
 
 module.exports.requestPasswordReset = async (req, res, next, prepared) => {

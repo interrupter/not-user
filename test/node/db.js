@@ -1,6 +1,8 @@
 const notNode = require('not-node');
+
 notNode.Fields.importFromDir(__dirname + '/../../node_modules/not-node/src/core/fields');
 notNode.Fields.importFromDir(__dirname + '/../../src/fields');
+
 const  Increment = notNode.Increment,
   Proto = require('not-node').Proto,
   OneTimeCode = require('not-one-time-code/src/models/oneTimeCode'),
