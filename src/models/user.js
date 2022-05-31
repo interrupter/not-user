@@ -270,22 +270,23 @@ module.exports.thisStatics = {
     return fields;
   },
   isFieldSafeForAction(fieldActionSafety, roles, special){
-    //свободный
-    if (fieldActionSafety === '*') {
-      return true;
-    }
-    if (
-      //доступ по ролям
-      Array.isArray(fieldActionSafety) &&
-      //роли присутствуют в списке
-      ( //если роли пользователя в списке
-        Auth.intersect_safe(roles, fieldActionSafety) ||
-        //или он в спец группе (владелец, система)
-        Auth.intersect_safe(special, fieldActionSafety)
-      )) {
-      return true;
-    }
-    return false;
+    return (
+      //свободный
+      (fieldActionSafety === '*')
+      ||
+      (
+        //доступ по ролям
+        Array.isArray(fieldActionSafety)
+        &&
+        ( //роли присутствуют в списке
+          //если роли пользователя в списке
+          Auth.intersect_safe(roles, fieldActionSafety)
+          ||
+          //или он в спец группе (владелец, система)
+          Auth.intersect_safe(special, fieldActionSafety)
+        )
+      )
+    );
   },
   isOwner(data, user_id) {
     if(typeof user_id === 'undefined' || user_id === 0){

@@ -38,6 +38,7 @@ module.exports = {
         'password',
         'passwordRepeat'
       ],
+      return: ['_id', 'role', 'active', 'email', 'username', 'emailConfirmed', 'telephoneConfirmed', 'token'],
       postFix: actionNamePath
     },
     confirmEmail:{
@@ -57,7 +58,7 @@ module.exports = {
       rules:[{
         auth: false
       }],
-      return: ['_id','role', 'active', 'email', 'username', 'token'],
+      return: ['_id', 'role', 'active', 'email', 'username', 'emailConfirmed', 'telephoneConfirmed', 'token'],
       postFix: actionNamePath,
       title: 'not-user:form_login_title',
       fields: [
@@ -134,6 +135,14 @@ module.exports = {
       messages: {
         success: 'Вы вышли!'
       }
+    },
+    requestEmailConfirmation:{
+      method: 'post',
+      data: ['record', 'data'],
+      rules:[{
+        auth: true
+      }],
+      postFix: actionNamePath
     },
     changePassword:{
       method: 'post',
@@ -214,15 +223,6 @@ module.exports = {
     /**
 		Admin action
 		**/
-    //stealing identity of user, to act from his account
-    steal:{
-      method: 'post',
-      rules:[{
-        auth: true,
-        root: true
-      }],
-      postFix: idActionPath
-    },
     create:{
       method: 'put',
       rules:[{

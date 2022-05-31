@@ -10,6 +10,8 @@ const MODEL_NAME = 'User';
 const MODEL_PATH = 'not-user//User';
 module.exports.thisLogicName = MODEL_NAME;
 
+const LogicMailer = 'not-user//UserMailer';
+
 module.exports[MODEL_NAME] = class UserLogic {
   /**
 	 *  Creates User document from input
@@ -46,7 +48,7 @@ module.exports[MODEL_NAME] = class UserLogic {
     let newUser = await UserLogic.createNewUserDocument({
       ...data
     });
-    await notNode.Application.getLogic('not-user//UserMailer').sendConfirmationEmail({
+    await notNode.Application.getLogic(LogicMailer).sendConfirmationEmail({
       user: newUser
     });
     Log.log({
@@ -56,6 +58,22 @@ module.exports[MODEL_NAME] = class UserLogic {
       by: newUser._id,
       target: newUser._id,
       targetID: newUser.userID
+    });
+    const User = notNode.Application.getModel(MODEL_PATH);
+    return User.clearFromUnsafe(newUser);
+  }
+
+  static async requestEmailConfirmation({user}){
+    await notNode.Application.getLogic(LogicMailer).sendConfirmationEmail({
+      user
+    });
+    Log.log({
+      module: 'user',
+      logic: 'User',
+      action: 'requestEmailConfirmation',
+      by: user._id,
+      target: user._id,
+      targetID: user.userID
     });
   }
 
@@ -194,7 +212,7 @@ module.exports[MODEL_NAME] = class UserLogic {
     let targetUser = await UserLogic.createNewUserDocument({
       ...data
     });
-    await notNode.Application.getLogic('not-user//UserMailer').sendConfirmationEmail({
+    await notNode.Application.getLogic(LogicMailer).sendConfirmationEmail({
       user: targetUser
     });
     Log.log({

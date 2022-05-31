@@ -72,8 +72,17 @@ module.exports.after = (req, res, next, result)=>{
  **/
 module.exports.register = async (req, res, next, prepared) => {
   Log.debug('register');
-  return await (getLogic().register(prepared));
+  let user = await (getLogic().register(prepared));
+  notNode.Auth.setAuth(req, user._id, user.role);
+  req.session.save();
+  Log.info(`'${user.username}' authorized as ${req.session.user} ${req.session.role}`);
+  const token = await module.exports.token(req);
+  return {
+    ...user,
+    ...token
+  };
 };
+
 
 module.exports.confirmEmail = async (req, res, next, prepared) => {
   Log.debug('confirmEmail');
@@ -136,10 +145,16 @@ module.exports._changePassword = module.exports.changePassword = async (req, res
   }));
 };
 
+module.exports.requestEmailConfirmation = async (req) => {
+  Log.debug('requestEmailVerification');
+  await (getLogic().requestEmailConfirmation({user: req.user}));
+};
+
+
 module.exports.token = async (req/*, res, next*/) => {
   Log.debug('user/token');
   const secret = config.get('secret');
-  let tokenTTL = config.get('tokenTTL');
+  const tokenTTL = config.get('tokenTTL');
   const params = {
     secret,
     tokenTTL,
@@ -182,9 +197,6 @@ module.exports._create = async (req, res, next, prepared) => {
   return await (getLogic().createUser(data));
 };
 
-module.exports._steal = (/*req, res*/) => {
-  return {};
-};
 
 module.exports._update = async (req, res, next, prepared) => {
   Log.log('user/_update');

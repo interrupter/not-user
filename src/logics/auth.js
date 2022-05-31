@@ -67,7 +67,11 @@ module.exports[MODEL_NAME] = class AuthLogic {
     let User = notNode.Application.getModel(MODEL_PATH);
     validateEmail(email);
     const user = User.getByEmail(email);
-    await notNode.Application.getLogic(MAILER_MODEL_PATH).sendPasswordResetCode(user);
+    if(user){
+      await notNode.Application.getLogic(MAILER_MODEL_PATH).sendPasswordResetCode(user);
+    }else{
+      throw new notRequestError(phrase('user_not_found'), {code:403});
+    }
   }
 
   static async resetPassword({code}){
@@ -168,14 +172,17 @@ module.exports[MODEL_NAME] = class AuthLogic {
     return {
       _id:       					user._id,
       role: 							user.role,
+      active:             user.active,
+      emailConfirmed:     user.emailConfirmed,
+      telephoneConfirmed: user.telephoneConfirmed,
       exp: 								Date.now() / 1000 + tokenTTL
     };
   }
 
   static composeGuestTokenPayload({tokenTTL}){
     return {
-      active:     	true,
       _id:        	false,
+      active:     	true,
       username:   	phrase('user_role_guest'),
       role:       	notNode.Auth.DEFAULT_USER_ROLE_FOR_GUEST,
       exp:        	Date.now() / 1000 + tokenTTL
