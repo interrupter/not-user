@@ -46,7 +46,7 @@ module.exports = async (req, res, next) => {
     const userId = getUserId(req);
     if(userId === null){
       Log.error(`no user data in session or token ${req.path}`);
-      next();
+      return next();
     }
     let user = await User.getOne(userId);
     if (user) {
@@ -57,8 +57,7 @@ module.exports = async (req, res, next) => {
       Log.error(`No user with such id@${userId}`);
       notAuth.cleanse(req);
     }
-
-    next();
+    return next();
   }catch(e){
     Log.error(`Error while loading user information`);
     App.report(new notError(`Error while loading user information`, {}, e));
