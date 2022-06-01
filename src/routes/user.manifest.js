@@ -185,6 +185,7 @@ module.exports = {
     status:{
       method: 'get',
       rules:[{
+        return: ['_id', 'role', 'active', 'email', 'username', 'emailConfirmed', 'telephoneConfirmed', 'token'],
         auth: true
       },{
         return: ['auth', 'sid', 'ip'],

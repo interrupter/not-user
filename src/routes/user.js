@@ -190,7 +190,15 @@ module.exports.update = async (req, res, next, prepared) => {
 };
 
 module.exports.status = async (req/*, res, next*/) => {
-  return notNode.Auth.extractAuthData(req);
+  if(req.user && req.user.active){
+    const token = await module.exports.token(req);
+    return {
+      ...req.user,
+      ...token,
+    };
+  }else{
+    notNode.Auth.extractAuthData(req);
+  }
 };
 
 
