@@ -26,31 +26,31 @@ const createUserValidation = async (data) => {
 };
 
 const Validators = Builder({
-    //val - value of field
-    //env - resources (constants, config reader, third party libs) needed for validation and provided from module level
-    //(val:any, env: Object)=>Promise<Boolean>
-    fields: {
-      username: vUsername,
-      password: vPassword,
-      telephone: vTelephone,
-      email: vEmail,
-      code: vCode,
-      role: vRole,
-      country: vCountry,
-      active: vActive,
-    },
-    //form - object with form values
-    //env - resources needed for validation and provided from module level
-    //(form:Object, env: Object)=>Promise<Boolean>
-    forms: {
-      create: [createUserValidation],
-      register: [createUserValidation]
-    }
+  //val - value of field
+  //env - resources (constants, config reader, third party libs) needed for validation and provided from module level
+  //(val:any, env: Object)=>Promise<Boolean>
+  fields: {
+    username: vUsername,
+    password: vPassword,
+    telephone: vTelephone,
+    email: vEmail,
+    code: vCode,
+    role: vRole,
+    country: vCountry,
+    active: vActive,
   },
-  () => {
-    return {
-      validator
-    };
-  });
+  //form - object with form values
+  //env - resources needed for validation and provided from module level
+  //(form:Object, env: Object)=>Promise<Boolean>
+  forms: {
+    create: [createUserValidation],
+    register: [createUserValidation]
+  }
+},
+() => {
+  return {
+    validator
+  };
+});
 
 export default Validators;

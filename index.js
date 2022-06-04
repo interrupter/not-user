@@ -5,7 +5,7 @@ const 	Schema = require('mongoose').Schema,
 
 const content = [
 	'fields', 'forms', 'routes', 'logics',
-	'controllers', 'views', 'models', 'styles',
+	'controllers', 'models', 'styles',
 	'locales'
 ];
 

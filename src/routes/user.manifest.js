@@ -102,6 +102,14 @@ module.exports = {
         'code'
       ]
     },
+    requestEmailConfirmation:{
+      method: 'post',
+      data: ['record', 'data'],
+      rules:[{
+        auth: true
+      }],
+      postFix: actionNamePath
+    },
     requestPasswordReset:{
       method: 'post',
       title: 'not-user:form_requestPasswordReset_title',
@@ -136,14 +144,6 @@ module.exports = {
         success: 'Вы вышли!'
       }
     },
-    requestEmailConfirmation:{
-      method: 'post',
-      data: ['record', 'data'],
-      rules:[{
-        auth: true
-      }],
-      postFix: actionNamePath
-    },
     changePassword:{
       method: 'post',
       data: ['record', 'data'],
@@ -163,22 +163,42 @@ module.exports = {
       method: 'post',
       rules:[{
         auth: true,
-        root: true
+        root: true,
+        fields:[
+          '_id',
+          'username',
+          'email',
+          'emailConfirmed',
+          'telephone',
+          'active',
+          'country',
+          'role'
+        ],
       },{
         auth: true,
-        role: ['admin']
+        role: ['admin'],
+        fields:[
+          '_id',
+          'username',
+          'email',
+          'emailConfirmed',
+          'telephone',
+          'active',
+          'country',
+          'role'
+        ],
       },{
-        auth: true
+        auth: true,
+        fields:[
+          '_id',
+          'username',
+          'email',
+          'telephone',
+          'active',
+          'country',
+          'role'
+        ],
       }],
-      fields:[
-        '_id',
-        'username',
-        'email',
-        'telephone',
-        'active',
-        'country',
-        'role'
-      ],
       data: ['record'],
       postFix: idActionPath
     },

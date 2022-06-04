@@ -57,7 +57,7 @@ export default class UserCommon{
     id: 7,
     title: 'hr',
     type: 'primary'
-  }]
+  }];
   static FIELDS = {
     username:{
       label: 'Логин',
@@ -97,7 +97,7 @@ export default class UserCommon{
       label: 'Код подтверждения',
       placeholder: 'Введите полученный код.',
     }
-  }
+  };
   static fieldInit(type, mutation = {}){
     let field = {
       label: '',

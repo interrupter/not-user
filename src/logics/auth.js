@@ -12,7 +12,7 @@ const MODEL_NAME = 'Auth';
 module.exports.thisLogicName = MODEL_NAME;
 
 const MODEL_PATH = 'not-user//User';
-const MAILER_MODEL_PATH = 'not-user//UserMailer';
+const MAILER_LOGIC_PATH = 'not-user//UserMailer';
 
 function validateEmail(email){
   try{
@@ -38,9 +38,33 @@ module.exports[MODEL_NAME] = class AuthLogic {
     Log.log('login');
     const User = notNode.Application.getModel(MODEL_PATH);
     let user = await User.authorize(email, password);
-    user.ip = ip;
-    await user.save();
-    return User.clearFromUnsafe(user.toObject());
+    if(user.emailConfirmed){
+      user.ip = ip;
+      await user.save();
+      Log.log({
+        module: 'user',
+        logic: 'User',
+        action: 'login',
+        by: user._id,
+        target: user._id,
+        targetID: user.userID,
+        case: 'ok'
+      });
+      return User.clearFromUnsafe(user.toObject());
+    }else{
+      await notNode.Application.getLogic(MODEL_PATH).sendConfirmationEmail({
+        user
+      });
+      throw new notRequestError(
+        phrase('email_is_not_confirmed'),
+        {
+          code: 404,
+          errors: {email: [phrase('email_is_not_confirmed')]},
+          params: {user: User.clearFromUnsafe(user.toObject())}
+        },
+        null
+      );
+    }
   }
 
   static async requestLoginCodeOnEmail({email}){
@@ -50,7 +74,7 @@ module.exports[MODEL_NAME] = class AuthLogic {
     if (!user) {
       throw new notRequestError(phrase('user_not_found'), {code:403, params:{email}});
     }
-    await notNode.Application.getLogic(MAILER_MODEL_PATH).sendOneTimeLoginCode({user});
+    await notNode.Application.getLogic(MAILER_LOGIC_PATH).sendOneTimeLoginCode({user});
   }
 
   static async loginByCode({code, ip}){
@@ -68,7 +92,7 @@ module.exports[MODEL_NAME] = class AuthLogic {
     validateEmail(email);
     const user = User.getByEmail(email);
     if(user){
-      await notNode.Application.getLogic(MAILER_MODEL_PATH).sendPasswordResetCode(user);
+      await notNode.Application.getLogic(MAILER_LOGIC_PATH).sendPasswordResetCode(user);
     }else{
       throw new notRequestError(phrase('user_not_found'), {code:403});
     }
@@ -85,7 +109,7 @@ module.exports[MODEL_NAME] = class AuthLogic {
       }
       const pass = user.createNewPassword();
       await user.save();
-      await notNode.Application.getLogic(MAILER_MODEL_PATH).sendNewPassword({user, pass});
+      await notNode.Application.getLogic(MAILER_LOGIC_PATH).sendNewPassword({user, pass});
       Log.info(`'${user.username}' reseted password as ${user._id} ${user.role} via emailed one-time code`);
     }catch(e){
       throw new notRequestError(e.message,
@@ -139,7 +163,7 @@ module.exports[MODEL_NAME] = class AuthLogic {
     AuthLogic.validatePasswordFormat({password: newPass, context});
     user.password = newPass;
     await user.save();
-    await notNode.Application.getLogic(MAILER_MODEL_PATH).sendChangePasswordNotification({user});
+    await notNode.Application.getLogic(MAILER_LOGIC_PATH).sendChangePasswordNotification({user});
     Log.info(`'${user.username}' changed password as ${user._id} ${user.role} via entering old password and new one`);
   }
 

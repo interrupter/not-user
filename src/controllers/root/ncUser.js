@@ -74,7 +74,8 @@ class ncUser extends notCRUD {
         path: ':emailConfirmed',
         title: 'Подтверждён',
         type: 'boolean',
-        hideOnMobile: true
+        hideOnMobile: true,
+        preprocessor:value => [value]
       }, {
         path: ':role',
         title: 'Роли',

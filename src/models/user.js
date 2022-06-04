@@ -104,6 +104,7 @@ function throwUserNotFound(errors = {}, params = {}, e = null){
   );
 }
 
+
 module.exports.thisStatics = {
   DEFAULT_ROLES_LIST,
   randomPassword: function(){

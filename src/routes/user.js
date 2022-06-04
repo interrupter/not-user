@@ -124,7 +124,7 @@ module.exports.loginByCode = async (req, res, next, prepared) => {
   }else{
     return {
       __redirect__: '/'
-    }
+    };
   }
 };
 
@@ -155,9 +155,11 @@ module.exports._changePassword = module.exports.changePassword = async (req, res
   }));
 };
 
-module.exports.requestEmailConfirmation = async (req) => {
+module.exports.requestEmailConfirmation = module.exports._requestEmailConfirmation = async (req,res,next, prepared) => {
   Log.debug('requestEmailVerification');
-  await (getLogic().requestEmailConfirmation({user: req.user}));
+  await (getLogic().requestEmailConfirmation({
+    user: prepared.email
+  }));
 };
 
 
