@@ -1,4 +1,7 @@
 {
+	"passwordRepeat_should_be_same_as_password": "Passwords arent match",
+	"username_cant_be_email": "User name cant be an email address",
+	"username_used_by_some_user": "Username already taken",
 	"form_mode_login_label":"Login",
 	"form_mode_requestLoginCodeOnEmail_label":"By email",
 	"form_mode_requestLoginCodeOnTelephone_label":"By SMS",

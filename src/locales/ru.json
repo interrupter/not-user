@@ -1,4 +1,7 @@
 {
+	"passwordRepeat_should_be_same_as_password": "Пароли не совпадают",
+	"username_cant_be_email": "Имя пользователя не может быть email адресом",
+	"username_used_by_some_user": "Имя пользователя уже занято",
 	"form_mode_login_label":"Вход",
 	"form_mode_requestLoginCodeOnEmail_label":"Вход по email",
 	"form_mode_requestLoginCodeOnTelephone_label":"Вход по SMS",

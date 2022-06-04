@@ -52,7 +52,7 @@ module.exports[MODEL_NAME] = class AuthLogic {
       });
       return User.clearFromUnsafe(user.toObject());
     }else{
-      await notNode.Application.getLogic(MODEL_PATH).sendConfirmationEmail({
+      await notNode.Application.getLogic(MAILER_LOGIC_PATH).sendConfirmationEmail({
         user
       });
       throw new notRequestError(

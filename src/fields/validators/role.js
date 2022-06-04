@@ -7,13 +7,13 @@ module.exports = [{
   validator(val) {
     return (val.length !== 0);
   },
-  message: 'user_role_should_be_declared'
+  message: 'not-user:user_role_should_be_declared'
 },
 {
   validator(val) {
     return (val.length < 7);
   },
-  message: 'user_role_too_many'
+  message: 'not-user:user_role_too_many'
 },
 {
   validator(val, {config}) {
@@ -27,7 +27,7 @@ module.exports = [{
     });
     return (count === 1);
   },
-  message: 'user_role_should_have_one_primary'
+  message: 'not-user:user_role_should_have_one_primary'
 },
 {
   validator(val, {config}) {
@@ -42,6 +42,6 @@ module.exports = [{
     });
     return !extraIsInvalid;
   },
-  message: 'user_role_secondary_is_not_exists'
+  message: 'not-user:user_role_secondary_is_not_exists'
 }
 ];
