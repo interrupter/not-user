@@ -18,12 +18,12 @@ function validateEmail(email){
   try{
     const User = notNode.Application.getModel(MODEL_PATH);
     if (!User.validateEmail(email)){
-      throw new Error(phrase('email_not_valid'));
+      throw new Error(phrase('email_is_not_valid'));
     }
   }catch(e){
     throw new notValidationError(
-      phrase('email_not_valid'),
-      {email: [phrase('email_not_valid')]},
+      phrase('email_is_not_valid'),
+      {email: [phrase('email_is_not_valid')]},
       null,
       {email}
     );

@@ -53,9 +53,9 @@ function validateEmailOrThrow(email){
     let val = validator.isEmail(email);
     if(!val){
       throw new notValidationError(
-        phrase('email_not_valid'),
+        phrase('email_is_not_valid'),
         {
-          email: [phrase('email_not_valid')]
+          email: [phrase('email_is_not_valid')]
         },
         null,
         {email}
@@ -66,8 +66,8 @@ function validateEmailOrThrow(email){
       throw e;
     }else{
       throw new notValidationError(
-        phrase('email_not_valid'),
-        {email:[phrase('email_not_valid')]},
+        phrase('email_is_not_valid'),
+        {email:[phrase('email_is_not_valid')]},
         e,
         {email}
       );

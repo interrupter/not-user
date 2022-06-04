@@ -30,7 +30,7 @@
 	"email_taken":		"Email already in use by enother user",
 	"mail_error":		"Mailer error!",
 	"email_is_not_confirmed": "Email is not confirmed! Check your email inbox for message from us with confirmation link.",
-	"email_not_valid":	"Email is not valid!",
+	"email_is_not_valid":	"Email is not valid!",
 	"one_time_code_not_found": "OTC not found",
 	"one_time_code_action_not_valid": "OTC action is not valid",
 	"password_length_not_valid":	"Password length should be from 6 to 100 characters!",
