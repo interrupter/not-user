@@ -9,10 +9,7 @@ const
     short: true,
     MODULE_NAME,
     MODEL_NAME,
-    MODEL_TITLE: 'Пользователь',
-    populate: {
-      listAndCount: ['key']
-    }
+    MODEL_TITLE: 'Пользователь'
   },
   modMeta = require('not-meta');
 
