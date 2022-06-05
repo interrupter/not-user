@@ -156,7 +156,6 @@ class ncUser extends notCRUD {
             };
           }))
         ];
-        this.app.setOptions('modules.user.roles', rolesVariants);
         roles = rolesVariants;
       }
       this.setOptions(`variants.update`, {'role':roles});

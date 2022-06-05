@@ -25,7 +25,7 @@ const createUserValidation = async (data) => {
   }
 };
 
-const Validators = Builder({
+const Validators = {
   //val - value of field
   //env - resources (constants, config reader, third party libs) needed for validation and provided from module level
   //(val:any, env: Object)=>Promise<Boolean>
@@ -46,11 +46,6 @@ const Validators = Builder({
     create: [createUserValidation],
     register: [createUserValidation]
   }
-},
-() => {
-  return {
-    validator
-  };
-});
+};
 
 export default Validators;

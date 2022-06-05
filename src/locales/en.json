@@ -1,4 +1,6 @@
 {
+  "user_role_secondary_is_not_exists": "INvalid secondary role",
+  "user_role_should_have_one_primary": "User  should have only one primary role",
 	"passwordRepeat_should_be_same_as_password": "Passwords arent match",
 	"username_cant_be_email": "User name cant be an email address",
 	"username_used_by_some_user": "Username already taken",
