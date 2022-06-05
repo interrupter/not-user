@@ -4,6 +4,8 @@
     Elements
   } from 'not-bulma';
 
+  const {UIErrorsList} = Elements.Various;
+
   const {UICommon} = Elements;
 
   import {
@@ -84,7 +86,7 @@
   export let formLevelError = false;
 
   $: allErrors = [].concat(errors ? errors : [], formErrors ? formErrors : []);
-  $: helper = allErrors ? allErrors.join(', ') : placeholder;
+  $: showErrors = (!(validated && valid) && (inputStarted));
   $: invalid = ((valid === false) || (formLevelError));
   $: validationClasses = (valid === true || !inputStarted) ? UICommon.CLASS_OK : UICommon.CLASS_ERR;
 
@@ -149,11 +151,12 @@
       </div>
       <button class="button is-primary is-small" on:click={add}>{$LOCALE['Добавить']}</button>
     </div>
-    <p class="help {validationClasses}" id="input-field-helper-{fieldname}">
-      {#if !(validated && valid) && (inputStarted) }
-      {helper}
-      {:else}&nbsp;{/if}
-    </p>
+    <UIErrorsList
+      bind:errors={allErrors}
+      bind:show={showErrors}
+      bind:classes={validationClasses}
+      id="input-field-helper-{fieldname}"
+      />
   </div>
   {/if}
 </div>

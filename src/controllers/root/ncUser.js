@@ -140,23 +140,28 @@ class ncUser extends notCRUD {
         }else{
           throw new Error(results.message);
         }
+        const rolesVariants = [
+          ...roles.primary.map(name => {
+            return {
+              id: name,
+              title: name,
+              type: 'warning'
+            };
+          }),
+          ...(roles.secondary.map(name => {
+            return {
+              id: name,
+              title: name,
+              type: 'info'
+            };
+          }))
+        ];
+        this.app.setOptions('modules.user.roles', rolesVariants);
+        roles = rolesVariants;
       }
-      notFormUtils.addVariants('role', [
-        ...roles.primary.map(name => {
-          return {
-            id: name,
-            title: name,
-            type: 'warning'
-          };
-        }),
-        ...(roles.secondary.map(name => {
-          return {
-            id: name,
-            title: name,
-            type: 'info'
-          };
-        }))
-      ]);
+      this.setOptions(`variants.update`, {'role':roles});
+      this.setOptions(`variants.create`, {'role':roles});
+      this.setOptions(`variants.details`, {'role':roles});
     }catch(e){
       this.report(e);
     }
