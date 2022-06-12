@@ -19,7 +19,7 @@
     if(Array.isArray(val)){
       return val.map((role) => {
         return getRoleTagObject(role);
-      }).filter(itm => typeof itm !== 'undefined');;
+      }).filter(itm => typeof itm !== 'undefined');
     }else{
       return [];
     }
@@ -27,7 +27,11 @@
 
   function getRoleTagObject(itm){
     if(typeof itm === 'string'){
-      return variants.find(variant => variant.id === itm);
+      if(Array.isArray(variants)){
+        return variants.find(variant => variant.id === itm);
+      }else{
+        return undefined;
+      }
     }else{
       return itm;
     }
@@ -75,7 +79,7 @@
   **/
   let _value = [];//local copy enriched with data for gui
   export let variants = [];
-  export let placeholder = 'placeholder';
+  //export let placeholder = 'placeholder';
   export let fieldname = 'role';
   //export let required = true;
   export let readonly = false;
@@ -111,7 +115,7 @@
   function add(e) {
     e && e.preventDefault();
     let id = e.currentTarget.parentNode.querySelector('select').value;
-    let item = variants.find(el => el.id === id);
+    let item = Array.isArray(variants)?variants.find(el => el.id === id):null;
     if (item && (_value.indexOf(item) === -1)) {
       _value.push(item);
       _value = _value;

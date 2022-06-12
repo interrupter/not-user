@@ -1,5 +1,5 @@
 const FIELDS = [
-  ['_id', 'not-node//ID'],
+  ['_id', 'not-node//_id'],
   ['userID', 'not-node//ID'],
   ['username', 'not-user//username'],
   ['email', 'not-user//email'],
