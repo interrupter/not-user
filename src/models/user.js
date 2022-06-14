@@ -106,6 +106,14 @@ function throwUserNotFound(errors = {}, params = {}, e = null){
 
 
 module.exports.thisStatics = {
+  async loadSafe(id){
+    const result = await this.find({_id: id, __latest: true, __closed: false}, '_id username email emailConfirmed role active').exec();
+    if(Array.isArray(result) && result.length === 1){
+      return result[0];
+    }else{
+      return null;
+    }
+  },
   DEFAULT_ROLES_LIST,
   randomPassword: function(){
     return generator.generate({

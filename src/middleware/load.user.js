@@ -48,8 +48,8 @@ module.exports = async (req, res, next) => {
       Log.error(`no user data in session or token ${req.path}`);
       return next();
     }
-    let user = await User.getOne(userId);
-    if (user) {
+    let user = await User.loadSafe(userId);
+  if (user) {
       Log.debug(`User loaded ${user.username}`);
       req.user = res.locals.user = user;
       notAuth.setRole(req, user.role);
