@@ -4,7 +4,7 @@ import {
   Frame
 } from 'not-bulma';
 
-const {notCRUD, notFormUtils} = Frame;
+const {notCRUD} = Frame;
 
 const MODULE_NAME = '';
 const MODEL_NAME = 'User';
@@ -75,7 +75,7 @@ class ncUser extends notCRUD {
         title: 'Подтверждён',
         type: 'boolean',
         hideOnMobile: true,
-        preprocessor:value => [value]
+        preprocessor:value => [{value}]
       }, {
         path: ':role',
         title: 'Роли',

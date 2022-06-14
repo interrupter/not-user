@@ -1,4 +1,4 @@
-import {Frame} from 'not-bulma';
+import {Frame, notCommon} from 'not-bulma';
 const {notForm} = Frame;
 
 import ValidatorsLib from '../../common/validators.js';
@@ -16,11 +16,11 @@ export default class RequestLoginCodeOnEmailForm extends notForm{
     this.on('submit', e => this.onSubmit(e));
     this.on('reject', () => {
       location.href = '/';
-    });    
+    });
   }
 
   getFormValidators(){
-    return ValidatorsLib;
+    return notCommon.getApp().getService('nsUser').augmentValidators(ValidatorsLib);
   }
 
   async onSubmit(data){

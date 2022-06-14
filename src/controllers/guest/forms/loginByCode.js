@@ -1,4 +1,4 @@
-import {Frame} from 'not-bulma';
+import {Frame, notCommon} from 'not-bulma';
 const {notForm} = Frame;
 
 import ValidatorsLib from '../../common/validators.js';
@@ -23,7 +23,7 @@ export default class LoginForm extends notForm{
   }
 
   getFormValidators(){
-    return ValidatorsLib;
+    return notCommon.getApp().getService('nsUser').augmentValidators(ValidatorsLib);
   }
 
   async onSubmit(data){
