@@ -280,6 +280,7 @@ module.exports = {
     },
     listAndCount:{
       method: 'get',
+      data: ['record', 'search', 'filter'],
       rules:[{
         auth: true,
         root: true
