@@ -8,13 +8,6 @@
 
 </script>
 
-<UIBox classes="inline px-2">
+<UIBox classes="px-2 user-inline-info">
     <UITitle title={username} size={6} align='center' />
 </UIBox>
-
-
-<style>
-    .box.inline{
-        display: inline-block;
-    }
-</style>
