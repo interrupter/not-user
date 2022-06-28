@@ -50,12 +50,20 @@ import UiUserInlineInfo from 'not-user/src/controllers/common/UIUserInlineInfo.s
   $: validationClasses = (valid===true || !inputStarted)?UICommon.CLASS_OK:UICommon.CLASS_ERR;
 
 
+  
   function openUserSearchAndSelect(){
     getService().openSelector()
       .then((results)=>{
         value = results._id;
         userData = results;
         return value;
+      })
+      .then((value)=>{
+        inputStarted = true;
+        dispatch('change', {
+          field: fieldname,
+          value
+        });
       })
       .catch((e)=>{
         console.error(e);
