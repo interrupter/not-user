@@ -37,6 +37,8 @@ import UiUserInlineInfo from 'not-user/src/controllers/common/UIUserInlineInfo.s
   export let formErrors = false;
   export let formLevelError = false;
   export let serviceName = 'nsUser';
+  export let userData = null;
+  export let loading = false;
 
   function getService(){
     return notCommon.getApp().getService(serviceName);
@@ -47,17 +49,12 @@ import UiUserInlineInfo from 'not-user/src/controllers/common/UIUserInlineInfo.s
   $: invalid = ((valid===false) || (formLevelError));
   $: validationClasses = (valid===true || !inputStarted)?UICommon.CLASS_OK:UICommon.CLASS_ERR;
 
-  let userData = null, loading = false;
 
   function openUserSearchAndSelect(){
     getService().openSelector()
       .then((results)=>{
         value = results._id;
-        userData = {
-          _id: results._id,
-          id: results.id,
-          username: results.title,
-        };
+        userData = results;
         return value;
       })
       .catch((e)=>{

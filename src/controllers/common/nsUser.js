@@ -88,7 +88,11 @@ export default class nsUser {
         el.$on('resolve', ({ detail }) => {
           console.log('resolve');
           el.$destroy();
-          resolve(detail);
+          resolve({
+            _id: detail._id,
+            userID: detail.id,
+            username: detail.title,
+          });
         });
       } catch (e) {
         reject(e);
