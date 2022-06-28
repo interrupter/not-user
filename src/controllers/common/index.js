@@ -1,21 +1,17 @@
-import {
-  notFormUtils
-} from 'not-bulma';
-
 import UIRole from './role.svelte';
 import UISelectUser from './UISelectUser.svelte';
+import UIUserInlineInfo from './UIUserInlineInfo.svelte';
 
-notFormUtils.addComponent('UIRole', UIRole);
-notFormUtils.addComponent('UISelectUser', UISelectUser);
+const uis = {UIRole, UISelectUser, UIUserInlineInfo};
 
 import nsUser from './nsUser.js';
 
 const services = { nsUser };
-
 const manifest = {};
 
 import * as User from './user.js';
 export {
+  uis,
   services,
   manifest, User,
 };

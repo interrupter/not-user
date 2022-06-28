@@ -95,4 +95,23 @@ export default class nsUser {
       }
     });
   }
+
+  async loadUserData(_id){
+    try {
+      if (_id && _id.length > 10) {
+        const model = this.app.getModel('user', {_id});
+        const response = await model.$get();
+        if (response.status === 'ok') {
+          return response.result;
+        } else {
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
+  }
 }

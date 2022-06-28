@@ -5,6 +5,9 @@
     Elements,
     notCommon
   } from 'not-bulma';
+import Field from 'not-bulma/src/frame/components/form/field.svelte';
+import Form from 'not-bulma/src/frame/components/form/form.svelte';
+import UiUserInlineInfo from 'not-user/src/controllers/common/UIUserInlineInfo.svelte';
 
   const {UIButton} = Elements.Buttons;
   const {
@@ -15,8 +18,11 @@
     UICommon
   } = Elements;
 
+  import UIUserInlineInfo from './UIUserInlineInfo.svelte';
+
   import {
     createEventDispatcher,
+    onMount
   } from 'svelte';
   let dispatch = createEventDispatcher();
 
@@ -41,29 +47,67 @@
   $: invalid = ((valid===false) || (formLevelError));
   $: validationClasses = (valid===true || !inputStarted)?UICommon.CLASS_OK:UICommon.CLASS_ERR;
 
+  let userData = null, loading = false;
+
   function openUserSearchAndSelect(){
     getService().openSelector()
       .then((results)=>{
         value = results._id;
+        userData = {
+          _id: results._id,
+          id: results.id,
+          username: results.title,
+        };
+        return value;
       })
       .catch((e)=>{
         console.error(e);
       });
   }
+
+  async function loadUserData(){
+    try{
+      if (value){
+        loading = true;
+        userData = await getService().loadUserData(value);
+      }
+    }catch(e){
+      console.error(e);
+    }finally{
+      loading = false;
+    }    
+  }
+
+  onMount(()=>{
+    loadUserData();
+  });
   
 
 </script>
 
 <div class="columns">
   <div class="column {validationClasses}">
-    {value}
+    {#if loading}
+      <span>{$LOCALE['not-node:loading_label']}</span>
+    {:else if userData != null}
+      <UIUserInlineInfo {...userData} />
+    {:else}
+      <span>{$LOCALE['not-node:field_value_is_empty_placeholder']}</span>
+    {/if}
   </div>
-  {#if !readonly }
-  <div class="column">
-    <div class="control">
-      <UIButton action={openUserSearchAndSelect}>{$LOCALE['not-node:field_select_label']}</UIButton>
+  {#if !readonly}
+    <div class="column">
+      <div class="control">
+        <UIButton action={openUserSearchAndSelect}
+          >{$LOCALE["not-node:field_select_label"]}</UIButton
+        >
+      </div>
+      <UIErrorsList
+        bind:errors={allErrors}
+        bind:show={showErrors}
+        bind:classes={validationClasses}
+        id="input-field-helper-{fieldname}"
+      />
     </div>
-    <UIErrorsList bind:errors={allErrors} bind:show={showErrors} bind:classes={validationClasses} id="input-field-helper-{fieldname}" />
-  </div>
   {/if}
 </div>
