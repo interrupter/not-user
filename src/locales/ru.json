@@ -1,4 +1,5 @@
 {
+	"exception_registration_is_restricted": "Регистрация пользователей в данный момент запрещена",
   "user_role_secondary_is_not_exists": "Неверная вторичная роль",
   "user_role_should_have_one_primary": "У пользователя может быть только одна основная роль",
 	"passwordRepeat_should_be_same_as_password": "Пароли не совпадают",
