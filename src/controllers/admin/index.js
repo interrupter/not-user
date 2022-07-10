@@ -5,11 +5,11 @@ let manifest = {
     router: {
         manifest: [
             {
-                paths: ["dashboard/logout"],
+                paths: ["logout"],
                 controller: ncLogout,
             },
             {
-                paths: ["dashboard/profile"],
+                paths: ["profile"],
                 controller: ncProfile,
             },
         ],
