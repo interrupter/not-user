@@ -1,9 +1,9 @@
 {
   "name": "not-user",
-  "version": "0.2.119",
+  "version": "0.2.120",
   "description": "not-* family user model in not- environment",
   "main": "index.js",
-  "engines":{
+  "engines": {
     "node": ">= 12.0"
   },
   "scripts": {
