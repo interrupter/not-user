@@ -1,29 +1,24 @@
-const
-  notNode = require('not-node'),
-  expect = require('chai').expect,
-  {
+const notNode = require("not-node"),
+    expect = require("chai").expect,
+    { stubApp, stubResponse, stubRequest, stubModuleEnv } = require("../stub");
+
+notNode.Fields.importFromDir(
+    __dirname + "/../../node_modules/not-node/src/core/fields"
+);
+notNode.Fields.importFromDir(__dirname + "/../../src/fields");
+
+const TEST_ENV = {
+    notNode,
+    expect,
     stubApp,
     stubResponse,
     stubRequest,
-    stubModuleEnv
-  } = require('../stub');
-
-notNode.Fields.importFromDir(__dirname + '/../../node_modules/not-node/src/core/fields');
-notNode.Fields.importFromDir(__dirname + '/../../src/fields');
-
-const TEST_ENV = {
-  notNode,
-  expect,
-  stubApp,
-  stubResponse,
-  stubRequest,
-  stubModuleEnv
+    stubModuleEnv,
 };
 
-
-describe('forms', function() {
-  require('./forms/_create')(TEST_ENV);
-  /*require('./forms/login')(TEST_ENV);
+describe("forms", function () {
+    require("./forms/_create")(TEST_ENV);
+    /*require('./forms/login')(TEST_ENV);
   require('./forms/logout')(TEST_ENV);
   require('./forms/register')(TEST_ENV);
   require('./forms/confirmEmail')(TEST_ENV);
@@ -40,5 +35,4 @@ describe('forms', function() {
   require('./forms/_update')(TEST_ENV);
   require('./forms/_delete')(TEST_ENV);
   require('./forms/_steal')(TEST_ENV);*/
-
 });

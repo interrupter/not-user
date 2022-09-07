@@ -29,30 +29,22 @@ function getAuthLogic() {
 }
 
 module.exports.before = async (req, res, next) => {
-    Log.log("before");
     const name = req.notRouteData.actionName;
-    Log.log("action name", name);
     const FormValidator = notNode.Application.getForm(
         ["not-user", name.replace("_", "")].join("//")
     );
     if (FormValidator) {
-        Log.log("FormValidator: ", FormValidator.FORM_NAME);
-        const result = await FormValidator.run(req, res, next);
-        Log.log("before route action");
-        return result;
+        return await FormValidator.run(req, res, next);
     } else {
-        Log.log("no form validator");
         return {};
     }
 };
 
 module.exports.after = (req, res, next, result) => {
-    Log.log("after");
     if (res.headersSent) {
         return;
     }
     const name = req.notRouteData.actionName;
-    Log.log("after hedaers not sent");
     if (result && objHas(result, "__redirect__")) {
         res.status(200).redirect(result.__redirect__);
     } else {
@@ -98,7 +90,7 @@ module.exports.confirmEmail = async (req, res, next, prepared) => {
 };
 
 module.exports.login = async (req, res, next, prepared) => {
-    Log.log("login route");
+    Log.debug("login route");
     const user = await getAuthLogic().login(prepared);
     notNode.Auth.setAuth(req, user._id, user.role);
     req.session.save();
@@ -237,22 +229,22 @@ module.exports._create = async (req, res, next, prepared) => {
 };
 
 module.exports._update = async (req, res, next, prepared) => {
-    Log.log("user/_update");
+    Log.debug("user/_update");
     return await getLogic().update(prepared);
 };
 
 module.exports._delete = async (req, res, next, prepared) => {
-    Log.log("user/_delete");
+    Log.debug("user/_delete");
     return await getLogic().delete(prepared);
 };
 
 module.exports.get = async (req, res, next, prepared) => {
-    Log.log("user/get");
+    Log.debug("user/get");
     return await getLogic().get(prepared);
 };
 
 module.exports._get = async (req, res, next, prepared) => {
-    Log.log("user/_get", prepared);
+    Log.debug("user/_get", prepared);
     return await getLogic().get(prepared);
 };
 
