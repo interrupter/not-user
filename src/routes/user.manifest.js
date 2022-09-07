@@ -15,12 +15,7 @@ const actionNamePath = "/:actionName";
 const idActionPath = "/:record[_id]/:actionName";
 
 const returnWrapper = (result) => {
-    return {
-        status: 1,
-        errors: 1,
-        message: 1,
-        result,
-    };
+    return result;
 };
 
 module.exports = {
