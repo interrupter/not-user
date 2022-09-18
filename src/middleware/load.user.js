@@ -1,52 +1,20 @@
 const notNode = require("not-node");
-const notAuth = notNode.Auth;
+const { notAppIdentity } = notNode;
 const Log = require("not-log")(module, "User/middleware");
 const { notError } = require("not-error");
-const JWT = require("jsonwebtoken");
 const config = require("not-config").readerForModule("user");
-
-function getUserIdFromSession(req) {
-    if (req.session && req.session.user) {
-        return req.session && req.session.user;
-    }
-    return null;
-}
-
-function getUserIdFromToken(req) {
-    try {
-        const auth = req.get("Authorization");
-        if (auth && auth.length) {
-            const [, token] = auth.split(" ");
-            const secret = config.get("secret");
-            JWT.verify(token, secret);
-            const decoded = JWT.decode(token, secret);
-            return decoded._id;
-        }
-        return null;
-    } catch (e) {
-        Log.error(e.message);
-        return null;
-    }
-}
-
-function getUserId(req) {
-    const fromSession = getUserIdFromSession(req);
-    if (fromSession) {
-        return fromSession;
-    }
-    return getUserIdFromToken(req);
-}
 
 module.exports = async (req, res, next) => {
     if (!req) next();
     const errors = config.get("errors");
     const debug = config.get("debug");
     const App = notNode.Application;
+    const identity = new notAppIdentity(req);
     try {
         let User = App.getModel("User");
         req.user = res.locals.user = null;
-        const userId = getUserId(req);
-        if (userId === null) {
+        const userId = identity.getUserId();
+        if (userId === null || typeof userId === "undefined") {
             if (errors && errors.noUserData) {
                 Log.error(`no user data in session or token ${req.path}`);
             }
@@ -58,18 +26,18 @@ module.exports = async (req, res, next) => {
                 Log.debug(`User loaded ${user.username}`);
             }
             req.user = res.locals.user = user;
-            notAuth.setRole(req, user.role);
+            identity.setRole(user.role);
         } else {
             if (errors && errors.noUserWithId) {
                 Log.error(`No user with such id@${userId}`);
             }
-            notAuth.cleanse(req);
+            identity.cleanse();
         }
         return next();
     } catch (e) {
         Log.error(`Error while loading user information`);
         App.report(new notError(`Error while loading user information`, {}, e));
-        notAuth.setGuest(req);
+        identity.setGuest();
         next();
     }
 };

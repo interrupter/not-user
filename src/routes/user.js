@@ -14,7 +14,8 @@ const UserActions = [],
 
 const say = require("not-locale").sayForModule(MODULE_NAME),
     notNode = require("not-node"),
-    { objHas } = require("not-node").Common,
+    { objHas, getIP } = require("not-node").Common,
+    notAppIdentity = notNode.notAppIdentity,
     Log = require("not-log")(module, "User/Routes"),
     config = require("not-config").readerForModule("user");
 
@@ -70,15 +71,17 @@ module.exports.register = async (req, res, next, prepared) => {
         throw new ExceptionRegistrationIsRestricted();
     }
     let user = await getLogic().register(prepared);
-    notNode.Auth.setAuth(req, user._id, user.role);
-    req.session.save();
+    notAppIdentity(req).setAuth(user._id, user.role);
     Log.info(
         `'${user.username}' authorized as ${req.session.user} ${req.session.role}`
     );
-    const token = await module.exports.token(req);
+    const token = await getAuthLogic().token({
+        ip: getIP(req),
+        user,
+    });
     return {
         ...user,
-        ...token,
+        token,
     };
 };
 
@@ -92,15 +95,17 @@ module.exports.confirmEmail = async (req, res, next, prepared) => {
 module.exports.login = async (req, res, next, prepared) => {
     Log.debug("login route");
     const user = await getAuthLogic().login(prepared);
-    notNode.Auth.setAuth(req, user._id, user.role);
-    req.session.save();
+    const identity = notAppIdentity(req);
+    identity.setAuth(user._id, user.role);
     Log.info(
-        `'${user.username}' authorized as ${req.session.user} ${req.session.role}`
+        `'${
+            user.username
+        }' authorized as ${identity.getUserId()} ${identity.getRole()}`
     );
-    const token = await module.exports.token(req);
+    const token = await getAuthLogic().token({ ip: getIP(req), user });
     return {
         ...user,
-        ...token,
+        token,
     };
 };
 
@@ -112,16 +117,18 @@ module.exports.requestLoginCodeOnEmail = async (req, res, next, prepared) => {
 module.exports.loginByCode = async (req, res, next, prepared) => {
     Log.debug("login by code from email or sms");
     const user = await getAuthLogic().loginByCode(prepared);
-    notNode.Auth.setAuth(req, user._id, user.role);
-    req.session.save();
+    const identity = notAppIdentity(req);
+    identity.setAuth(user._id, user.role);
     Log.info(
-        `'${user.username}' authorized as ${req.session.user} ${req.session.role} via emailed/smsed one-time code`
+        `'${
+            user.username
+        }' authorized as ${identity.getUserId()} ${identity.getRole()} via emailed/smsed one-time code`
     );
-    const token = await module.exports.token(req);
+    const token = await getAuthLogic().token({ ip: getIP(req), user });
     if (req.query.noRedirect) {
         return {
             ...user,
-            ...token,
+            token,
         };
     } else {
         return {
@@ -146,7 +153,8 @@ module.exports.resetPassword = async (req, res, next, prepared) => {
  */
 module.exports._logout = module.exports.logout = (req /*, res, next*/) => {
     Log.debug("user/(_)logout");
-    notNode.Auth.setGuest(req);
+    const identity = notAppIdentity(req);
+    identity.setGuest();
 };
 
 module.exports._changePassword = module.exports.changePassword = async (
@@ -177,15 +185,11 @@ module.exports.requestEmailConfirmation =
 
 module.exports.token = async (req /*, res, next*/) => {
     Log.debug("user/token");
-    const secret = config.get("secret");
-    const tokenTTL = config.get("tokenTTL");
     const params = {
-        secret,
-        tokenTTL,
-        ip: notNode.Auth.getIP(req),
+        ip: getIP(req),
     };
-    if (notNode.Auth.isUser(req)) {
-        params.user = req.user;
+    if (req.user) {
+        params.user = req.user.toObject();
     }
     return await getAuthLogic().token(params);
 };
@@ -194,7 +198,7 @@ module.exports.profile = async (req /*, res, next*/) => {
     Log.debug("user/profile");
     return await getLogic().profile({
         activeUser: req.user,
-        ip: notNode.Auth.getIP(req),
+        ip: getIP(req),
     });
 };
 
@@ -205,13 +209,12 @@ module.exports.update = async (req, res, next, prepared) => {
 
 module.exports.status = async (req /*, res, next*/) => {
     if (req.user && req.user.active) {
-        const token = await module.exports.token(req);
-        return {
-            ...req.user,
-            ...token,
-        };
+        return await getAuthLogic().status({
+            identity: new notAppIdentity(req),
+            user: req.user.toObject(),
+        });
     } else {
-        notNode.Auth.extractAuthData(req);
+        return notAppIdentity.extractAuthData(req);
     }
 };
 
@@ -223,7 +226,7 @@ module.exports._create = async (req, res, next, prepared) => {
     const data = {
         activeUser: req.user,
         data: prepared,
-        ip: notNode.Auth.getIP(req),
+        ip: getIP(req),
     };
     return await getLogic().createUser(data);
 };

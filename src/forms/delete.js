@@ -4,7 +4,7 @@ const { MODULE_NAME } = require("../const");
 
 const Form = require("not-node").Form;
 //not-node
-const getIP = require("not-node").Auth.getIP;
+const { getIP } = require("not-node").Common;
 //form
 const FIELDS = [
     ["targetUserId", { required: true }, "not-node//userId"],

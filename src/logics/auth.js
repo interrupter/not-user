@@ -3,7 +3,6 @@ const Log = require("not-log")(module, "User/Logics/Auth");
 const config = require("not-config").readerForModule("user");
 const phrase = require("not-locale").modulePhrase("not-user");
 const { notValidationError, notRequestError } = require("not-error");
-const JWT = require("jsonwebtoken");
 
 const MODEL_NAME = "Auth";
 module.exports.thisLogicName = MODEL_NAME;
@@ -26,8 +25,6 @@ function validateEmail(email) {
         );
     }
 }
-
-const TOKEN_TTL = 3600;
 
 module.exports[MODEL_NAME] = class AuthLogic {
     static async login({ password, email, ip }) {
@@ -182,62 +179,14 @@ module.exports[MODEL_NAME] = class AuthLogic {
         );
     }
 
-    static validateSecretForToken({ secret, context }) {
-        if (
-            !secret ||
-            typeof secret === "undefined" ||
-            secret === null ||
-            secret === ""
-        ) {
-            throw new notRequestError(phrase("user_token_secret_not_valid"), {
-                ...context,
-                code: 500,
+    static async token({ ip, user }) {
+        return notNode.notAppIdentity.identity
+            .getProvider("token")
+            .createToken({
+                ip,
+                user,
+                additionalFields: ["emailConfirmed", "telephoneConfirmed"],
             });
-        }
-    }
-
-    static validateTTLForToken(tokenTTL) {
-        if (tokenTTL <= 0 || isNaN(tokenTTL)) {
-            Log.log(phrase("user_token_ttl_not_set"));
-            tokenTTL = AuthLogic.TOKEN_TTL;
-        }
-        return tokenTTL;
-    }
-
-    static composeUserTokenPayload({ user, tokenTTL }) {
-        return {
-            _id: user._id,
-            role: user.role,
-            active: user.active,
-            emailConfirmed: user.emailConfirmed,
-            telephoneConfirmed: user.telephoneConfirmed,
-            exp: Date.now() / 1000 + tokenTTL,
-        };
-    }
-
-    static composeGuestTokenPayload({ tokenTTL }) {
-        return {
-            _id: false,
-            active: true,
-            username: phrase("user_role_guest"),
-            role: notNode.Auth.DEFAULT_USER_ROLE_FOR_GUEST,
-            exp: Date.now() / 1000 + tokenTTL,
-        };
-    }
-
-    static async token({ secret, tokenTTL, ip, user }) {
-        const context = { ip };
-        AuthLogic.validateSecretForToken({ secret, context });
-        AuthLogic.validateTTLForToken(tokenTTL);
-        let payload = {};
-        if (user) {
-            payload = AuthLogic.composeUserTokenPayload({ user, tokenTTL });
-        } else {
-            payload = AuthLogic.composeGuestTokenPayload({ tokenTTL });
-        }
-        return {
-            token: JWT.sign(payload, secret),
-        };
     }
 
     /**
@@ -264,6 +213,13 @@ module.exports[MODEL_NAME] = class AuthLogic {
             )
         );
     }
-};
 
-module.exports[MODEL_NAME].TOKEN_TTL = TOKEN_TTL;
+    static status({ identity, user }) {
+        const token = identity.token;
+        const User = notNode.Application.getModel(MODEL_PATH);
+        return {
+            ...User.clearFromUnsafe(user.toObject()),
+            token,
+        };
+    }
+};
