@@ -218,7 +218,7 @@ module.exports[MODEL_NAME] = class AuthLogic {
         const token = identity.token;
         const User = notNode.Application.getModel(MODEL_PATH);
         return {
-            ...User.clearFromUnsafe(user.toObject()),
+            ...User.clearFromUnsafe(user.toObject ? user.toObject() : user),
             token,
         };
     }

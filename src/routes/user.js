@@ -71,7 +71,7 @@ module.exports.register = async (req, res, next, prepared) => {
         throw new ExceptionRegistrationIsRestricted();
     }
     let user = await getLogic().register(prepared);
-    notAppIdentity(req).setAuth(user._id, user.role);
+    new notAppIdentity(req).setAuth(user._id, user.role);
     Log.info(
         `'${user.username}' authorized as ${req.session.user} ${req.session.role}`
     );
@@ -95,7 +95,7 @@ module.exports.confirmEmail = async (req, res, next, prepared) => {
 module.exports.login = async (req, res, next, prepared) => {
     Log.debug("login route");
     const user = await getAuthLogic().login(prepared);
-    const identity = notAppIdentity(req);
+    const identity = new notAppIdentity(req);
     identity.setAuth(user._id, user.role);
     Log.info(
         `'${
@@ -103,6 +103,7 @@ module.exports.login = async (req, res, next, prepared) => {
         }' authorized as ${identity.getUserId()} ${identity.getRole()}`
     );
     const token = await getAuthLogic().token({ ip: getIP(req), user });
+    Log.debug({ username: user.username, role: user.role, token });
     return {
         ...user,
         token,
@@ -117,7 +118,7 @@ module.exports.requestLoginCodeOnEmail = async (req, res, next, prepared) => {
 module.exports.loginByCode = async (req, res, next, prepared) => {
     Log.debug("login by code from email or sms");
     const user = await getAuthLogic().loginByCode(prepared);
-    const identity = notAppIdentity(req);
+    const identity = new notAppIdentity(req);
     identity.setAuth(user._id, user.role);
     Log.info(
         `'${
@@ -153,7 +154,7 @@ module.exports.resetPassword = async (req, res, next, prepared) => {
  */
 module.exports._logout = module.exports.logout = (req /*, res, next*/) => {
     Log.debug("user/(_)logout");
-    const identity = notAppIdentity(req);
+    const identity = new notAppIdentity(req);
     identity.setGuest();
 };
 
@@ -208,14 +209,17 @@ module.exports.update = async (req, res, next, prepared) => {
 };
 
 module.exports.status = async (req /*, res, next*/) => {
+    let result = {};
     if (req.user && req.user.active) {
-        return await getAuthLogic().status({
+        result = await getAuthLogic().status({
             identity: new notAppIdentity(req),
             user: req.user.toObject(),
         });
     } else {
-        return notAppIdentity.extractAuthData(req);
+        result = notAppIdentity.extractAuthData(req);
     }
+    Log.log("user status", result);
+    return result;
 };
 
 /**
