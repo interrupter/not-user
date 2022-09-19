@@ -4,7 +4,7 @@ const {
     ExceptionIdentityTokensSecretIsTooShort,
 } = require("../exceptions");
 const { TOKEN_TTL, TOKEN_SECRET_LENGTH } = require("../const");
-const notAppIdentity = require("not-node");
+const { notAppIdentity } = require("not-node");
 
 module.exports = class InitIdentityTokens {
     static loadConfig({ config }) {
