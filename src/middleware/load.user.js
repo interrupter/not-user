@@ -12,6 +12,10 @@ module.exports = async (req, res, next) => {
     const identity = new notAppIdentity(req);
     try {
         let User = App.getModel("User");
+        if (!User) {
+            identity.setGuest();
+            return next();
+        }
         req.user = res.locals.user = null;
         const userId = identity.getUserId();
         if (userId === null || typeof userId === "undefined") {

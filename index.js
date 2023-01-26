@@ -1,5 +1,6 @@
 const path = require("path"),
-    notNode = require("not-node");
+    notNode = require("not-node"),
+    registerPages = require("./src/registerPages");
 
 const loadUserMiddleware = require("./src/middleware/load.user");
 const InitIdentityTokens = require("./src/init/tokens");
@@ -11,6 +12,7 @@ const content = [
     "logics",
     "controllers",
     "models",
+    "views",
     "styles",
     "locales",
 ];
@@ -29,10 +31,19 @@ module.exports = {
         App.logger.info("...loadUser middleware");
         return loadUserMiddleware.bind(this);
     },
-    initialize: async (app) => {
+    initialize: async (app, master) => {
         const App = notNode.Application;
         App.logger.info("...initalizing");
         await app.getLogic("not-user//Init").initialize(app);
+    },
+    registerPagesRoutes: async (app, master) => {
+        try {
+            App.logger.info("...registering not-user pages routes");
+            await registerPages(master.getServer());
+        } catch (e) {
+            App.logger.error(e);
+            app.report(e);
+        }
     },
     InitIdentityTokens,
 };
