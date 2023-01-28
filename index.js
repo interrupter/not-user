@@ -27,21 +27,25 @@ module.exports = {
     name: require("./src/const").MODULE_NAME,
     paths,
     getMiddleware() {
-        const App = notNode.Application;
-        App.logger.info("...loadUser middleware");
+        notNode.Application.logger.info("...loadUser middleware");
         return loadUserMiddleware.bind(this);
     },
     initialize: async (app, master) => {
-        const App = notNode.Application;
-        App.logger.info("...initalizing");
-        await app.getLogic("not-user//Init").initialize(app);
+        try {
+            notNode.Application.logger.info("...initalizing");
+            await app.getLogic("not-user//Init").initialize(app);
+        } catch (e) {
+            notNode.Application.logger.error(e);
+        }
     },
     registerPagesRoutes: async (app, master) => {
         try {
-            App.logger.info("...registering not-user pages routes");
+            notNode.Application.logger.info(
+                "...registering not-user pages routes"
+            );
             await registerPages(master.getServer());
         } catch (e) {
-            App.logger.error(e);
+            notNode.Application.logger.error(e);
             app.report(e);
         }
     },
