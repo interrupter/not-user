@@ -1,4 +1,17 @@
-body .main-container .user-form {
+.flex-centered-items{
+  display: flex;
+  align-items: center;
+}
+
+#LoginForm-form-set, #RegisterForm-form-set{
+  background-color: #fff;
+  border-radius: 6px;
+  box-shadow: 0 .05em .15em .1em rgba(10,10,10,.15);
+  color: #4a4a4a;
+  display: block;
+}
+
+body .main-container .form-paper {
   display: -ms-flexbox;
   display: -webkit-box;
   display: flex;
@@ -12,18 +25,18 @@ body .main-container .user-form {
   padding-bottom: 40px;
 }
 
-.user-form {
+.form-paper {
   width: 100%;
   max-width: 330px;
   padding: 15px;
   margin: 0 auto;
 }
 
-.user-form .checkbox {
+.form-paper .checkbox {
   font-weight: 400;
 }
 
-.user-form .form-control {
+.form-paper .form-control {
   position: relative;
   box-sizing: border-box;
   height: auto;
@@ -31,13 +44,13 @@ body .main-container .user-form {
   font-size: 16px;
 }
 
-.user-form .form-control:focus {
+.form-paper .form-control:focus {
   z-index: 2;
 }
 
-.user-form input[type=text] ,
-.user-form input[type=email] ,
-.user-form input[type=password] {
+.form-paper input[type=text] ,
+.form-paper input[type=email] ,
+.form-paper input[type=password] {
   margin-bottom: 10px;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
