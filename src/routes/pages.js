@@ -1,4 +1,6 @@
 const notNode = require("not-node");
+const { notError } = require("not-error");
+const { resolve } = require("path");
 
 function localLayoutPath(layout) {
     return resolve(__dirname, "../views", layout);
@@ -22,7 +24,7 @@ function getLayoutPath(layout) {
     }
 }
 
-function render(layout, opts) {
+function render(req, res, layout, opts) {
     res.render(getLayoutPath(layout), opts, (err, html) => {
         if (err) {
             notNode.Application.logger.error(["rendering error", err]);
@@ -54,9 +56,9 @@ exports.login = (req, res) => {
         if (req.user) {
             return res.redirect("/");
         } else {
-            header.setForFile(res);
-            let opts = getPageOptions(req, res);
-            render("login", opts);
+            notNode.notHeadersStyler.get()(req, res);
+            let opts = notNode.notMetasStyler.get()(req, res);
+            render(req, res, "login", opts);
         }
     } catch (e) {
         let err = new notError("Login page generation error", {}, e);
@@ -77,27 +79,10 @@ exports.register = (req, res) => {
         if (req.user) {
             return res.redirect("/");
         } else {
-            header.setForFile(res);
-            let layout = "register";
-            let opts = getPageOptions(req, res);
-            res.render(layout, opts, (err, html) => {
-                if (err) {
-                    notNode.Application.logger.error(["rendering error", err]);
-                    notNode.Application.report(
-                        new notError(
-                            "rendering error",
-                            {
-                                ...opts,
-                                session: req.session.id,
-                            },
-                            err
-                        )
-                    );
-                    res.status(500).end();
-                } else {
-                    res.status(200).send(html).end();
-                }
-            });
+            notNode.notHeadersStyler.get()(req, res);
+            const layout = "register";
+            let opts = notNode.notMetasStyler.get()(req, res);
+            render(req, res, layout, opts);
         }
     } catch (e) {
         let err = new notError("Registration page generation error", {}, e);

@@ -1,11 +1,11 @@
-const Auth = require("not-node").Auth,
+const notAppIdentity = require("not-node").notAppIdentity,
     pagesRoutes = require("./routes/pages");
 
 module.exports = (web) => {
     web.get(
         "/login",
         (req, res, next) => {
-            if (Auth.isUser(req)) {
+            if (new notAppIdentity(req).isUser()) {
                 res.redirect("/");
             } else {
                 next();
@@ -17,7 +17,7 @@ module.exports = (web) => {
     web.get(
         "/register",
         (req, res, next) => {
-            if (Auth.isUser(req)) {
+            if (new notAppIdentity(req).isUser()) {
                 res.redirect("/");
             } else {
                 next();
