@@ -1,8 +1,10 @@
+const { MODULE_NAME } = require("../../const");
+
 module.exports = [
     {
         validator: (val, { validator }) => {
             return validator.isIP(val);
         },
-        message: "not-user:ip_address_is_not_valid",
+        message: `${MODULE_NAME}:ip_address_is_not_valid`,
     },
 ];

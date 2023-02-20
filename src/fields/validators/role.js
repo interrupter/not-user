@@ -1,17 +1,21 @@
-const { DEFAULT_ROLES_LIST, EXTRA_ROLES_LIST } = require("../../const");
+const {
+    MODULE_NAME,
+    DEFAULT_ROLES_LIST,
+    EXTRA_ROLES_LIST,
+} = require("../../const");
 
 module.exports = [
     {
         validator(val) {
             return val.length !== 0;
         },
-        message: "not-user:user_role_should_be_declared",
+        message: `${MODULE_NAME}:user_role_should_be_declared`,
     },
     {
         validator(val) {
             return val.length < 7;
         },
-        message: "not-user:user_role_too_many",
+        message: `${MODULE_NAME}:user_role_too_many`,
     },
     {
         validator(val, { config }) {
@@ -28,7 +32,7 @@ module.exports = [
             });
             return count === 1;
         },
-        message: "not-user:user_role_should_have_one_primary",
+        message: `${MODULE_NAME}:user_role_should_have_one_primary`,
     },
     {
         validator(val, { config }) {
@@ -52,6 +56,6 @@ module.exports = [
             });
             return !extraIsInvalid;
         },
-        message: "not-user:user_role_secondary_is_not_exists",
+        message: `${MODULE_NAME}:user_role_secondary_is_not_exists`,
     },
 ];

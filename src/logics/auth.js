@@ -32,8 +32,8 @@ module.exports[MODEL_NAME] = class AuthLogic {
         const User = notNode.Application.getModel(MODEL_PATH);
         let user = await User.authorize(email, password);
         if (user.emailConfirmed) {
-            user.ip = ip;
-            await user.save();
+            /*user.ip = ip;
+            await user.save();*/
             Log.log({
                 module: "user",
                 logic: "User",
@@ -42,6 +42,7 @@ module.exports[MODEL_NAME] = class AuthLogic {
                 target: user._id,
                 targetID: user.userID,
                 case: "ok",
+                ip,
             });
             return User.clearFromUnsafe(user.toObject());
         } else {
@@ -62,7 +63,7 @@ module.exports[MODEL_NAME] = class AuthLogic {
         }
     }
 
-    static async requestLoginCodeOnEmail({ email }) {
+    static async requestLoginCodeOnEmail({ email, ip }) {
         const User = notNode.Application.getModel(MODEL_PATH);
         validateEmail(email);
         const user = await User.getByEmail(email);
@@ -75,6 +76,16 @@ module.exports[MODEL_NAME] = class AuthLogic {
         await notNode.Application.getLogic(
             MAILER_LOGIC_PATH
         ).sendOneTimeLoginCode({ user });
+        Log.log({
+            module: "user",
+            logic: "User",
+            action: "requestLoginCodeOnEmail",
+            by: user._id,
+            target: user._id,
+            targetID: user.userID,
+            case: "ok",
+            ip,
+        });
     }
 
     static async loginByCode({ code, ip }) {
@@ -85,8 +96,18 @@ module.exports[MODEL_NAME] = class AuthLogic {
             "loginByCode"
         );
         const user = await User.findById(oneTimeCode.payload.owner);
-        user.ip = ip;
-        await user.save();
+        Log.log({
+            module: "user",
+            logic: "User",
+            action: "loginByCode",
+            by: user._id,
+            target: user._id,
+            targetID: user.userID,
+            case: "ok",
+            ip,
+        });
+        /* user.ip = ip;
+        await user.save();*/
         return User.clearFromUnsafe(user.toObject());
     }
 

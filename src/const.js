@@ -1,6 +1,11 @@
 const MODULE_NAME = "not-user";
 module.exports.MODULE_NAME = MODULE_NAME;
 
+const USERNAME_LENGTH_MIN = 4;
+const USERNAME_LENGTH_MAX = 40;
+module.exports.USERNAME_LENGTH_MIN = USERNAME_LENGTH_MIN;
+module.exports.USERNAME_LENGTH_MAX = USERNAME_LENGTH_MAX;
+
 const DEFAULT_TTL = 3; //in minutes
 const DEFAULT_TTL_MIN = 1; //in minutes
 const DEFAULT_TTL_MAX = 60; //in minutes

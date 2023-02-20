@@ -1,14 +1,23 @@
+const {
+    MODULE_NAME,
+    USERNAME_LENGTH_MIN,
+    USERNAME_LENGTH_MAX,
+} = require("../../const");
+
 module.exports = [
     {
         validator: (val, { validator }) => {
-            return validator.isLength(val, { min: 6, max: 60 });
+            return validator.isLength(val, {
+                min: USERNAME_LENGTH_MIN,
+                max: USERNAME_LENGTH_MAX,
+            });
         },
-        message: "not-user:username_length_is_not_valid",
+        message: `${MODULE_NAME}:username_length_is_not_valid`,
     },
     {
         validator(val, { validator }) {
             return !validator.isEmail(val);
         },
-        message: "not-user:username_cant_be_email",
+        message: `${MODULE_NAME}:username_cant_be_email`,
     },
 ];
