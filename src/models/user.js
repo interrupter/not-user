@@ -6,7 +6,7 @@ const { log } = require("not-log")(module, "Model"),
     Auth = require("not-node").Auth,
     generator = require("generate-password"),
     validator = require("validator"),
-    getValidationEnv = require("../validationEnv"),
+    validationEnv = require("../validationEnv"),
     { DEFAULT_ROLES_LIST, DEFAULT_HASH_ALGO } = require("../const.js");
 
 const MODEL_NAME = "User";
@@ -21,7 +21,7 @@ module.exports.enrich = {
 };
 
 module.exports.options = {
-    getValidationEnv,
+    validationEnv,
 };
 
 const FIELDS = [
