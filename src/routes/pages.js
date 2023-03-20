@@ -1,24 +1,21 @@
+const { MODULE_NAME } = require("../const");
 const notNode = require("not-node");
 const { notError } = require("not-error");
 const { resolve } = require("path");
+
+const config = require("not-config").forModule(MODULE_NAME);
 
 function localLayoutPath(layout) {
     return resolve(__dirname, "../views", layout);
 }
 
 function getLayoutPath(layout) {
-    const { Env } = notNode;
-    const config = Env.getEnv("config");
     if (!config) {
         return localLayoutPath(layout);
     }
-    const userOptions = config.get("modules.user");
-    if (
-        userOptions &&
-        Object.hasOwn(userOptions, "layouts") &&
-        Object.hasOwn(userOptions.layouts, layout)
-    ) {
-        return userOptions.layouts[layout];
+    const userLayouts = config.get("layouts");
+    if (userLayouts && Object.hasOwn(userLayouts, layout)) {
+        return userLayouts[layout];
     } else {
         return localLayoutPath(layout);
     }
