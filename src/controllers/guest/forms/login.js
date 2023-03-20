@@ -1,5 +1,5 @@
 import { Frame, notCommon } from "not-bulma";
-import UserCommon from '../../common/user';
+import UserCommon from "../../common/user";
 const { notForm } = Frame;
 
 import ValidatorsLib from "../../common/validators.js";
@@ -16,11 +16,12 @@ export default class LoginForm extends notForm {
         //events after user button actions
         this.on("submit", (e) => this.onSubmit(e));
         this.on("reject", () => {
-            location.href = UserCommon.DEFAULT_USER_AFTER_LOGIN_FAILED_URL;
-            setTimeput(()=>{location.reload();}, UserCommon.DEFAULT_REDIRECT_TIMEOUT),
+            location.assign(UserCommon.DEFAULT_USER_AFTER_LOGIN_FAILED_URL);
         });
         this.on("success", () => {
-            UserCommon.goDashboard(notCommon.getApp());
+            location.assign(
+                UserCommon.getUserAfterLoginRedirectURL(notCommon.getApp())
+            );
         });
     }
 
