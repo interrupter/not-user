@@ -40,6 +40,31 @@ let manifest = {
                 },
             ],
         },
+        side: {
+            sections: [
+                {
+                    id: "account",
+                    title: "Аккаунт",
+                    place: "end",
+                },
+            ],
+            items: [
+                {
+                    id: "account.profile",
+                    section: "account",
+                    title: "Профиль",
+                    url: "/profile",
+                },
+                {
+                    id: "account.logout",
+                    break: true,
+                    section: "account",
+                    priority: -100,
+                    title: "Выход",
+                    url: "/logout",
+                },
+            ],
+        },
     },
 };
 

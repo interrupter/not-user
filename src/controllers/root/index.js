@@ -48,6 +48,11 @@ let manifest = {
                     id: "system",
                     title: "Система",
                 },
+                {
+                    id: "account",
+                    title: "Аккаунт",
+                    place: "end",
+                },
             ],
             items: [
                 {
@@ -55,6 +60,20 @@ let manifest = {
                     section: "system",
                     title: "Пользователи",
                     url: "/user",
+                },
+                {
+                    id: "account.profile",
+                    section: "account",
+                    title: "Профиль",
+                    url: "/profile",
+                },
+                {
+                    id: "account.logout",
+                    break: true,
+                    section: "account",
+                    priority: -100,
+                    title: "Выход",
+                    url: "/logout",
                 },
             ],
         },
