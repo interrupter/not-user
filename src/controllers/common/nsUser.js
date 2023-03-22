@@ -1,3 +1,4 @@
+import { notCommon } from "not-bulma";
 import { Builder } from "not-validation";
 import Validator from "validator";
 
@@ -16,6 +17,7 @@ const emptyResult = () => {
 export default class nsUser {
     constructor(app) {
         this.app = app;
+        this.loadToken();
     }
 
     destroy() {
@@ -116,5 +118,18 @@ export default class nsUser {
             console.error(e);
             return null;
         }
+    }
+
+    loadToken() {
+        return notCommon
+            .getApp()
+            .getModel("user", {})
+            .$token({})
+            .then((res) => {
+                notCommon.getApp().setWorking("token", res.result);
+                notCommon.getApp().emit("token//updated");
+                return res.result;
+            })
+            .catch(notCommon.report);
     }
 }
