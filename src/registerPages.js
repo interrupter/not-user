@@ -1,7 +1,9 @@
+const { MODULE_NAME } = require("./const");
+const config = require("not-config").forModule(MODULE_NAME);
 const notAppIdentity = require("not-node").notAppIdentity,
     pagesRoutes = require("./routes/pages");
 
-module.exports = (web, config) => {
+module.exports = (web) => {
     web.get(
         "/login",
         (req, res, next) => {
@@ -13,7 +15,7 @@ module.exports = (web, config) => {
         },
         pagesRoutes.login
     );
-    if (!config.get("modules.user.restrict.registration")) {
+    if (!config.get("restrict.registration")) {
         web.get(
             "/register",
             (req, res, next) => {

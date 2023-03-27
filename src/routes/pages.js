@@ -35,25 +35,28 @@ function getLayoutPath(layout) {
 }
 
 function render(req, res, layout, opts) {
-    res.render(getLayoutPath(layout), opts, (err, html) => {
-        if (err) {
-            notNode.Application.logger.error(["rendering error", err]);
-            notNode.Application.report(
-                new notError(
-                    "rendering error",
-                    {
-                        ...getColors(),
-                        ...opts,
-                        session: req.session.id,
-                    },
-                    err
-                )
-            );
-            res.status(500).end();
-        } else {
-            res.status(200).send(html).end();
+    res.render(
+        getLayoutPath(layout),
+        { ...getColors(), ...opts },
+        (err, html) => {
+            if (err) {
+                notNode.Application.logger.error(["rendering error", err]);
+                notNode.Application.report(
+                    new notError(
+                        "rendering error",
+                        {
+                            ...opts,
+                            session: req.session.id,
+                        },
+                        err
+                    )
+                );
+                res.status(500).end();
+            } else {
+                res.status(200).send(html).end();
+            }
         }
-    });
+    );
 }
 
 exports.login = (req, res) => {
