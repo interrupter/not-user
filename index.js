@@ -43,7 +43,7 @@ module.exports = {
             notNode.Application.logger.info(
                 "...registering not-user pages routes"
             );
-            await registerPages(master.getServer());
+            await registerPages(master.getServer(), master.config);
         } catch (e) {
             notNode.Application.logger.error(e);
             app.report(e);

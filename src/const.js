@@ -28,3 +28,11 @@ const TOKEN_TTL = 3600;
 module.exports.TOKEN_TTL = TOKEN_TTL;
 const TOKEN_SECRET_LENGTH = 20;
 module.exports.TOKEN_SECRET_LENGTH = TOKEN_SECRET_LENGTH;
+
+//styling
+const DEFAULT_COLORS = {
+    mainBackgroundColor: "info",
+    secondaryBackgroundColor: "light",
+};
+
+module.exports.DEFAULT_COLORS = DEFAULT_COLORS;

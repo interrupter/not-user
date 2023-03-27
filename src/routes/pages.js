@@ -1,4 +1,4 @@
-const { MODULE_NAME } = require("../const");
+const { MODULE_NAME, DEFAULT_COLORS } = require("../const");
 const notNode = require("not-node");
 const { notError } = require("not-error");
 const { resolve } = require("path");
@@ -7,6 +7,19 @@ const config = require("not-config").forModule(MODULE_NAME);
 
 function localLayoutPath(layout) {
     return resolve(__dirname, "../views", layout);
+}
+
+function getColors() {
+    let colors = { ...DEFAULT_COLORS };
+    if (config.get("styling.colors.main")) {
+        colors.mainBackgroundColor = config.get("styling.colors.main");
+    }
+    if (config.get("styling.colors.secondary")) {
+        colors.secondaryBackgroundColor = config.get(
+            "styling.colors.secondary"
+        );
+    }
+    return colors;
 }
 
 function getLayoutPath(layout) {
@@ -29,6 +42,7 @@ function render(req, res, layout, opts) {
                 new notError(
                     "rendering error",
                     {
+                        ...getColors(),
                         ...opts,
                         session: req.session.id,
                     },
