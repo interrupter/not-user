@@ -28,7 +28,10 @@ html.no-js(lang="")
     link(rel="stylesheet" href=host+"/assets/font-awesome.min.css")
   body
     section(class="hero has-background-"+mainBackgroundColor+" is-overlay")      
-      div(class="hero-body flex-centered-items")
+      if customLogo
+        figure(class="image is-128x128 centered-logo-128")
+          img(src=customLogo)
+      div(class="hero-body flex-centered-items")        
         div(class="container has-text-info-"+secondaryBackgroundColor)
           div(class="columns is-centered main-container")
     script(src=host+"/front/guest.js")

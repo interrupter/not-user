@@ -22,6 +22,14 @@ function getColors() {
     return colors;
 }
 
+function getLogo() {
+    let logos = {};
+    if (config.get("styling.logo")) {
+        logos.customLogo = config.get("styling.logo");
+    }
+    return logos;
+}
+
 function getLayoutPath(layout) {
     if (!config) {
         return localLayoutPath(layout);
@@ -37,7 +45,7 @@ function getLayoutPath(layout) {
 function render(req, res, layout, opts) {
     res.render(
         getLayoutPath(layout),
-        { ...getColors(), ...opts },
+        { ...getLogo(), ...getColors(), ...opts },
         (err, html) => {
             if (err) {
                 notNode.Application.logger.error(["rendering error", err]);

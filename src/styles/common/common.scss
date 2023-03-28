@@ -60,3 +60,11 @@ body .main-container .form-paper {
 .box.user-inline-info{
   display: inline-block;
 }
+
+
+.centered-logo-128{
+  margin-left: calc(50% - 64px);
+  margin-right: calc(50% - 64px);
+  top: 5rem;
+  position:absolute !important;
+}
