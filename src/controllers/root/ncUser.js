@@ -1,4 +1,5 @@
 import Validators from "../common/validators.js";
+import { ROLES_NOT_SELECTABLE } from "../../const.js";
 
 import { Frame } from "not-bulma";
 
@@ -133,45 +134,49 @@ class ncUser extends notCRUD {
         return `${itm.userID}#${itm.username}`;
     }
 
+    rolesListsToVariants(roles) {
+        const rolesVariants = [
+            ...roles.primary.map((name) => {
+                return {
+                    id: name,
+                    title: name,
+                    type: "warning",
+                    notSelectable: ROLES_NOT_SELECTABLE.includes(name)
+                };
+            }),
+            ...roles.secondary.map((name) => {
+                return {
+                    id: name,
+                    title: name,
+                    type: "info",
+                    notSelectable: ROLES_NOT_SELECTABLE.includes(name)
+                };
+            }),
+        ];
+        return rolesVariants;
+    }
+
+    async loadRolesFromServer() {
+        let results = await this.make.role({}).$listAll();
+        if (results.status === "ok") {
+            const roles = results.result;
+            this.app.setOptions("modules.user.roles", roles);
+        } else {
+            throw new Error(results.message);
+        }
+    }
+
     async preloadRoles() {
         try {
             let roles = this.app.getOptions("modules.user.roles");
             if (!roles) {
-                let results = await this.make.role({}).$listAll();
-                if (results.status === "ok") {
-                    const data = results.result;
-                    const availablePrimary = data.primary.filter(
-                        (name) => !["root", "guest"].includes(name)
-                    );
-                    roles = {
-                        primary: availablePrimary,
-                        secondary: data.secondary,
-                    };
-                    this.app.setOptions("modules.user.roles", roles);
-                } else {
-                    throw new Error(results.message);
-                }
-                const rolesVariants = [
-                    ...roles.primary.map((name) => {
-                        return {
-                            id: name,
-                            title: name,
-                            type: "warning",
-                        };
-                    }),
-                    ...roles.secondary.map((name) => {
-                        return {
-                            id: name,
-                            title: name,
-                            type: "info",
-                        };
-                    }),
-                ];
-                roles = rolesVariants;
+                await this.loadRolesFromServer();
             }
-            this.setOptions(`variants.update`, { role: roles });
-            this.setOptions(`variants.create`, { role: roles });
-            this.setOptions(`variants.details`, { role: roles });
+            roles = this.app.getOptions("modules.user.roles");
+            const rolesVariants = this.rolesListsToVariants(roles);
+            this.setOptions(`variants.update`, { role: rolesVariants });
+            this.setOptions(`variants.create`, { role: rolesVariants });
+            this.setOptions(`variants.details`, { role: rolesVariants });
         } catch (e) {
             this.report(e);
         }

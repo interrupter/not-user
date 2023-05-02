@@ -18,6 +18,9 @@ module.exports.DEFAULT_TTL_MAX = DEFAULT_TTL_MAX;
 const DEFAULT_ROLES_LIST = ["root", "admin", "client", "user", "guest"];
 module.exports.DEFAULT_ROLES_LIST = DEFAULT_ROLES_LIST;
 
+const ROLES_NOT_SELECTABLE = ["root", "guest"];
+module.exports.ROLES_NOT_SELECTABLE = ROLES_NOT_SELECTABLE;
+
 const EXTRA_ROLES_LIST = ["confirmed"];
 module.exports.EXTRA_ROLES_LIST = EXTRA_ROLES_LIST;
 

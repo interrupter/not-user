@@ -1,4 +1,4 @@
-import UIRole from './role.svelte';
+import UIRole from './ui.role.svelte';
 import UISelectUser from './UISelectUser.svelte';
 import UIUserInlineInfo from './UIUserInlineInfo.svelte';
 
