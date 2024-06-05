@@ -139,12 +139,12 @@ module.exports.loginByCode = async (req, res, next, prepared) => {
 };
 
 module.exports.requestPasswordReset = async (req, res, next, prepared) => {
-    Log.debug("user/requestPasswordReset");
+    Log.debug("user.requestPasswordReset");
     return await getAuthLogic().requestPasswordReset(prepared);
 };
 
 module.exports.resetPassword = async (req, res, next, prepared) => {
-    Log.debug("user/resetPassword");
+    Log.debug("user.resetPassword");
     await getAuthLogic().resetPassword(prepared);
     return { __redirect__: "/resetPasswordSuccess" };
 };
@@ -153,7 +153,7 @@ module.exports.resetPassword = async (req, res, next, prepared) => {
  *   Authorized user actions
  */
 module.exports._logout = module.exports.logout = (req /*, res, next*/) => {
-    Log.debug("user/(_)logout");
+    Log.debug("user.(_)logout");
     const identity = new notAppIdentity(req);
     identity.setGuest();
 };
@@ -164,7 +164,7 @@ module.exports._changePassword = module.exports.changePassword = async (
     next,
     prepared
 ) => {
-    Log.debug("user/(_)changePassword");
+    Log.debug("user.(_)changePassword");
     return await getAuthLogic().changePassword({
         user: req.user,
         ...prepared,
@@ -185,7 +185,7 @@ module.exports.requestEmailConfirmation =
     };
 
 module.exports.token = async (req /*, res, next*/) => {
-    Log.debug("user/token");
+    Log.debug("user.token");
     const params = {
         ip: getIP(req),
     };
@@ -196,7 +196,7 @@ module.exports.token = async (req /*, res, next*/) => {
 };
 
 module.exports.profile = async (req /*, res, next*/) => {
-    Log.debug("user/profile");
+    Log.debug("user.profile");
     return await getLogic().profile({
         activeUser: req.user,
         ip: getIP(req),
@@ -218,7 +218,7 @@ module.exports.status = async (req /*, res, next*/) => {
     } else {
         result = notAppIdentity.extractAuthData(req);
     }
-    Log.log("user status", result);
+    Log.log("user.status", result);
     return result;
 };
 
@@ -236,22 +236,22 @@ module.exports._create = async (req, res, next, prepared) => {
 };
 
 module.exports._update = async (req, res, next, prepared) => {
-    Log.debug("user/_update");
+    Log.debug("user._update");
     return await getLogic().update(prepared);
 };
 
 module.exports._delete = async (req, res, next, prepared) => {
-    Log.debug("user/_delete");
+    Log.debug("user._delete");
     return await getLogic().delete(prepared);
 };
 
 module.exports.get = async (req, res, next, prepared) => {
-    Log.debug("user/get");
+    Log.debug("user.get");
     return await getLogic().get(prepared);
 };
 
 module.exports._get = async (req, res, next, prepared) => {
-    Log.debug("user/_get", prepared);
+    Log.debug("user._get", prepared);
     return await getLogic().get(prepared);
 };
 
