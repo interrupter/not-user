@@ -2,7 +2,7 @@ import Validators from "../common/validators.js";
 import { ROLES_NOT_SELECTABLE } from "../../const.js";
 
 import { Frame } from "not-bulma";
-
+import CRUDActionList from "not-bulma/src/frame/crud/actions/list.js";
 const { notCRUD } = Frame;
 
 const MODULE_NAME = "";
@@ -99,25 +99,7 @@ class ncUser extends notCRUD {
                     title: "Действия",
                     type: "button",
                     preprocessor: (value) => {
-                        return [
-                            {
-                                action: this.goDetails.bind(this, value),
-                                title: "Подробнее",
-                                size: "small",
-                            },
-                            {
-                                action: this.goUpdate.bind(this, value),
-                                title: "Изменить",
-                                size: "small",
-                            },
-                            {
-                                action: this.goDelete.bind(this, value),
-                                type: "danger",
-                                title: "Удалить",
-                                size: "small",
-                                style: "outlined",
-                            },
-                        ];
+                        return CRUDActionList.createActionsButtons(this, value);
                     },
                 },
             ],
@@ -141,7 +123,7 @@ class ncUser extends notCRUD {
                     id: name,
                     title: name,
                     type: "warning",
-                    notSelectable: ROLES_NOT_SELECTABLE.includes(name)
+                    notSelectable: ROLES_NOT_SELECTABLE.includes(name),
                 };
             }),
             ...roles.secondary.map((name) => {
@@ -149,7 +131,7 @@ class ncUser extends notCRUD {
                     id: name,
                     title: name,
                     type: "info",
-                    notSelectable: ROLES_NOT_SELECTABLE.includes(name)
+                    notSelectable: ROLES_NOT_SELECTABLE.includes(name),
                 };
             }),
         ];
