@@ -22,7 +22,7 @@ class ncProfile extends notController {
     super(app, `User.Profile`);
     this.ui = {};
     this.els = {};
-    this.setOptions('containerSelector', this.app.getOptions('crud.containerSelector'));
+    this.setOptions('containerSelector', this.app.getOptions('crud.containerSelector'));    
     this.setModuleName(MODULE_NAME.toLowerCase());
     this.setModelName(MODEL_NAME.toLowerCase());
     this.setOptions('Validators', {});
@@ -95,16 +95,29 @@ class ncProfile extends notController {
     el.appendChild(this.els.bottom);
   }
 
-  async preloadVariants() {}
+  async preloadVariants() {
+    try{
+      const roles = await this.app.getModel('role').$listAll().then((res)=>{
+        if(res.status === 'ok'){
+          return res.result;
+        }else{
+          throw new Error(res.message);
+        }
+      });
+      
+    }catch(e){
+      this.showErrorMessage(e);
+    }    
+  }
 
   getItemTitle(item) {
-    if (Object.prototype.hasOwnProperty.call(item, 'title') && (typeof item.title === 'string')) {
+    if (Object.hasOwn(item, 'title') && (typeof item.title === 'string')) {
       return item.title;
-    } else if (Object.prototype.hasOwnProperty.call(item, 'label') && (typeof item.label === 'string')) {
+    } else if (Object.hasOwn(item, 'label') && (typeof item.label === 'string')) {
       return item.label;
-    } else if (Object.prototype.hasOwnProperty.call(item, 'id') && (typeof item.id === 'string')) {
+    } else if (Object.hasOwn(item, 'id') && (typeof item.id === 'string')) {
       return item.id;
-    } else if (Object.prototype.hasOwnProperty.call(item, 'name') && (typeof item.name === 'string')) {
+    } else if (Object.hasOwn(item, 'name') && (typeof item.name === 'string')) {
       return item.name;
     }
   }
@@ -133,7 +146,8 @@ class ncProfile extends notController {
           props: {
             own: true,
             mode: 'profile',
-            user: notCommon.stripProxy(res.result)
+            user: notCommon.stripProxy(res.result),
+            rolesColorScheme: this.app.getOptions('modules.user.colorsOfRoles')
           }
         });
         this.ui.update.$on('goChangePassword', () => {

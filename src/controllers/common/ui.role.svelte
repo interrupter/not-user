@@ -50,7 +50,7 @@
             return itm;
         } else if (
             typeof itm === "object" &&
-            Object.prototype.hasOwnProperty.call(itm, "id") &&
+            Object.hasOwn(itm, "id") &&
             typeof itm.id === "string"
         ) {
             return itm.id;

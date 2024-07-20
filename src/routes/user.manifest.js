@@ -300,8 +300,7 @@ module.exports = {
         create: {
             method: "put",
             rules: [
-                {
-                    auth: true,
+                {                    
                     root: true,
                 },
                 {

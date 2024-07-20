@@ -1,6 +1,8 @@
 <script>
     import { Elements } from "not-bulma";
-    const { UITagSelect } = Elements.Forms;
+    const UITag = Elements.Various.UITag;
+
+    const DEFAULT_USER_ROLE_COLOR = "danger";
 
     import { createEventDispatcher, onMount } from "svelte";
     let dispatch = createEventDispatcher();
@@ -8,24 +10,51 @@
     import UserCommon from "./user.js";
 
     export let user = {};
-    export let userRoles = [];
+    export let readonly = true;
+
+    export let rolesColorScheme;
+
+    let rolesTags = [];
 
     function goChangePassword() {
         dispatch("goChangePassword");
     }
 
-    function initUserRoles(userRoleSet) {
-        userRoleSet.forEach((userRole) => {
-            userRoles.push(
-                UserCommon.ROLES.find((el) => el.title === userRole)
-            );
+    function findColorInScheme(roleTitle, scheme) {
+        let color = DEFAULT_USER_ROLE_COLOR;
+        Object.keys(scheme).forEach((userType) => {
+            scheme;
         });
-        userRoles = userRoles;
+    }
+
+    function colorInPredefined(roleTitle) {
+        const item = UserCommon.ROLES.find((itm) => itm.title === roleTitle);
+        return item && item.type ? item.type : DEFAULT_USER_ROLE_COLOR;
+    }
+
+    function createTagProps(roleTitle) {
+        if (rolesColorScheme) {
+            return {
+                title: roleTitle,
+                color: findColorInScheme(rolesColorScheme, roleTitle),
+            };
+        } else {
+            return {
+                title: roleTitle,
+                color: colorInPredefined(roleTitle),
+            };
+        }
+    }
+
+    function initUserRoles(userRoleSet) {
+        rolesTags = userRoleSet.map((roleTitle) => createTagProps(roleTitle));
     }
 
     onMount(() => {
         if (Array.isArray(user.role)) {
             initUserRoles(user.role);
+        } else if (typeof user.role === "string") {
+            initUserRoles([user.role]);
         }
     });
 </script>
@@ -92,11 +121,9 @@
             <div class="list-item-content">
                 <div class="list-item-title">Роли</div>
                 <div class="list-item-description">
-                    <UITagSelect
-                        variants={UserCommon.ROLES}
-                        items={userRoles}
-                        readonly={true}
-                    />
+                    {#each rolesTags as roleTag}
+                        <UITag {...roleTag}></UITag>
+                    {/each}
                 </div>
             </div>
         </div>

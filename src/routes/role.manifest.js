@@ -7,7 +7,6 @@ module.exports = {
             method: "get",
             rules: [
                 {
-                    auth: true,
                     root: true,
                 },
                 {
