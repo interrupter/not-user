@@ -1,19 +1,21 @@
 <script>
-
-    import {createEventDispatcher} from 'svelte';
+    import { createEventDispatcher } from "svelte";
     const dispatch = createEventDispatcher();
 
-    import { UIBox } from "not-bulma/src/elements/block";
+    import { UIButton } from "not-bulma/src/elements/button";
     import { UITitle } from "not-bulma/src/elements/various";
-    
-   // export let _id = '';
+
     export let userID = -1;
-    export let username = 'no_name';
+    export let username = "no_name";
+    export let usernameFormatter = (data) => `${data.userID}#${data.username}`;
 
-    $: usernameString = `${userID}#${username}`;
-
+    $: usernameString = usernameFormatter({ username, userID });
 </script>
 
-<UIBox classes="px-2 user-inline-info" on:click>
-    <UITitle title={usernameString} size={6} align='center' />
-</UIBox>
+<UIButton
+    classes="user-inline-info"
+    on:click
+    icon={"user"}
+    iconSide={"left"}
+    title={usernameString}
+/>
