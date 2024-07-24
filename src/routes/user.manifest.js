@@ -1,3 +1,5 @@
+const { ACTION_DATA_TYPES } = require("not-node/src/manifest/const");
+
 const FIELDS = [
     ["_id", "not-node//_id"],
     ["userID", "not-node//ID"],
@@ -36,7 +38,7 @@ module.exports = {
                     auth: false,
                 },
             ],
-            data: ["record"],
+            data: [ACTION_DATA_TYPES.DATA],
             fields: [
                 "username",
                 "telephone",
@@ -58,7 +60,7 @@ module.exports = {
         },
         confirmEmail: {
             method: "get",
-            data: ["record"],
+            data: [ACTION_DATA_TYPES.DATA],
             rules: [
                 {
                     auth: false,
@@ -71,7 +73,7 @@ module.exports = {
         },
         login: {
             method: "post",
-            data: ["record"],
+            data: [ACTION_DATA_TYPES.DATA],
             rules: [
                 {
                     auth: false,
@@ -93,7 +95,7 @@ module.exports = {
         },
         requestLoginCodeOnEmail: {
             method: "post",
-            data: ["record"],
+            data: [ACTION_DATA_TYPES.DATA],
             rules: [
                 {
                     auth: false,
@@ -105,7 +107,7 @@ module.exports = {
         },
         requestLoginCodeOnTelephone: {
             method: "post",
-            data: ["record"],
+            data: [ACTION_DATA_TYPES.DATA],
             rules: [
                 {
                     auth: false,
@@ -117,7 +119,7 @@ module.exports = {
         },
         loginByCode: {
             method: "get",
-            data: ["record"],
+            data: [ACTION_DATA_TYPES.DATA],
             rules: [
                 {
                     auth: false,
@@ -129,7 +131,7 @@ module.exports = {
         },
         requestEmailConfirmation: {
             method: "post",
-            data: ["record", "data"],
+            data: [ACTION_DATA_TYPES.DATA],
             rules: [
                 {
                     auth: true,
@@ -145,7 +147,7 @@ module.exports = {
                     auth: false,
                 },
             ],
-            data: ["record"],
+            data: [ACTION_DATA_TYPES.DATA],
             fields: ["email", "submit"],
             postFix: actionNamePath,
         },
@@ -173,7 +175,7 @@ module.exports = {
         },
         changePassword: {
             method: "post",
-            data: ["record", "data"],
+            data: [ACTION_DATA_TYPES.DATA],
             rules: [
                 {
                     auth: true,
@@ -194,7 +196,6 @@ module.exports = {
             method: "post",
             rules: [
                 {
-                    auth: true,
                     root: true,
                     fields: [
                         "_id",
@@ -234,7 +235,7 @@ module.exports = {
                     ],
                 },
             ],
-            data: ["record"],
+            data: [ACTION_DATA_TYPES.DATA],
             postFix: idActionPath,
         },
         status: {
@@ -276,7 +277,6 @@ module.exports = {
             method: "get",
             rules: [
                 {
-                    auth: true,
                     root: true,
                 },
                 {
@@ -300,7 +300,7 @@ module.exports = {
         create: {
             method: "put",
             rules: [
-                {                    
+                {
                     root: true,
                 },
                 {
@@ -318,14 +318,13 @@ module.exports = {
                 "country",
                 "role",
             ],
-            data: ["record"],
+            data: [ACTION_DATA_TYPES.DATA],
             postFix: actionNamePath,
         },
         delete: {
             method: "delete",
             rules: [
                 {
-                    auth: true,
                     root: true,
                 },
                 {
@@ -333,15 +332,18 @@ module.exports = {
                     role: "admin",
                 },
             ],
-            data: ["record"],
+            data: [ACTION_DATA_TYPES.DATA],
             postFix: idActionPath,
         },
         listAndCount: {
             method: "get",
-            data: ["record", "search", "filter"],
+            data: [
+                ACTION_DATA_TYPES.DATA,
+                ACTION_DATA_TYPES.SEARCH,
+                ACTION_DATA_TYPES.FILTER,
+            ],
             rules: [
                 {
-                    auth: true,
                     root: true,
                 },
                 {
