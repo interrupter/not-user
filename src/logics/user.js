@@ -227,15 +227,10 @@ module.exports[MODEL_NAME] = class UserLogic {
         const User = notApp.getModel(MODEL_PATH);
         const rootUserDoc = await User.loadRoot();
         if (rootUserDoc) {
-            return await User.Update(
-                {
-                    password,
-                    _id: rootUserDoc._id,
-                },
-                "root",
-                rootUserDoc._id,
-                true
-            );
+            rootUserDoc.password = password;
+            await rootUserDoc.save();
+            await User.saveVersion(rootUserDoc._id);
+            return rootUserDoc;
         } else {
             throw new Error("Root user document not found");
         }
