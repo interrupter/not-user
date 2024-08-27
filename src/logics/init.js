@@ -27,11 +27,22 @@ module.exports[MODEL_NAME] = class InitLogic {
         return root;
     }
 
+    static resetOfRootPasswordNeeded() {
+        return process.env.RESET_ROOT_PASSWORD;
+    }
+
     static async createRootUser(app) {
         info(`Installing...`);
         return await app
             .getLogic("not-user//User")
             .createRootUser(app, InitLogic.getInitialRootValues());
+    }
+
+    static async resetRootPassword(app) {
+        info(`Resetting root password...`);
+        return await app
+            .getLogic("not-user//User")
+            .setRootPassword(app, InitLogic.getInitialRootValues());
     }
 
     static async initialize(app, master) {
@@ -45,6 +56,10 @@ module.exports[MODEL_NAME] = class InitLogic {
             });
             if (user) {
                 debug(`Root user exists!`);
+                if (this.resetOfRootPasswordNeeded()) {
+                    const newRoot = await this.resetRootPassword(app);
+                    info(`Root reset to ${newRoot.email}`);
+                }
                 return;
             } else {
                 debug("Root user doesnt exists!");

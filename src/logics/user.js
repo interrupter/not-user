@@ -14,7 +14,7 @@ module.exports[MODEL_NAME] = class UserLogic {
      *  Creates User document from input
      */
     static async createNewUserDocument(data) {
-        Log.debug("UserLogic//createNewUserDocument");
+        Log?.debug("UserLogic//createNewUserDocument");
         const notApp = notNode.Application;
         const User = notApp.getModel(MODEL_PATH);
         let newUser = new User({
@@ -41,14 +41,14 @@ module.exports[MODEL_NAME] = class UserLogic {
      * in case of error throws exception Error, notRequestError, notValidationError
      **/
     static async register(data) {
-        Log.debug("UserLogic//register");
+        Log?.debug("UserLogic//register");
         let newUser = await UserLogic.createNewUserDocument({
             ...data,
         });
         await notNode.Application.getLogic(LogicMailer).sendConfirmationEmail({
             user: newUser,
         });
-        Log.log({
+        Log?.log({
             module: "user",
             logic: "User",
             action: "register",
@@ -64,7 +64,7 @@ module.exports[MODEL_NAME] = class UserLogic {
         await notNode.Application.getLogic(LogicMailer).sendConfirmationEmail({
             user,
         });
-        Log.log({
+        Log?.log({
             module: "user",
             logic: "User",
             action: "requestEmailConfirmation",
@@ -75,7 +75,7 @@ module.exports[MODEL_NAME] = class UserLogic {
     }
 
     static async loadUser(targetId) {
-        Log.debug("UserLogic//loadUser");
+        Log?.debug("UserLogic//loadUser");
         const notApp = notNode.Application;
         const User = notApp.getModel(MODEL_PATH);
         let targetUser = await User.findOne({
@@ -100,7 +100,7 @@ module.exports[MODEL_NAME] = class UserLogic {
      *	@returns {object}	operation result
      **/
     static async confirmEmail(code) {
-        Log.debug("UserLogic//confirmEmail");
+        Log?.debug("UserLogic//confirmEmail");
         const notApp = notNode.Application;
         const OneTimeCode = notApp.getLogic("not-user//OneTimeCode");
         const oneTimeCode = await OneTimeCode.retrieveAndRedeemOTCFor(
@@ -113,7 +113,7 @@ module.exports[MODEL_NAME] = class UserLogic {
     }
 
     static async profile({ activeUser }) {
-        Log.debug("UserLogic//profile");
+        Log?.debug("UserLogic//profile");
         const notApp = notNode.Application;
         const User = notApp.getModel(MODEL_PATH);
         let user = await User.getOne(activeUser._id);
@@ -121,7 +121,7 @@ module.exports[MODEL_NAME] = class UserLogic {
     }
 
     static checkUserSupremacy({ activeUser, targetUser, ip }) {
-        Log.debug("UserLogic//checkUserSupremacy");
+        Log?.debug("UserLogic//checkUserSupremacy");
         //если не владелец
         if (targetUser._id !== activeUser._id) {
             if (activeUser.isRoot() && !targetUser.isRoot()) {
@@ -158,7 +158,7 @@ module.exports[MODEL_NAME] = class UserLogic {
      *	@return {Promise<Object>}										standart result object with status field
      **/
     static async update({ targetUserId, activeUser, data, ip }) {
-        Log.debug("UserLogic//update");
+        Log?.debug("UserLogic//update");
         const notApp = notNode.Application;
         const User = notApp.getModel(MODEL_PATH);
         let targetUser = await UserLogic.loadUser(targetUserId);
@@ -176,7 +176,7 @@ module.exports[MODEL_NAME] = class UserLogic {
             activeUser.role,
             activeUser._id
         );
-        Log.log({
+        Log?.log({
             module: "user",
             logic: "User",
             action: "update",
@@ -188,7 +188,7 @@ module.exports[MODEL_NAME] = class UserLogic {
     }
 
     static async createUser({ activeUser, data, ip }) {
-        Log.debug("UserLogic//createUser");
+        Log?.debug("UserLogic//createUser");
         const notApp = notNode.Application;
         const User = notApp.getModel(MODEL_PATH);
         let targetUser = await UserLogic.createNewUserDocument({
@@ -197,7 +197,7 @@ module.exports[MODEL_NAME] = class UserLogic {
         await notNode.Application.getLogic(LogicMailer).sendConfirmationEmail({
             user: targetUser,
         });
-        Log.log({
+        Log?.log({
             module: "user",
             logic: "User",
             action: "createUser",
@@ -211,7 +211,7 @@ module.exports[MODEL_NAME] = class UserLogic {
     }
 
     static async createRootUser(app, { username, email, password }) {
-        Log.debug("UserLogic//createRootUser");
+        Log?.debug("UserLogic//createRootUser");
         return await UserLogic.createNewUserDocument({
             username,
             email,
@@ -220,6 +220,24 @@ module.exports[MODEL_NAME] = class UserLogic {
             role: ["root"],
             active: true,
         });
+    }
+
+    static async setRootPassword(notApp, { password }) {
+        Log?.debug("UserLogic//setRootPassword");
+        const User = notApp.getModel(MODEL_PATH);
+        const rootUserDoc = await User.loadRoot();
+        if (rootUserDoc) {
+            return await User.Update(
+                {
+                    password,
+                    _id: rootUserDoc._id,
+                },
+                "root",
+                rootUserDoc._id
+            );
+        } else {
+            throw new Error("Root user document not found");
+        }
     }
 
     static checkAgainstSuicide({ targetUserId, activeUserId }) {
@@ -254,7 +272,7 @@ module.exports[MODEL_NAME] = class UserLogic {
                 ip,
             });
             await targetUser.close();
-            Log.log({
+            Log?.log({
                 module: "user",
                 logic: "User",
                 action: "createUser",
@@ -268,7 +286,7 @@ module.exports[MODEL_NAME] = class UserLogic {
     }
 
     static async get({ activeUser, targetUserId, ip }) {
-        Log.debug("UserLogic//get");
+        Log?.debug("UserLogic//get");
         const notApp = notNode.Application;
         const User = notApp.getModel(MODEL_PATH);
         const targetUser = await UserLogic.loadUser(targetUserId);

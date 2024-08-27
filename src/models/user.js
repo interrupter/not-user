@@ -101,6 +101,18 @@ function throwUserNotFound(errors = {}, params = {}, e = null) {
 }
 
 module.exports.thisStatics = {
+    async loadRoot() {
+        const result = await this.find({
+            __latest: true,
+            __closed: false,
+            role: "root",
+        });
+        if (Array.isArray(result) && result.length === 1) {
+            return result[0];
+        } else {
+            return null;
+        }
+    },
     async loadSafe(id) {
         const result = await this.find(
             { _id: id, __latest: true, __closed: false },
