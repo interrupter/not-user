@@ -233,7 +233,8 @@ module.exports[MODEL_NAME] = class UserLogic {
                     _id: rootUserDoc._id,
                 },
                 "root",
-                rootUserDoc._id
+                rootUserDoc._id,
+                true
             );
         } else {
             throw new Error("Root user document not found");
