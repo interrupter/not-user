@@ -56,7 +56,8 @@
     "not-config": "^0.1.7",
     "not-one-time-code": "*",
     "not-validation": "^0.0.9",
-    "validator": "^13.12.0"
+    "validator": "^13.12.0",
+    "fsevents": ">=1.2.11"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
