@@ -1,6 +1,6 @@
 const { MODULE_NAME, DEFAULT_COLORS } = require("../const");
 const notNode = require("not-node");
-const { notError } = require("not-error");
+const { notError } = require("not-error/src/index.cjs");
 const { resolve } = require("path");
 
 const config = require("not-config").forModule(MODULE_NAME);
@@ -67,7 +67,7 @@ function render(req, res, layout, opts) {
     );
 }
 
-exports.login = (req, res) => {
+exports.login = (req, res, next) => {
     try {
         notNode.Application.logger.debug(
             notNode.Auth.getIP(req) + " : " + req.originalUrl
@@ -90,7 +90,7 @@ exports.login = (req, res) => {
     }
 };
 
-exports.register = (req, res) => {
+exports.register = (req, res, next) => {
     try {
         notNode.Application.logger.debug(
             notNode.Auth.getIP(req) + " : " + req.originalUrl

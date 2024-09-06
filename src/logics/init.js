@@ -45,7 +45,7 @@ module.exports[MODEL_NAME] = class InitLogic {
             .setRootPassword(app, InitLogic.getInitialRootValues());
     }
 
-    static async initialize(app, master) {
+    static async initialize(app /*, master*/) {
         try {
             let User = app.getModel("not-user//User");
             info("checking if not-user has been installed");

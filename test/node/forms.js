@@ -1,11 +1,13 @@
+/** global expect */
 const notNode = require("not-node"),
-    expect = require("chai").expect,
+    //    expect = require("chai").expect,
     { stubApp, stubResponse, stubRequest, stubModuleEnv } = require("../stub");
-
+/*
 notNode.Fields.importFromDir(
     __dirname + "/../../node_modules/not-node/src/core/fields"
 );
 notNode.Fields.importFromDir(__dirname + "/../../src/fields");
+*/
 
 const TEST_ENV = {
     notNode,

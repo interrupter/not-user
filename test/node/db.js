@@ -1,9 +1,10 @@
 const notNode = require("not-node");
-
+/*
 notNode.Fields.importFromDir(
     __dirname + "/../../node_modules/not-node/src/core/fields"
 );
 notNode.Fields.importFromDir(__dirname + "/../../src/fields");
+*/
 
 const Increment = notNode.Increment,
     Proto = require("not-node").Proto,
@@ -33,19 +34,7 @@ exports.init = (from, done) => {
             return mongoServer.getUri();
         })
         .then((mongoUri) => {
-            return mongoose.connect(
-                mongoUri,
-                {
-                    useCreateIndex: true,
-                    useNewUrlParser: true,
-                    useUnifiedTopology: true,
-                },
-                (err) => {
-                    if (err) {
-                        done(err);
-                    }
-                }
-            );
+            return mongoose.connect(mongoUri);
         })
         .then(() => {
             console.log(from, "connected");

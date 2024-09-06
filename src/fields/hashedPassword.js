@@ -12,5 +12,7 @@ module.exports = {
                 message: "hashedPassword_is_not_valid",
             },
         ],
+        safe: require("not-node/src/core/safety.protocols")
+            .systemManageableSecret,
     },
 };

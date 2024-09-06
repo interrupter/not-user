@@ -1,16 +1,12 @@
 const { ACTION_DATA_TYPES } = require("not-node/src/manifest/const");
+const { ACTION_SIGNATURES } = require("not-node/src/auth/const");
 
 const FIELDS = [
     ["_id", "not-node//_id"],
     ["userID", "not-node//ID"],
-    ["username", "not-user//username"],
-    ["email", "not-user//email"],
-    ["password", "not-user//password"],
     ["passwordRepeat", "not-user//passwordRepeat"],
-    ["country", "not-user//country"],
-    ["role", "not-user//role"],
+    ["password", "not-user//password"],
     ["code", "not-user//code"],
-    ["telephone", "not-user//telephone"],
 ];
 
 const actionNamePath = "/:actionName";
@@ -36,16 +32,16 @@ module.exports = {
             rules: [
                 {
                     auth: false,
+                    fields: [
+                        "username",
+                        "telephone",
+                        "email",
+                        "password",
+                        "passwordRepeat",
+                    ],
                 },
             ],
             data: [ACTION_DATA_TYPES.DATA],
-            fields: [
-                "username",
-                "telephone",
-                "email",
-                "password",
-                "passwordRepeat",
-            ],
             return: returnWrapper([
                 "_id",
                 "role",
@@ -59,14 +55,15 @@ module.exports = {
             postFix: actionNamePath,
         },
         confirmEmail: {
+            signature: ACTION_SIGNATURES.CREATE,
             method: "get",
             data: [ACTION_DATA_TYPES.DATA],
             rules: [
                 {
-                    auth: false,
+                    auth: true,
                 },
                 {
-                    auth: true,
+                    auth: false,
                 },
             ],
             postFix: actionNamePath,
@@ -77,6 +74,7 @@ module.exports = {
             rules: [
                 {
                     auth: false,
+                    fields: ["email", "password"],
                 },
             ],
             return: returnWrapper([
@@ -91,7 +89,6 @@ module.exports = {
             ]),
             postFix: actionNamePath,
             title: "not-user:form_login_title",
-            fields: ["email", "password"],
         },
         requestLoginCodeOnEmail: {
             method: "post",
@@ -99,11 +96,11 @@ module.exports = {
             rules: [
                 {
                     auth: false,
+                    fields: ["email"],
                 },
             ],
             postFix: actionNamePath,
             title: "not-user:form_requestLoginCodeOnEmail_title",
-            fields: ["email"],
         },
         requestLoginCodeOnTelephone: {
             method: "post",
@@ -111,11 +108,11 @@ module.exports = {
             rules: [
                 {
                     auth: false,
+                    fields: ["telephone"],
                 },
             ],
             postFix: actionNamePath,
             title: "not-user:form_requestLoginCodeOnTelephone_title",
-            fields: ["telephone"],
         },
         loginByCode: {
             method: "get",
@@ -123,11 +120,11 @@ module.exports = {
             rules: [
                 {
                     auth: false,
+                    fields: ["code"],
                 },
             ],
             postFix: actionNamePath,
             title: "not-user:form_loginByCode_title",
-            fields: ["code"],
         },
         requestEmailConfirmation: {
             method: "post",
@@ -145,10 +142,10 @@ module.exports = {
             rules: [
                 {
                     auth: false,
+                    fields: ["email", "submit"],
                 },
             ],
             data: [ACTION_DATA_TYPES.DATA],
-            fields: ["email", "submit"],
             postFix: actionNamePath,
         },
         resetPassword: {

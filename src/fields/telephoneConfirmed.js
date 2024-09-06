@@ -1,3 +1,5 @@
+const SafetyProtocols = require("not-node/src/core/safety.protocols");
+
 module.exports = {
     ui: {
         component: "UISwitch",
@@ -8,9 +10,6 @@ module.exports = {
         searchable: true,
         required: true,
         default: false,
-        safe: {
-            update: ["@owner", "root", "admin"],
-            read: ["@owner", "root", "admin"],
-        },
+        safe: SafetyProtocols.systemManageable,
     },
 };

@@ -1,3 +1,6 @@
+const SafetyProtocols = require("not-node/src/core/safety.protocols");
+const notFieldsFilter = require("not-node/src/fields/filter");
+
 module.exports = {
     ui: {
         component: "UISelect",
@@ -10,9 +13,13 @@ module.exports = {
         required: false,
         searchable: true,
         default: "ru",
-        safe: {
-            update: ["@system", "@owner", "root", "admin"],
-            read: ["*"],
-        },
+        safe: notFieldsFilter.mergeSafetyProtocols(
+            SafetyProtocols.rootAdminCRUD_allR,
+            notFieldsFilter.initSafetyProtocol(
+                ["@owner"],
+                ["@owner"],
+                ["@owner"]
+            )
+        ),
     },
 };

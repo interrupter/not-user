@@ -1,0 +1,38 @@
+doctype html
+html.no-js(lang="")
+  head
+    meta(charset="utf-8")
+    meta(http-equiv="x-ua-compatible" content="ie=edge")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    title= title
+    link(rel="icon" type="image/png" href="/img/icons/icon-64.png")
+    link(rel="manifest" href="/manifest.json")
+    link(rel="canonical" href=host+"/register")
+    meta(name="description" content=description)
+    meta(name="application-name" content=title)
+    meta(name="author" content="" )
+    meta(name="referrer" content="strict-origin")
+    meta(itemprop="name" content=title)
+    meta(itemprop="description" content=description)
+    meta(itemprop="image" content="./img/icons/icon-128.png")
+    <!-- iOS -->
+    meta(name="apple-mobile-web-app-title" content=title)
+    meta(name="apple-mobile-web-app-capable" content="yes")
+    meta(name="apple-mobile-web-app-status-bar-style" content="#48c774")
+    link(rel="apple-touch-icon" href="./img/icons/icon-512.png")
+    <!-- Android -->
+    meta(name="theme-color" content="#48c774")
+    meta(name="color-scheme" content="light")
+    meta(name="mobile-web-app-capable" content="yes")
+    link(rel="stylesheet" href=host+"/front/guest.css")
+    link(rel="stylesheet" href=host+"/assets/font-awesome.min.css")
+  body
+    section(class="hero has-background-"+mainBackgroundColor+" is-overlay")      
+      div(class="hero-body flex-centered-items")
+        if customLogo
+          figure(class="image is-128x128 centered-logo-128")        
+            img(src=customLogo)
+        div(class="container has-text-info-"+secondaryBackgroundColor)
+          div(class="columns is-centered main-container")
+    script(src=host+"/fetch.xhr.js" type="module")
+    script(src=host+"/front/guest.js")

@@ -2,7 +2,10 @@ const notNode = require("not-node");
 const Log = require("not-log")(module, "User/Logics/Auth");
 const config = require("not-config").readerForModule("user");
 const phrase = require("not-locale").modulePhrase("not-user");
-const { notValidationError, notRequestError } = require("not-error");
+const {
+    notValidationError,
+    notRequestError,
+} = require("not-error/src/index.cjs");
 
 const MODEL_NAME = "Auth";
 module.exports.thisLogicName = MODEL_NAME;
@@ -20,7 +23,7 @@ function validateEmail(email) {
         throw new notValidationError(
             phrase("email_is_not_valid"),
             { email: [phrase("email_is_not_valid")] },
-            null,
+            e,
             { email }
         );
     }

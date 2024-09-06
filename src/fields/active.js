@@ -6,9 +6,7 @@ module.exports = {
         required: true,
         searchable: true,
         default: true,
-        safe: {
-            update: ["@system", "root", "admin"],
-            read: ["@owner", "root", "admin"],
-        },
+        safe: require("not-node/src/core/safety.protocols")
+            .rootAdminCRUD_ownerR,
     },
 };

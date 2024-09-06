@@ -1,12 +1,15 @@
+const SafetyProtocols = require("not-node/src/core/safety.protocols");
+const notFieldsFilter = require("not-node/src/fields/filter");
+
 //дата создания
 module.exports = {
     model: {
         type: Date,
         default: Date.now,
-        safe: {
-            update: ["*"],
-            read: ["*"],
-        },
+        safe: notFieldsFilter.mergeSafetyProtocols(
+            SafetyProtocols.systemManageableSecret,
+            SafetyProtocols.publicReadable
+        ),
     },
     ui: {
         component: "UITextfield",

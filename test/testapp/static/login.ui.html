@@ -1,0 +1,54 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<title>User.Guest UI testing</title>
+	<meta name="description" content="">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.1/css/all.min.css">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link rel="stylesheet" href="/assets/guest.css">
+	<script type="module" src="/fetch.xhr.js"></script>
+</head>
+
+<body>
+	<div id="test-ground">
+		<!--<script src="/assets/not-bulma/notBulma.js"></script>-->
+		<script src="/assets/guest.js"></script>
+		<script>
+			let appOptions = {
+				name: 'not-user - Guest Test',
+				manifestURL: '/api/manifest',
+				initController: notUser.notUser.ncLogin,
+				router: {
+					root: '/login.ui.html',
+					//routes for client-side
+					manifest: [],
+					index: ''
+				},
+				//modules.user.loginForm.modes
+				modules: {
+					user: {
+						loginForm: {
+							modes: [
+								'login',
+								'requestLoginCodeOnEmail',
+								'requestLoginCodeOnTelephone',
+								'loginByCode'
+							]
+						},
+						redirectTimout: 3000,
+						afterLoginURL: '/dashboard.html',
+						loginFormContainerSelector: '#test-ground'
+					}
+				}
+			};
+			notUser.notBulma.notCommon.startApp(() => new notUser.notBulma.Frame.notApp(appOptions));
+
+		</script>
+		<div id="test-list"></div>
+</body>
+
+</html>

@@ -8,9 +8,7 @@ module.exports = {
         unique: false,
         searchable: true,
         required: false,
-        safe: {
-            update: ["@owner", "root", "admin"],
-            read: ["@owner", "root", "admin"],
-        },
+        safe: require("not-node/src/core/safety.protocols")
+            .ownerRootAdminCRUD_clientC,
     },
 };

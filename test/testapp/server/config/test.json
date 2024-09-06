@@ -1,0 +1,141 @@
+{
+  "port": 7357,
+  "proxy": {
+    "port": 7357
+  },
+  "host": "localhost",
+  "cors": [
+    "http://127.0.0.1/",
+    "http://localhost/"
+  ],
+  "CSP": {
+    "default-src": [
+      "https://cdnjs.cloudflare.com/",
+      "'self'",
+      "*",
+      "http://localhost/",
+      "wss:",
+      "https:",
+      "http:",
+      "'unsafe-inline'"
+    ],
+    "script-src": [
+      "https://cdnjs.cloudflare.com/",
+      "'self'",
+      "http://127.0.0.1/",
+      "http://localhost/",
+      "*",
+      "wss:",
+      "https:",
+      "http:",
+      "'unsafe-inline'"
+    ]
+  },
+  "template": {
+    "engine": "pug",
+    "views": "views",
+    "partialsDir": "partials",
+    "partials": {}
+  },
+  "db": {
+    "redis": {
+      "prefix": "test"
+    },
+    "ioredis": {
+      "enableOfflineQueue": false
+    },
+    "mongoose": {
+      "uri": "",
+      "options": {
+        "autoIndex": false
+      }
+    }
+  },
+  "session": {
+    "driver": "redis",
+    "secret": "34097592384-fm195u023947623097udf928hn3j476-g2ni09u",
+    "cookie": {
+      "maxAge": 2628000000
+    },
+    "name": "SessionID"
+  },
+  "path": {
+    "static": "../static",
+    "app": "./client",
+    "front": "../static/assets",
+    "ws": "./ws",
+    "npm": "../../"
+  },
+  "defaultUserRole": "user",
+  "modules": {
+    "locale": {
+      "priority": [
+        "ru",
+        "en",
+        "de",
+        "es",
+        "fr"
+      ]
+    },
+    "rateLimiter": {
+      "keyPrefix": "rateLimiterMiddleware",
+      "points": 500,
+      "duration": 1
+    },
+    "user": {
+      "layouts": {
+        "login": "../views/login",
+        "register": "../views/register"
+      },
+      "root": {
+        "username": "root",
+        "email": "root@test.user.not",
+        "password": "password",
+        "role": "root"
+      },
+      "roles": {
+        "primary": [
+          "root",
+          "admin",
+          "client",
+          "user",
+          "guest"
+        ],
+        "secondary": [
+          "confirmed"
+        ]
+      },
+      "loginByLink": true,
+      "emailConfirmation": true,
+      "telConfirmation": true,
+      "secret": "qwer23817264398v7216bv43987216v438475yvt28743yt8bv43b5t987ty",
+      "tokenTTL": 3600
+    },
+    "ws": {
+      "servers": {
+        "main": {
+          "connection": {
+            "port": 7358,
+            "secure": true
+          }
+        }
+      }
+    },
+    "options": {}
+  },
+  "middleware": {
+    "not-user": {
+      "path": "../../../index.js"
+    },
+    "not-options": {},
+    "not-ws": {},
+    "not-locale": {}
+  },
+  "importModulesFromNPM": [
+    "not-error",
+    "not-one-time-code",
+    "not-options",
+    "not-locale",
+    "not-ws"
+  ]
+}

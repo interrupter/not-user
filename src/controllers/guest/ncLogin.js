@@ -11,6 +11,7 @@ const DEFAULT_LOGIN_OPTIONS = [
     "requestLoginCodeOnTelephone",
     "loginByCode",
 ];
+
 const FORMS = [
     {
         mode: "login",

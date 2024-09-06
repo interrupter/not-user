@@ -1,3 +1,5 @@
+const { ACTION_SIGNATURES } = require("not-node/src/auth/const.js");
+
 const { log } = require("not-log")(module, "Model"),
     { objHas } = require("not-node").Common,
     phrase = require("not-locale").modulePhrase("not-user"),
@@ -25,19 +27,19 @@ module.exports.options = {
 };
 
 const FIELDS = [
-    ["username", "not-user//username"],
-    ["email", "not-user//email"],
-    ["emailConfirmed", "not-user//emailConfirmed"],
-    ["telephone", "not-user//telephone"],
-    ["telephoneConfirmed", "not-user//telephoneConfirmed"],
-    ["hashedPassword", "not-user//hashedPassword"],
-    ["salt", "not-user//salt"],
-    ["created", "not-user//created"],
-    ["role", "not-user//role"],
-    ["active", "not-user//active"],
-    ["ip", "not-user//ip"],
-    ["country", "not-user//country"],
-    ["confirm", "not-user//confirm"],
+    "not-user//username",
+    "not-user//email",
+    "not-user//emailConfirmed",
+    "not-user//telephone",
+    "not-user//telephoneConfirmed",
+    "not-user//hashedPassword",
+    "not-user//salt",
+    "not-user//created",
+    "not-user//role",
+    "not-user//active",
+    "not-user//ip",
+    "not-user//country",
+    "not-user//confirm",
 ];
 
 module.exports.FIELDS = FIELDS;
@@ -233,7 +235,7 @@ module.exports.thisStatics = {
             throw new Error("No data _id");
         }
         let safeData = this.extractSafeFields(
-            "update",
+            ACTION_SIGNATURES.UPDATE,
             data,
             roles,
             actorId,
@@ -319,6 +321,7 @@ module.exports.thisStatics = {
         return (
             //свободный
             fieldActionSafety === "*" ||
+            fieldActionSafety === "@*" ||
             //доступ по ролям
             (Array.isArray(fieldActionSafety) && //роли присутствуют в списке
                 //если роли пользователя в списке

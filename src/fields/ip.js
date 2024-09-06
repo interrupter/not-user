@@ -2,9 +2,6 @@ module.exports = {
     model: {
         type: String,
         required: false,
-        safe: {
-            update: ["@system"],
-            read: ["@owner", "root", "admin"],
-        },
+        safe: require("not-node/src/core/safety.protocols").systemManageable,
     },
 };

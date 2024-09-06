@@ -1,3 +1,5 @@
+const notFieldsFilter = require("not-node/src/fields/filter");
+
 module.exports = {
     ui: {
         component: "UITextfield",
@@ -8,8 +10,11 @@ module.exports = {
         unique: true,
         searchable: true,
         required: true,
-        safe: {
-            read: ["*"],
-        },
+        safe: notFieldsFilter.initSafetyProtocol(
+            ["@*"],
+            ["@*"],
+            ["admin", "root"],
+            ["admin", "root"]
+        ),
     },
 };

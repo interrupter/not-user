@@ -1,0 +1,178 @@
+{
+  "user": {
+    "model": "user",
+    "url": "/api/:modelName",
+    "showMessages": true,
+    "fields": {
+      "fName": {
+        "type": "text",
+        "placeholder": "Фамилия"
+      },
+      "iName": {
+        "type": "text",
+        "placeholder": "Имя"
+      },
+      "oName": {
+        "type": "text",
+        "placeholder": "Отчество"
+      },
+      "dateOfBirth": {
+        "type": "date",
+        "placeholder": "Дата рождения"
+      },
+      "phone": {
+        "type": "tel",
+        "placeholder": "Телефон"
+      },
+      "username": {
+        "type": "text",
+        "placeholder": "Имя пользователя"
+      },
+      "email": {
+        "type": "email",
+        "label": "Email",
+        "placeholder": "Email"
+      },
+      "password": {
+        "type": "password",
+        "name": "Пароль",
+        "placeholder": "Пароль"
+      },
+      "password2": {
+        "type": "password",
+        "placeholder": "Подтверждение пароля"
+      },
+      "photo": {
+        "type": "file",
+        "placeholder": "Фото"
+      },
+      "status": {
+        "type": "status",
+        "label": "Статус"
+      },
+      "submit": {
+        "type": "submit",
+        "target": "footer"
+      }
+    },
+    "actions": {
+      "register": {
+        "method": "post",
+        "title": "Регистрация",
+        "rules": [{
+          "auth": false
+        }],
+        "fields": {
+          "default": [
+            "username",
+            "email",
+            "password",
+            "submit"
+          ]
+        },
+        "postFix": "/:actionName"
+      },
+      "confirmEmail": {
+        "method": "get",
+        "data": ["record"],
+        "rules": [{
+            "auth": false
+          },
+          {
+            "auth": true
+          }
+        ],
+        "postFix": "/:actionName"
+      },
+      "confirmTelephone": {
+        "method": "get",
+        "data": ["record"],
+        "rules": [{
+            "auth": false
+          },
+          {
+            "auth": true
+          }
+        ],
+        "postFix": "/:actionName"
+      },
+      "login": {
+        "method": "post",
+        "data": ["record"],
+        "rules": [{
+          "auth": false
+        }],
+        "return": ["_id", "role", "active", "email", "username"],
+        "postFix": "/:actionName",
+        "title": "Вход",
+        "fields": {
+          "default": [
+            "email",
+            "password",
+            "submit"
+          ]
+        }
+      },
+      "requestLoginCodeOnEmail": {
+        "method": "post",
+        "data": ["record"],
+        "rules": [{
+          "auth": false
+        }],
+        "postFix": "/:actionName",
+        "title": "Вход одноразовой ссылкой из письма",
+        "fields": {
+          "default": [
+            "email",
+            "submit"
+          ]
+        }
+      },
+			"requestLoginCodeOnTelephone": {
+        "method": "post",
+        "data": ["record"],
+        "rules": [{
+          "auth": false
+        }],
+        "postFix": "/:actionName",
+        "title": "Вход одноразовой ссылкой из SMS",
+        "fields": {
+          "default": [
+            "email",
+            "submit"
+          ]
+        }
+      },
+      "loginByCode": {
+        "method": "get",
+        "data": ["record"],
+        "rules": [{
+          "auth": false
+        }],
+        "postFix": "/:actionName"
+      },
+      "requestPasswordRestore": {
+        "method": "post",
+        "title": "Восстановление пароля",
+        "rules": {
+          "auth": false
+        },
+        "fields": {
+          "default": [
+            "email",
+            "submit"
+          ]
+        },
+        "postFix": "/:actionName"
+      },
+      "restorePassword": {
+        "method": "get",
+        "title": "Восстановление пароля",
+        "rules": {
+          "auth": false
+        },
+        "postFix": "/:actionName"
+      }
+    }
+  }
+}

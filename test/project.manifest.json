@@ -1,0 +1,39 @@
+{
+	"name": "notUserTestApp",
+	"targets": {
+		"server": {
+			"name": "notUserTestApp",
+			"roles": [
+				"root",
+				"admin",
+				"client",
+				"user",
+				"guest"
+			],
+			"builder": "server",
+			"root": "testapp/front/tmpl",
+			"src": "testapp/front/tmpl",
+			"build": "testapp/static/assets",
+			"index": "testapp/front/tmpl/index.!.mjs",
+			"rollup": "testapp/front/tmpl/rollup.!.mjs",
+			"output": "!.js",
+			"modules": {
+				"serverModulesDir": "testapp/server/modules",
+				"frontModulesDir": "testapp/front/src",
+				"npm": {
+					"not-options": {},
+					"not-filter": {},
+					"not-notification": {},
+					"not-locale": {},
+					"not-inform": {},
+					"not-inform-rule-tag": {},
+					"not-inform-sink-email": {},
+					"not-inform-sink-notification": {},
+					"not-key": {},
+					"not-error": {},
+					"not-ws": {}
+				}
+			}
+		}
+	}
+}

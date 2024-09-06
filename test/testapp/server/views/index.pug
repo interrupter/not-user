@@ -1,0 +1,14 @@
+doctype html
+html.no-js(lang="")
+  head
+  include ./parts/header.pug
+  body
+    section(class="hero is-success is-fullheight")
+      include ./parts/menu.pug
+      div(class="hero-body")
+        div(class="container has-text-centered")
+          h1(class="title") Title
+          h2(class="subtitle") subtitle
+    script(src=host+"/fetch.xhr.js" type="module")
+    script(src=host+"/front/"+role+".js")
+    script(src=host+"/sw-register.js")

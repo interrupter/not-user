@@ -1,3 +1,5 @@
+const SafetyProtocols = require("not-node/src/core/safety.protocols");
+
 module.exports = {
     ui: {
         component: "UIEmail",
@@ -8,9 +10,6 @@ module.exports = {
         unique: true,
         searchable: true,
         required: true,
-        safe: {
-            update: ["@owner", "root", "admin"],
-            read: ["@owner", "root", "admin"],
-        },
+        safe: SafetyProtocols.ownerRootAdminCRUD_clientC,
     },
 };

@@ -1,4 +1,4 @@
-const Log = require("not-log")(module, "role:routes");
+//const Log = require("not-log")(module, "role:routes");
 const { MODULE_NAME } = require("../const");
 const notNode = require("not-node");
 const { objHas } = notNode.Common;

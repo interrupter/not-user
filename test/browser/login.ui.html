@@ -13,25 +13,26 @@
 	<link rel="stylesheet" href="/assets/user/notUser.guest.css">
 	<script type="module" src="/fetch.xhr.js"></script>
 </head>
+
 <body>
 	<div id="test-ground">
-			<script src="/assets/not-bulma/notBulma.js"></script>
-	<script src="/assets/user/notUser.guest.js"></script>
-	<script>
+		<!--<script src="/assets/not-bulma/notBulma.js"></script>-->
+		<script src="/assets/user/notUser.guest.js"></script>
+		<script>
 			let appOptions = {
 				name: 'not-user - Guest Test',
 				manifestURL: '/api/manifest',
-				initController: notUser.ncLogin,
-				router:{
-					root:'/login.ui.html',
+				initController: notUser.notUser.ncLogin,
+				router: {
+					root: '/login.ui.html',
 					//routes for client-side
 					manifest: [],
 					index: ''
 				},
 				//modules.user.loginForm.modes
-				modules:{
-					user:{
-						loginForm:{
+				modules: {
+					user: {
+						loginForm: {
 							modes: [
 								'login',
 								'requestLoginCodeOnEmail',
@@ -45,12 +46,10 @@
 					}
 				}
 			};
-			notBulma.notCommon.startApp(()=> {
-				window.APP = new notBulma.notApp(appOptions);
-			});
+			notUser.notBulma.notCommon.startApp(() => new notUser.notBulma.Frame.notApp(appOptions));
 
-	</script>
-	<div id="test-list"></div>
+		</script>
+		<div id="test-list"></div>
 </body>
 
 </html>
