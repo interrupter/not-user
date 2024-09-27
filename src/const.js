@@ -14,6 +14,9 @@ module.exports.DEFAULT_TTL = DEFAULT_TTL;
 module.exports.DEFAULT_TTL_MIN = DEFAULT_TTL_MIN;
 module.exports.DEFAULT_TTL_MAX = DEFAULT_TTL_MAX;
 
+//
+module.exports.MIN_SALT_LEN = 16;
+
 //stronger -> weaker
 const DEFAULT_ROLES_LIST = ["root", "admin", "client", "user", "guest"];
 module.exports.DEFAULT_ROLES_LIST = DEFAULT_ROLES_LIST;

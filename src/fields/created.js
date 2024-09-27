@@ -3,13 +3,14 @@ const notFieldsFilter = require("not-node/src/fields/filter");
 
 //дата создания
 module.exports = {
+    parent: 'not-node//createdAt',
     model: {
         type: Date,
         default: Date.now,
         safe: notFieldsFilter.mergeSafetyProtocols(
             SafetyProtocols.systemManageableSecret,
             SafetyProtocols.publicReadable
-        ),
+        ),        
     },
     ui: {
         component: "UITextfield",

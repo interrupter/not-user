@@ -38,8 +38,7 @@ const FIELDS = [
     "not-user//role",
     "not-user//active",
     "not-user//ip",
-    "not-user//country",
-    "not-user//confirm",
+    "not-user//country"
 ];
 
 module.exports.FIELDS = FIELDS;
@@ -440,13 +439,11 @@ module.exports.thisMethods = {
     },
     confirmEmail() {
         this.emailConfirmed = true;
-        this.confirm = "";
         this.registerAs("confirmed");
         return this;
     },
     confirmTelephone() {
         this.telephoneConfirmed = true;
-        this.confirm = "";
         this.registerAs("confirmed");
         return this;
     },

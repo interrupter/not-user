@@ -11,7 +11,7 @@ module.exports.thisLogicName = MODEL_NAME;
 
 module.exports[MODEL_NAME] = class RoleLogic {
     static async listAll() {
-        Log.debug("RoleLogic//listAll");
+        Log?.debug("RoleLogic//listAll");
         const ROLES_PRIMARY = config.get("roles.primary") || DEFAULT_ROLES_LIST;
         const ROLES_SECONDARY =
             config.get("roles.secondary") || EXTRA_ROLES_LIST;
