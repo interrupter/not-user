@@ -1,6 +1,7 @@
 //статус пользователя, активен или нет
 
 module.exports = {
+    parent: "not-node//active",
     model: {
         type: Boolean,
         required: true,

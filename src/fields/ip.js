@@ -1,4 +1,5 @@
 module.exports = {
+    parent: "not-node//ip",
     model: {
         type: String,
         required: false,
