@@ -9,12 +9,18 @@
 
     import UserCommon from "./user.js";
 
-    export let user = {};
-    export let readonly = true;
 
-    export let rolesColorScheme;
+    /**
+     * @typedef {Object} Props
+     * @property {any} [user]
+     * @property {boolean} [readonly]
+     * @property {any} rolesColorScheme
+     */
 
-    let rolesTags = [];
+    /** @type {Props} */
+    let { user = {}, readonly = true, rolesColorScheme } = $props();
+
+    let rolesTags = $state([]);
 
     function goChangePassword() {
         dispatch("goChangePassword");
@@ -164,7 +170,7 @@
                 <div class="list-item-title">Пароль</div>
                 <div class="list-item-description">
                     <button
-                        on:click={goChangePassword}
+                        onclick={goChangePassword}
                         class="button is-small is-warning">Измененить</button
                     >
                     <p class="help">Рекомендуется регулярно менять пароль.</p>

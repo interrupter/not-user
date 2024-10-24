@@ -1,4 +1,6 @@
 <script>
+  import { run } from 'svelte/legacy';
+
   import {
     Elements
   } from 'not-bulma';
@@ -11,23 +13,29 @@
   } from 'svelte';
   let dispatch = createEventDispatcher();
 
-  export let oldPassword = '';
-  export let newPassword = '';
-  let newPassword2 = '';
-  let waiting = false;
-  let success = false;
-  let fatalError = false;
+  /**
+   * @typedef {Object} Props
+   * @property {string} [oldPassword]
+   * @property {string} [newPassword]
+   */
 
-  let error = {
+  /** @type {Props} */
+  let { oldPassword = $bindable(''), newPassword = $bindable('') } = $props();
+  let newPassword2 = $state('');
+  let waiting = $state(false);
+  let success = $state(false);
+  let fatalError = $state(false);
+
+  let error = $state({
     oldPassword: false,
     newPassword: false,
     newPassword2: false,
-  };
+  });
 
-  $: {
+  run(() => {
     error.newPassword2 = newPassword!==newPassword2?'Не совпадает с первым':false;
     error = error;
-  };
+  });;
 
   function reject(e){
     e && e.preventDefault();
@@ -142,10 +150,10 @@
 
 <div class="field is-grouped is-grouped-centered">
   <p class="control">
-    <a class="button is-primary {waiting?'is-loading':''}" href on:click={requestChangePassword}>Сохранить</a>
+    <a class="button is-primary {waiting?'is-loading':''}" href onclick={requestChangePassword}>Сохранить</a>
   </p>
   <p class="control">
-    <a class="button is-light" href on:click={reject}>
+    <a class="button is-light" href onclick={reject}>
       Отмена
     </a>
   </p>

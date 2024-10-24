@@ -9,15 +9,28 @@
 
     let dispatch = createEventDispatcher();
 
-    export let status = "";
-    export let message = false;
 
-    export let MODES = [];
-    export let mode = "login";
 
-    export let loading = false;
 
-    export let MODES_TITLES = {};
+    /**
+     * @typedef {Object} Props
+     * @property {string} [status]
+     * @property {boolean} [message]
+     * @property {any} [MODES]
+     * @property {string} [mode]
+     * @property {boolean} [loading]
+     * @property {any} [MODES_TITLES]
+     */
+
+    /** @type {Props} */
+    let {
+        status = "",
+        message = false,
+        MODES = [],
+        mode = $bindable("login"),
+        loading = $bindable(false),
+        MODES_TITLES = {}
+    } = $props();
 
     function setMode(val) {
         mode = val;
@@ -25,7 +38,7 @@
         updateModesButtons();
     }
 
-    let MODES_BUTTONS = [];
+    let MODES_BUTTONS = $state([]);
 
     function updateModesButtons() {
         MODES_BUTTONS = MODES.filter((thisMode) => {
@@ -53,7 +66,7 @@
     {#if status === "ok"}
         <UISuccess title="" {message} />
     {:else}
-        <div class="user-login-form-paper user-frame-form" />
+        <div class="user-login-form-paper user-frame-form"></div>
         {#if status === "error"}
             <!--<UIError title="" message={message}></UIError>-->
         {/if}

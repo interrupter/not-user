@@ -1,4 +1,6 @@
 <script>
+    import { run } from 'svelte/legacy';
+
     import "bulma-switch";
     import { onMount } from "svelte";
 
@@ -11,11 +13,11 @@
 
     let overlay;
     let stage = "filling";
-    let errorMessage = false;
+    let errorMessage = $state(false);
     let formErrors = false;
-    let success = false;
+    let success = $state(false);
 
-    let validationErrors = {
+    let validationErrors = $state({
         username: false,
         email: false,
         tel: false,
@@ -24,9 +26,8 @@
         active: false,
         country: false,
         role: false,
-    };
+    });
 
-    export let validation = true;
     export const MODES = ["create", "update"];
 
     export const MODES_FIELDS = {
@@ -51,33 +52,11 @@
     import { createEventDispatcher } from "svelte";
     let dispatch = createEventDispatcher();
 
-    export let own = false;
-    export let mode = "create";
-    export let loading = false;
-    export let formValid = false;
 
-    export let title = {
-        __enabled: true,
-        create: "Добавление учетной записи",
-        update: "Редактирование учетной записи",
-    };
 
-    export let description = {
-        __enabled: true,
-        create: "Заполните пожалуйста форму",
-        update: "Заполните пожалуйста форму",
-    };
 
-    export let username = UserCommon.fieldInit("username", { enabled: true });
-    export let password = UserCommon.fieldInit("password", { enabled: true });
-    export let password2 = UserCommon.fieldInit("password2", { enabled: true });
-    export let tel = UserCommon.fieldInit("tel", { enabled: true });
-    export let email = UserCommon.fieldInit("email", { enabled: true });
-    export let role = UserCommon.fieldInit("role", { enabled: true });
-    export let active = UserCommon.fieldInit("active", { enabled: true });
-    export let country = UserCommon.fieldInit("country", { enabled: true });
 
-    let fields = {
+    let fields = $state({
         username,
         password,
         tel,
@@ -86,20 +65,10 @@
         active,
         role,
         country,
-    };
+    });
 
-    export let submit = {
-        caption: "Отправить",
-        enabled: true,
-    };
 
-    export let cancel = {
-        caption: "Назад",
-        enabled: true,
-    };
 
-    export let user = {};
-    export let userRoles = [];
 
     function initUserRoles(userRoleSet) {
         userRoleSet.forEach((userRole) => {
@@ -269,21 +238,82 @@
         errorMessage = Array.isArray(error) ? error.join(", ") : error;
     }
 
-    export let tryModeAction = (e) => {
-        e && e.preventDefault();
-        errorMessage = false;
-        dispatch(mode, collectData());
-        return false;
-    };
 
     export function showSuccess() {
         success = true;
     }
 
-    export let rejectForm = () => {
+    /**
+     * @typedef {Object} Props
+     * @property {boolean} [validation]
+     * @property {boolean} [own]
+     * @property {string} [mode]
+     * @property {boolean} [loading]
+     * @property {boolean} [formValid]
+     * @property {any} [title]
+     * @property {any} [description]
+     * @property {any} [username]
+     * @property {any} [password]
+     * @property {any} [password2]
+     * @property {any} [tel]
+     * @property {any} [email]
+     * @property {any} [role]
+     * @property {any} [active]
+     * @property {any} [country]
+     * @property {any} [submit]
+     * @property {any} [cancel]
+     * @property {any} [user]
+     * @property {any} [userRoles]
+     * @property {any} [tryModeAction]
+     * @property {any} [rejectForm]
+     */
+
+    /** @type {Props} */
+    let {
+        validation = true,
+        own = false,
+        mode = "create",
+        loading = $bindable(false),
+        formValid = $bindable(false),
+        title = {
+        __enabled: true,
+        create: "Добавление учетной записи",
+        update: "Редактирование учетной записи",
+    },
+        description = {
+        __enabled: true,
+        create: "Заполните пожалуйста форму",
+        update: "Заполните пожалуйста форму",
+    },
+        username = UserCommon.fieldInit("username", { enabled: true }),
+        password = UserCommon.fieldInit("password", { enabled: true }),
+        password2 = UserCommon.fieldInit("password2", { enabled: true }),
+        tel = UserCommon.fieldInit("tel", { enabled: true }),
+        email = UserCommon.fieldInit("email", { enabled: true }),
+        role = $bindable(UserCommon.fieldInit("role", { enabled: true })),
+        active = UserCommon.fieldInit("active", { enabled: true }),
+        country = UserCommon.fieldInit("country", { enabled: true }),
+        submit = {
+        caption: "Отправить",
+        enabled: true,
+    },
+        cancel = {
+        caption: "Назад",
+        enabled: true,
+    },
+        user = {},
+        userRoles = $bindable([]),
+        tryModeAction = (e) => {
+        e && e.preventDefault();
+        errorMessage = false;
+        dispatch(mode, collectData());
+        return false;
+    },
+        rejectForm = () => {
         loading = true;
         dispatch("rejectForm");
-    };
+    }
+    } = $props();
 
     export function setLoading() {
         loading = true;
@@ -293,48 +323,51 @@
         loading = false;
     }
 
-    $: telHelper = validationErrors.tel
+    let telHelper = $derived(validationErrors.tel
         ? validationErrors.tel.join(", ")
-        : tel.placeholder;
-    $: telClasses = validationErrors.tel ? CLASS_ERR : CLASS_OK;
+        : tel.placeholder);
+    let telClasses = $derived(validationErrors.tel ? CLASS_ERR : CLASS_OK);
 
-    $: usernameHelper = validationErrors.username
+    let usernameHelper = $derived(validationErrors.username
         ? validationErrors.username.join(", ")
-        : username.placeholder;
-    $: usernameClasses = validationErrors.username ? CLASS_ERR : CLASS_OK;
+        : username.placeholder);
+    let usernameClasses = $derived(validationErrors.username ? CLASS_ERR : CLASS_OK);
 
-    $: emailHelper = validationErrors.email
+    let emailHelper = $derived(validationErrors.email
         ? validationErrors.email.join(", ")
-        : email.placeholder;
-    $: emailClasses = validationErrors.email ? CLASS_ERR : CLASS_OK;
+        : email.placeholder);
+    let emailClasses = $derived(validationErrors.email ? CLASS_ERR : CLASS_OK);
 
-    $: passwordHelper = validationErrors.password
+    let passwordHelper = $derived(validationErrors.password
         ? validationErrors.password.join(", ")
-        : password.placeholder;
-    $: passwordClasses = validationErrors.password ? CLASS_ERR : CLASS_OK;
+        : password.placeholder);
+    let passwordClasses = $derived(validationErrors.password ? CLASS_ERR : CLASS_OK);
 
-    $: password2Helper = validationErrors.password2
+    let password2Helper = $derived(validationErrors.password2
         ? validationErrors.password2.join(", ")
-        : password2.placeholder;
-    $: password2Classes = validationErrors.password2 ? CLASS_ERR : CLASS_OK;
+        : password2.placeholder);
+    let password2Classes = $derived(validationErrors.password2 ? CLASS_ERR : CLASS_OK);
 
-    $: activeHelper = validationErrors.active
+    let activeHelper = $derived(validationErrors.active
         ? validationErrors.active.join(", ")
-        : active.placeholder;
-    $: activeClasses = validationErrors.active ? CLASS_ERR : CLASS_OK;
+        : active.placeholder);
+    let activeClasses = $derived(validationErrors.active ? CLASS_ERR : CLASS_OK);
 
-    $: countryHelper = validationErrors.country
+    let countryHelper = $derived(validationErrors.country
         ? validationErrors.country.join(", ")
-        : country.placeholder;
-    $: countryClasses = validationErrors.country ? CLASS_ERR : CLASS_OK;
+        : country.placeholder);
+    let countryClasses = $derived(validationErrors.country ? CLASS_ERR : CLASS_OK);
 
-    $: roleHelper = validationErrors.role
+    let roleHelper = $derived(validationErrors.role
         ? validationErrors.role.join(", ")
-        : role.placeholder;
-    $: roleClasses = validationErrors.role ? CLASS_ERR : CLASS_OK;
-    $: roleInvalid = role.validated && !role.valid;
+        : role.placeholder);
+    let roleClasses = $derived(validationErrors.role ? CLASS_ERR : CLASS_OK);
+    let roleInvalid;
+    run(() => {
+        roleInvalid = role.validated && !role.valid;
+    });
 
-    $: formInvalid = formValid === false;
+    let formInvalid = $derived(formValid === false);
 
     function goChangePassword() {
         dispatch("goChangePassword");
@@ -353,7 +386,7 @@
         </h5>
     {/if}
     {#if own}
-        <button on:click={goChangePassword} class="button is-small is-warning"
+        <button onclick={goChangePassword} class="button is-small is-warning"
             >Изменение пароля</button
         >
     {/if}
@@ -376,8 +409,8 @@
                         required={fields.username.required}
                         placeholder={fields.username.placeholder}
                         bind:value={fields.username.value}
-                        on:change={onChange}
-                        on:input={onInput}
+                        onchange={onChange}
+                        oninput={onInput}
                         autocomplete="username"
                         aria-controls="input-field-helper-username"
                         aria-describedby="input-field-helper-username"
@@ -417,8 +450,8 @@
                         required={fields.email.required}
                         placeholder={fields.email.placeholder}
                         invalid={validationErrors.email}
-                        on:change={onChange}
-                        on:input={onInput}
+                        onchange={onChange}
+                        oninput={onInput}
                         name="email"
                         type="email"
                         autocomplete="email"
@@ -462,8 +495,8 @@
                         required={fields.password.required}
                         placeholder={fields.password.placeholder}
                         bind:value={fields.password.value}
-                        on:change={onChange}
-                        on:input={onInput}
+                        onchange={onChange}
+                        oninput={onInput}
                         autocomplete="password"
                         aria-controls="input-field-helper-password"
                         aria-describedby="input-field-helper-password"
@@ -505,8 +538,8 @@
                         required={fields.password2.required}
                         placeholder={fields.password2.placeholder}
                         bind:value={fields.password2.value}
-                        on:change={onChange}
-                        on:input={onInput}
+                        onchange={onChange}
+                        oninput={onInput}
                         autocomplete="password2"
                         aria-controls="input-field-helper-password2"
                         aria-describedby="input-field-helper-password2"
@@ -550,8 +583,8 @@
                         required={fields.tel.required}
                         placeholder={fields.tel.placeholder}
                         bind:value={fields.tel.value}
-                        on:change={onChange}
-                        on:input={onInput}
+                        onchange={onChange}
+                        oninput={onInput}
                         autocomplete="tel"
                         aria-controls="input-field-helper-tel"
                         aria-describedby="input-field-helper-tel"
@@ -591,8 +624,8 @@
                     required={fields.active.required}
                     placeholder={fields.active.placeholder}
                     invalid={validationErrors.active}
-                    on:change={onChange}
-                    on:input={onInput}
+                    onchange={onChange}
+                    oninput={onInput}
                     name="active"
                     type="checkbox"
                     aria-controls="input-field-helper-active"
@@ -641,8 +674,8 @@
                         <select
                             id="user-login-form-country"
                             bind:value={fields.country.value}
-                            on:blur={onChange}
-                            on:input={onInput}
+                            onblur={onChange}
+                            oninput={onInput}
                         >
                             {#each UserCommon.COUNTRIES as variant}
                                 <option value={variant.id}
@@ -667,12 +700,12 @@
             {#if cancel.enabled}
                 <button
                     class="button is-outlined user-register-form-cancel"
-                    on:click={rejectForm}>{cancel.caption}</button
+                    onclick={rejectForm}>{cancel.caption}</button
                 >
             {/if}
             {#if submit.enabled}
                 <button
-                    on:click={tryModeAction}
+                    onclick={tryModeAction}
                     disabled={formInvalid}
                     class="button is-primary is-hovered user-register-form-submit pull-right"
                     >{submit.caption}</button

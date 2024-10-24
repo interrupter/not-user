@@ -1,4 +1,6 @@
 <script>
+    import { run } from 'svelte/legacy';
+
     import { Elements, notCommon } from "not-bulma";
 
     const { UIButtons } = Elements.Buttons;
@@ -13,37 +15,66 @@
     import { UIButton } from "not-bulma/src/elements/button";
     let dispatch = createEventDispatcher();
 
-    export let value;
-    export let inputStarted = false;
-    export let fieldname = "user";
 
-    //export let required = true;
-    export let readonly = false;
-    export let valid = true;
-    export let validated = false;
-    export let errors = false;
-    export let formErrors = false;
-    export let formLevelError = false;
-    export let serviceName = "nsUser";
-    export let userData = null;
-    export let loading = false;
+    
 
-    export let narrow = false;
+    /**
+     * @typedef {Object} Props
+     * @property {any} value
+     * @property {boolean} [inputStarted]
+     * @property {string} [fieldname]
+     * @property {boolean} [readonly] - export let required = true;
+     * @property {boolean} [valid]
+     * @property {boolean} [validated]
+     * @property {boolean} [errors]
+     * @property {boolean} [formErrors]
+     * @property {boolean} [formLevelError]
+     * @property {string} [serviceName]
+     * @property {any} [userData]
+     * @property {boolean} [loading]
+     * @property {boolean} [narrow]
+     */
+
+    /** @type {Props} */
+    let {
+        value = $bindable(),
+        inputStarted = $bindable(false),
+        fieldname = "user",
+        readonly = false,
+        valid = true,
+        validated = false,
+        errors = false,
+        formErrors = false,
+        formLevelError = false,
+        serviceName = "nsUser",
+        userData = $bindable(null),
+        loading = $bindable(false),
+        narrow = false
+    } = $props();
 
     function getService() {
         return notCommon.getApp().getService(serviceName);
     }
 
-    $: allErrors = [].concat(
-        errors ? errors : [],
-        formErrors ? formErrors : []
-    );
-    $: showErrors = !(validated && valid) && inputStarted;
-    $: invalid = valid === false || formLevelError;
-    $: validationClasses =
-        valid === true || !inputStarted
-            ? UICommon.CLASS_OK
-            : UICommon.CLASS_ERR;
+    let allErrors;
+    run(() => {
+        allErrors = [].concat(
+            errors ? errors : [],
+            formErrors ? formErrors : []
+        );
+    });
+    let showErrors;
+    run(() => {
+        showErrors = !(validated && valid) && inputStarted;
+    });
+    let invalid = $derived(valid === false || formLevelError);
+    let validationClasses;
+    run(() => {
+        validationClasses =
+            valid === true || !inputStarted
+                ? UICommon.CLASS_OK
+                : UICommon.CLASS_ERR;
+    });
 
     function openUserSearchAndSelect() {
         getService()
@@ -105,14 +136,14 @@
         },
     ];
 
-    let VISIBLE_BUTTONS = [];
-    $: {
+    let VISIBLE_BUTTONS = $state([]);
+    run(() => {
         if (value) {
             VISIBLE_BUTTONS = [...AVAILABLE_BUTTONS];
         } else {
             VISIBLE_BUTTONS = [AVAILABLE_BUTTONS[0]];
         }
-    }
+    });
 </script>
 
 <UIColumns>

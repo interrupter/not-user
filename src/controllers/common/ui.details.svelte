@@ -5,8 +5,7 @@
     import { onMount } from "svelte";
     import UserCommon from "./user.js";
 
-    export let user = {};
-    export let userRoles = [];
+    let { user = {}, userRoles = $bindable([]) } = $props();
 
     function initUserRoles(userRoleSet) {
         userRoleSet.forEach((userRole) => {

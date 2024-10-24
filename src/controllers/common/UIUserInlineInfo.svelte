@@ -5,11 +5,17 @@
     import { UIButton } from "not-bulma/src/elements/button";
     import { UITitle } from "not-bulma/src/elements/various";
 
-    export let userID = -1;
-    export let username = "no_name";
-    export let usernameFormatter = (data) => `${data.userID}#${data.username}`;
+    /**
+     * @typedef {Object} Props
+     * @property {any} [userID]
+     * @property {string} [username]
+     * @property {any} [usernameFormatter]
+     */
 
-    $: usernameString = usernameFormatter({ username, userID });
+    /** @type {Props} */
+    let { userID = -1, username = "no_name", usernameFormatter = (data) => `${data.userID}#${data.username}` } = $props();
+
+    let usernameString = $derived(usernameFormatter({ username, userID }));
 </script>
 
 <UIButton

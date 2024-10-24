@@ -1,4 +1,6 @@
 <script>
+  import { run } from 'svelte/legacy';
+
     import { LOCALE, Elements } from "not-bulma";
 
     const { UIErrorsList } = Elements.Various;
@@ -66,8 +68,6 @@
         value = value;
     });
 
-    export let inputStarted = false;
-    export let value = []; //exposed true form
     /**
   item = {
     id,        //unique
@@ -75,28 +75,56 @@
     type       //for coloring items, usual html template names danger, success, etc
   }
   **/
-    let _value = []; //local copy enriched with data for gui
-    export let variants = [];
-    //export let placeholder = 'placeholder';
-    export let fieldname = "role";
-    //export let required = true;
-    export let readonly = false;
-    export let valid = true;
-    export let validated = false;
-    export let errors = false;
-    export let formErrors = false;
-    export let formLevelError = false;
+    let _value = $state([]); //local copy enriched with data for gui
+    
+    
+  /**
+   * @typedef {Object} Props
+   * @property {boolean} [inputStarted]
+   * @property {any} [value]
+   * @property {any} [variants]
+   * @property {string} [fieldname] - export let placeholder = 'placeholder';
+   * @property {boolean} [readonly] - export let required = true;
+   * @property {boolean} [valid]
+   * @property {boolean} [validated]
+   * @property {boolean} [errors]
+   * @property {boolean} [formErrors]
+   * @property {boolean} [formLevelError]
+   */
 
-    $: allErrors = [].concat(
-        errors ? errors : [],
-        formErrors ? formErrors : []
-    );
-    $: showErrors = !(validated && valid) && inputStarted;
-    $: invalid = valid === false || formLevelError;
-    $: validationClasses =
-        valid === true || !inputStarted
-            ? UICommon.CLASS_OK
-            : UICommon.CLASS_ERR;
+  /** @type {Props} */
+  let {
+    inputStarted = $bindable(false),
+    value = $bindable([]),
+    variants = [],
+    fieldname = "role",
+    readonly = false,
+    valid = true,
+    validated = false,
+    errors = false,
+    formErrors = false,
+    formLevelError = false
+  } = $props();
+
+    let allErrors;
+  run(() => {
+    allErrors = [].concat(
+          errors ? errors : [],
+          formErrors ? formErrors : []
+      );
+  });
+    let showErrors;
+  run(() => {
+    showErrors = !(validated && valid) && inputStarted;
+  });
+    let invalid = $derived(valid === false || formLevelError);
+    let validationClasses;
+  run(() => {
+    validationClasses =
+          valid === true || !inputStarted
+              ? UICommon.CLASS_OK
+              : UICommon.CLASS_ERR;
+  });
 
     function remove(e) {
         e && e.preventDefault();
@@ -135,7 +163,7 @@
         return false;
     }
 
-    $: classes = errors ? "is-danger" : "";
+    let classes = $derived(errors ? "is-danger" : "");
 </script>
 
 <div class="columns">
@@ -147,8 +175,8 @@
                     <button
                         data-id={item.id}
                         class="delete is-small"
-                        on:click={remove}
-                    />
+                        onclick={remove}
+></button>
                 {/if}
             </span>
         {/each}
@@ -170,7 +198,7 @@
                         {/each}
                     </select>
                 </div>
-                <button class="button is-primary is-small" on:click={add}
+                <button class="button is-primary is-small" onclick={add}
                     >{$LOCALE["Добавить"]}</button
                 >
             </div>

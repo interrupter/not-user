@@ -1,4 +1,6 @@
 <script>
+    import { run } from 'svelte/legacy';
+
     import { Elements, notCommon } from "not-bulma";
 
     const { UIButtons } = Elements.Buttons;
@@ -6,16 +8,31 @@
     import { createEventDispatcher, onMount } from "svelte";
     let dispatch = createEventDispatcher();
 
-    export let value;
-    export let inputStarted = false;
-    export let fieldname = "user";
-    //export let required = true;
-    export let readonly = false;
+    
 
-    export let serviceName = "nsUser";
-    export let userData = null;
-    export let loading = false;
-    export let usernameFormatter = (data) => `${data.userID}#${data.username}`;
+    /**
+     * @typedef {Object} Props
+     * @property {any} value
+     * @property {boolean} [inputStarted]
+     * @property {string} [fieldname]
+     * @property {boolean} [readonly] - export let required = true;
+     * @property {string} [serviceName]
+     * @property {any} [userData]
+     * @property {boolean} [loading]
+     * @property {any} [usernameFormatter]
+     */
+
+    /** @type {Props} */
+    let {
+        value = $bindable(),
+        inputStarted = $bindable(false),
+        fieldname = "user",
+        readonly = false,
+        serviceName = "nsUser",
+        userData = $bindable(null),
+        loading = $bindable(false),
+        usernameFormatter = (data) => `${data.userID}#${data.username}`
+    } = $props();
 
     function getService() {
         return notCommon.getApp().getService(serviceName);
@@ -105,8 +122,8 @@
         }
     }
 
-    let VISIBLE_BUTTONS = [];
-    $: {
+    let VISIBLE_BUTTONS = $state([]);
+    run(() => {
         if (value) {
             VISIBLE_BUTTONS = [
                 getUserButton(),
@@ -118,7 +135,7 @@
                 ...(readonly ? [] : [AVAILABLE_BUTTONS[0]]),
             ];
         }
-    }
+    });
 </script>
 
 <div class="control">

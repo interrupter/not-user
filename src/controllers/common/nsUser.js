@@ -3,6 +3,7 @@ import { Builder } from "not-validation";
 import Validator from "validator";
 
 import UIGenericSelector from "not-bulma/src/elements/modal/ui.generic.selector.svelte";
+import { mount, unmount, unmount } from "svelte";
 
 const emptyResult = () => {
     return {
@@ -64,10 +65,10 @@ export default class nsUser {
     openSelector() {
         return new Promise((resolve, reject) => {
             try {
-                const el = new UIGenericSelector({
-                    target: document.body,
-                    props: {},
-                });
+                const el = mount(UIGenericSelector, {
+                                    target: document.body,
+                                    props: {},
+                                });
                 el.$on("termChange", async ({ detail }) => {
                     const results = await this.searchUserByTerm(detail);
                     el.$set({ results });
@@ -83,12 +84,12 @@ export default class nsUser {
 
                 el.$on("reject", () => {
                     console.log("reject");
-                    el.$destroy();
+                    unmount(el);
                     reject();
                 });
                 el.$on("resolve", ({ detail }) => {
                     console.log("resolve");
-                    el.$destroy();
+                    unmount(el);
                     resolve({
                         _id: detail._id,
                         userID: detail.id,

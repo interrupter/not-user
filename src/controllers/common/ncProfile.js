@@ -3,6 +3,7 @@ import UserUIProfile from "../common/ui.profile.svelte";
 import UserUIChangePassword from "../common/ui.change.password.svelte";
 
 import { Frame, Elements } from "not-bulma";
+import { mount, mount } from "svelte";
 
 const { notBreadcrumbs, notController, notCommon } = Frame;
 const { UIError, UISuccess } = Elements.Notifications;
@@ -153,17 +154,17 @@ class ncProfile extends notController {
 
             let res = await this.getModel()({}).$profile();
             if (res.status === "ok") {
-                this.ui.update = new UserUIProfile({
-                    target: this.els.main,
-                    props: {
-                        own: true,
-                        mode: "profile",
-                        user: notCommon.stripProxy(res.result),
-                        rolesColorScheme: this.app.getOptions(
-                            "modules.user.colorsOfRoles"
-                        ),
-                    },
-                });
+                this.ui.update = mount(UserUIProfile, {
+                                    target: this.els.main,
+                                    props: {
+                                        own: true,
+                                        mode: "profile",
+                                        user: notCommon.stripProxy(res.result),
+                                        rolesColorScheme: this.app.getOptions(
+                                            "modules.user.colorsOfRoles"
+                                        ),
+                                    },
+                                });
                 this.ui.update.$on("goChangePassword", () => {
                     this.runChangePassword();
                 });
@@ -194,10 +195,10 @@ class ncProfile extends notController {
             } else {
                 this.$destroyUI();
             }
-            this.ui.changePassword = new UserUIChangePassword({
-                target: this.els.main,
-                props: {},
-            });
+            this.ui.changePassword = mount(UserUIChangePassword, {
+                            target: this.els.main,
+                            props: {},
+                        });
             this.ui.changePassword.$on("changePassword", (ev) => {
                 this.onUserChangePassword({
                     ...ev.detail,
