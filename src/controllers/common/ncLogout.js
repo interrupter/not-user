@@ -2,12 +2,18 @@ import { Frame } from "not-bulma";
 
 const { notController } = Frame;
 
+/**
+ *
+ *
+ * @class ncLogout
+ * @extends {notController}
+ */
 class ncLogout extends notController {
     constructor(app) {
         super(app, "User.logout");
-        this.setModelName("user");
+        super.setModelName("user");
         if (confirm("Хотите выйти?")) {
-            this.make
+            super.make
                 .user({})
                 .$logout()
                 .then(() => {
@@ -17,7 +23,7 @@ class ncLogout extends notController {
                     return true;
                 })
                 .catch((err) => {
-                    this.report(err);
+                    super.report(err);
                 });
         } else {
             window.history.back();

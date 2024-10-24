@@ -1,16 +1,13 @@
 <script>
-    import { LOCALE, Elements } from "not-bulma";
+    import { Elements } from "not-bulma";
 
-    const { UISuccess, UIError } = Elements.Notifications;
+    const { UISuccess } = Elements.Notifications;
     const { UIButtons } = Elements.Buttons;
     import LockBlockComponent from "./lock.block.svelte";
 
     import { createEventDispatcher, onMount } from "svelte";
 
     let dispatch = createEventDispatcher();
-
-
-
 
     /**
      * @typedef {Object} Props
@@ -29,7 +26,7 @@
         MODES = [],
         mode = $bindable("login"),
         loading = $bindable(false),
-        MODES_TITLES = {}
+        MODES_TITLES = {},
     } = $props();
 
     function setMode(val) {

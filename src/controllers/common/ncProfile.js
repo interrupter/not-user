@@ -3,7 +3,7 @@ import UserUIProfile from "../common/ui.profile.svelte";
 import UserUIChangePassword from "../common/ui.change.password.svelte";
 
 import { Frame, Elements } from "not-bulma";
-import { mount, mount } from "svelte";
+import { mount } from "svelte";
 
 const { notBreadcrumbs, notController, notCommon } = Frame;
 const { UIError, UISuccess } = Elements.Notifications;
@@ -20,14 +20,14 @@ class ncProfile extends notController {
         super(app, `User.Profile`);
         this.ui = {};
         this.els = {};
-        this.setOptions(
+        super.setOptions(
             "containerSelector",
-            this.app.getOptions("crud.containerSelector")
+            super.app.getOptions("crud.containerSelector")
         );
-        this.setModuleName(MODULE_NAME.toLowerCase());
-        this.setModelName(MODEL_NAME.toLowerCase());
-        this.setOptions("Validators", {});
-        this.setOptions("params", params);
+        super.setModuleName(MODULE_NAME.toLowerCase());
+        super.setModelName(MODEL_NAME.toLowerCase());
+        super.setOptions("Validators", {});
+        super.setOptions("params", params);
         this.buildFrame();
         this.start();
         return this;
@@ -37,20 +37,20 @@ class ncProfile extends notController {
         BREADCRUMBS.splice(0, BREADCRUMBS.length, {
             title: LABEL,
             url: notCommon.buildURL({
-                prefix: this.getURLPrefix(),
+                prefix: super.getURLPrefix(),
                 action: "profile",
             }),
         });
         notBreadcrumbs.setHead(BREADCRUMBS).render({
             root: "",
             target: this.els.top,
-            navigate: (url) => this.app.getWorking("router").navigate(url),
+            navigate: (url) => super.app.getWorking("router").navigate(url),
         });
-        this.route(this.getOptions("params"));
+        this.route();
     }
 
     getModel() {
-        return this.make[this.getModelName()];
+        return super.make[super.getModelName()];
     }
 
     setBreadcrumbs(tail) {
@@ -58,11 +58,11 @@ class ncProfile extends notController {
     }
 
     backToList() {
-        this.app.getWorking("router").navigate(this.linkBackToList());
+        super.app.getWorking("router").navigate(this.linkBackToList());
     }
 
     afterAction(action = "list") {
-        let navBack = this.app.getOptions("crud.navigateBackAfter", []);
+        let navBack = super.app.getOptions("crud.navigateBackAfter", []);
         if (navBack && Array.isArray(navBack) && navBack.indexOf(action) > -1) {
             window.history.back();
         } else {
@@ -72,14 +72,14 @@ class ncProfile extends notController {
 
     linkBackToList() {
         return notCommon.buildURL({
-            prefix: this.getURLPrefix(),
+            prefix: super.getURLPrefix(),
             action: "profile",
         });
     }
 
     buildFrame() {
         let el = document.querySelector(
-            this.app.getOptions("crud.containerSelector", "body")
+            super.app.getOptions("crud.containerSelector", "body")
         );
         while (el.firstChild) {
             el.removeChild(el.firstChild);
@@ -139,7 +139,7 @@ class ncProfile extends notController {
 
     async runDetails() {
         try {
-            await this.preloadVariants("details");
+            await super.preloadVariants("details");
             this.setBreadcrumbs([
                 {
                     title: "Просмотр",
@@ -155,16 +155,16 @@ class ncProfile extends notController {
             let res = await this.getModel()({}).$profile();
             if (res.status === "ok") {
                 this.ui.update = mount(UserUIProfile, {
-                                    target: this.els.main,
-                                    props: {
-                                        own: true,
-                                        mode: "profile",
-                                        user: notCommon.stripProxy(res.result),
-                                        rolesColorScheme: this.app.getOptions(
-                                            "modules.user.colorsOfRoles"
-                                        ),
-                                    },
-                                });
+                    target: this.els.main,
+                    props: {
+                        own: true,
+                        mode: "profile",
+                        user: notCommon.stripProxy(res.result),
+                        rolesColorScheme: super.app.getOptions(
+                            "modules.user.colorsOfRoles"
+                        ),
+                    },
+                });
                 this.ui.update.$on("goChangePassword", () => {
                     this.runChangePassword();
                 });
@@ -172,7 +172,7 @@ class ncProfile extends notController {
                     this.onUserUpdateFormSubmit(ev.detail);
                 });
                 this.ui.update.$on("rejectForm", () =>
-                    UserCommon.goDashboard(this.app)
+                    UserCommon.goDashboard()
                 );
             } else {
                 this.showErrorMessage(res);
@@ -196,9 +196,9 @@ class ncProfile extends notController {
                 this.$destroyUI();
             }
             this.ui.changePassword = mount(UserUIChangePassword, {
-                            target: this.els.main,
-                            props: {},
-                        });
+                target: this.els.main,
+                props: {},
+            });
             this.ui.changePassword.$on("changePassword", (ev) => {
                 this.onUserChangePassword({
                     ...ev.detail,
@@ -229,7 +229,7 @@ class ncProfile extends notController {
     }
 
     showErrorMessage(res) {
-        this.error(res);
+        super.error(res);
         this.ui.error = new UIError({
             target: this.els.main,
             props: {
@@ -254,7 +254,7 @@ class ncProfile extends notController {
         this.getModel()(user)
             .$update()
             .then((res) => {
-                this.log(res);
+                super.log(res);
                 this.showResult(this.ui.update, res);
                 if (!UserCommon.isError(res) && !res.error) {
                     setTimeout(() => this.goProfile(), 3000);
