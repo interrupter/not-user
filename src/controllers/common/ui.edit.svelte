@@ -1,5 +1,5 @@
 <script>
-    import { run } from 'svelte/legacy';
+    import { run } from "svelte/legacy";
 
     import "bulma-switch";
     import { onMount } from "svelte";
@@ -52,10 +52,6 @@
     import { createEventDispatcher } from "svelte";
     let dispatch = createEventDispatcher();
 
-
-
-
-
     let fields = $state({
         username,
         password,
@@ -66,9 +62,6 @@
         role,
         country,
     });
-
-
-
 
     function initUserRoles(userRoleSet) {
         userRoleSet.forEach((userRole) => {
@@ -238,7 +231,6 @@
         errorMessage = Array.isArray(error) ? error.join(", ") : error;
     }
 
-
     export function showSuccess() {
         success = true;
     }
@@ -276,15 +268,15 @@
         loading = $bindable(false),
         formValid = $bindable(false),
         title = {
-        __enabled: true,
-        create: "Добавление учетной записи",
-        update: "Редактирование учетной записи",
-    },
+            __enabled: true,
+            create: "Добавление учетной записи",
+            update: "Редактирование учетной записи",
+        },
         description = {
-        __enabled: true,
-        create: "Заполните пожалуйста форму",
-        update: "Заполните пожалуйста форму",
-    },
+            __enabled: true,
+            create: "Заполните пожалуйста форму",
+            update: "Заполните пожалуйста форму",
+        },
         username = UserCommon.fieldInit("username", { enabled: true }),
         password = UserCommon.fieldInit("password", { enabled: true }),
         password2 = UserCommon.fieldInit("password2", { enabled: true }),
@@ -294,25 +286,25 @@
         active = UserCommon.fieldInit("active", { enabled: true }),
         country = UserCommon.fieldInit("country", { enabled: true }),
         submit = {
-        caption: "Отправить",
-        enabled: true,
-    },
+            caption: "Отправить",
+            enabled: true,
+        },
         cancel = {
-        caption: "Назад",
-        enabled: true,
-    },
+            caption: "Назад",
+            enabled: true,
+        },
         user = {},
         userRoles = $bindable([]),
         tryModeAction = (e) => {
-        e && e.preventDefault();
-        errorMessage = false;
-        dispatch(mode, collectData());
-        return false;
-    },
+            e && e.preventDefault();
+            errorMessage = false;
+            dispatch(mode, collectData());
+            return false;
+        },
         rejectForm = () => {
-        loading = true;
-        dispatch("rejectForm");
-    }
+            loading = true;
+            dispatch("rejectForm");
+        },
     } = $props();
 
     export function setLoading() {
@@ -323,44 +315,68 @@
         loading = false;
     }
 
-    let telHelper = $derived(validationErrors.tel
-        ? validationErrors.tel.join(", ")
-        : tel.placeholder);
+    let telHelper = $derived(
+        validationErrors.tel ? validationErrors.tel.join(", ") : tel.placeholder
+    );
     let telClasses = $derived(validationErrors.tel ? CLASS_ERR : CLASS_OK);
 
-    let usernameHelper = $derived(validationErrors.username
-        ? validationErrors.username.join(", ")
-        : username.placeholder);
-    let usernameClasses = $derived(validationErrors.username ? CLASS_ERR : CLASS_OK);
+    let usernameHelper = $derived(
+        validationErrors.username
+            ? validationErrors.username.join(", ")
+            : username.placeholder
+    );
+    let usernameClasses = $derived(
+        validationErrors.username ? CLASS_ERR : CLASS_OK
+    );
 
-    let emailHelper = $derived(validationErrors.email
-        ? validationErrors.email.join(", ")
-        : email.placeholder);
+    let emailHelper = $derived(
+        validationErrors.email
+            ? validationErrors.email.join(", ")
+            : email.placeholder
+    );
     let emailClasses = $derived(validationErrors.email ? CLASS_ERR : CLASS_OK);
 
-    let passwordHelper = $derived(validationErrors.password
-        ? validationErrors.password.join(", ")
-        : password.placeholder);
-    let passwordClasses = $derived(validationErrors.password ? CLASS_ERR : CLASS_OK);
+    let passwordHelper = $derived(
+        validationErrors.password
+            ? validationErrors.password.join(", ")
+            : password.placeholder
+    );
+    let passwordClasses = $derived(
+        validationErrors.password ? CLASS_ERR : CLASS_OK
+    );
 
-    let password2Helper = $derived(validationErrors.password2
-        ? validationErrors.password2.join(", ")
-        : password2.placeholder);
-    let password2Classes = $derived(validationErrors.password2 ? CLASS_ERR : CLASS_OK);
+    let password2Helper = $derived(
+        validationErrors.password2
+            ? validationErrors.password2.join(", ")
+            : password2.placeholder
+    );
+    let password2Classes = $derived(
+        validationErrors.password2 ? CLASS_ERR : CLASS_OK
+    );
 
-    let activeHelper = $derived(validationErrors.active
-        ? validationErrors.active.join(", ")
-        : active.placeholder);
-    let activeClasses = $derived(validationErrors.active ? CLASS_ERR : CLASS_OK);
+    let activeHelper = $derived(
+        validationErrors.active
+            ? validationErrors.active.join(", ")
+            : active.placeholder
+    );
+    let activeClasses = $derived(
+        validationErrors.active ? CLASS_ERR : CLASS_OK
+    );
 
-    let countryHelper = $derived(validationErrors.country
-        ? validationErrors.country.join(", ")
-        : country.placeholder);
-    let countryClasses = $derived(validationErrors.country ? CLASS_ERR : CLASS_OK);
+    let countryHelper = $derived(
+        validationErrors.country
+            ? validationErrors.country.join(", ")
+            : country.placeholder
+    );
+    let countryClasses = $derived(
+        validationErrors.country ? CLASS_ERR : CLASS_OK
+    );
 
-    let roleHelper = $derived(validationErrors.role
-        ? validationErrors.role.join(", ")
-        : role.placeholder);
+    let roleHelper = $derived(
+        validationErrors.role
+            ? validationErrors.role.join(", ")
+            : role.placeholder
+    );
     let roleClasses = $derived(validationErrors.role ? CLASS_ERR : CLASS_OK);
     let roleInvalid;
     run(() => {
