@@ -49,9 +49,6 @@
         update: "Учетная запись обновлёна",
     };
 
-    import { createEventDispatcher } from "svelte";
-    let dispatch = createEventDispatcher();
-
     let fields = $state({
         username,
         password,
@@ -86,7 +83,7 @@
             }
             validateForm(data);
         } else {
-            dispatch("input", data);
+            oninput(data);
         }
     }
 
@@ -139,7 +136,7 @@
             }
             validateForm(data);
         } else {
-            dispatch("change", data);
+            onchange(data);
         }
     }
 
@@ -191,7 +188,7 @@
             }
             validateForm(data);
         } else {
-            dispatch("input", data);
+            oninput(data);
         }
     }
 
@@ -298,13 +295,17 @@
         tryModeAction = (e) => {
             e && e.preventDefault();
             errorMessage = false;
-            dispatch(mode, collectData());
+            others['on'+mode]?(collectData());
             return false;
         },
         rejectForm = () => {
             loading = true;
-            dispatch("rejectForm");
+            onRejectForm();
         },
+        oninput= ()=>{},
+        onchange= (data)=>{},
+        onGoChangePassword= ()=>{},
+        ...others
     } = $props();
 
     export function setLoading() {
@@ -386,7 +387,7 @@
     let formInvalid = $derived(formValid === false);
 
     function goChangePassword() {
-        dispatch("goChangePassword");
+        onGoChangePassword();
     }
 </script>
 

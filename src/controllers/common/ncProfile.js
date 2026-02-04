@@ -20,14 +20,14 @@ class ncProfile extends notController {
         super(app, `User.Profile`);
         this.ui = {};
         this.els = {};
-        super.setOptions(
+        this.setOptions(
             "containerSelector",
-            super.app.getOptions("crud.containerSelector")
+            app.getOptions("crud.containerSelector")
         );
-        super.setModuleName(MODULE_NAME.toLowerCase());
-        super.setModelName(MODEL_NAME.toLowerCase());
-        super.setOptions("Validators", {});
-        super.setOptions("params", params);
+        this.setModuleName(MODULE_NAME.toLowerCase());
+        this.setModelName(MODEL_NAME.toLowerCase());
+        this.setOptions("Validators", {});
+        this.setOptions("params", params);
         this.buildFrame();
         this.start();
         return this;
@@ -37,20 +37,20 @@ class ncProfile extends notController {
         BREADCRUMBS.splice(0, BREADCRUMBS.length, {
             title: LABEL,
             url: notCommon.buildURL({
-                prefix: super.getURLPrefix(),
+                prefix: this.getURLPrefix(),
                 action: "profile",
             }),
         });
         notBreadcrumbs.setHead(BREADCRUMBS).render({
             root: "",
             target: this.els.top,
-            navigate: (url) => super.app.getWorking("router").navigate(url),
+            navigate: (url) => this.app.getWorking("router").navigate(url),
         });
         this.route();
     }
 
     getModel() {
-        return super.make[super.getModelName()];
+        return this.make[this.getModelName()];
     }
 
     setBreadcrumbs(tail) {
@@ -58,11 +58,11 @@ class ncProfile extends notController {
     }
 
     backToList() {
-        super.app.getWorking("router").navigate(this.linkBackToList());
+        this.app.getWorking("router").navigate(this.linkBackToList());
     }
 
     afterAction(action = "list") {
-        let navBack = super.app.getOptions("crud.navigateBackAfter", []);
+        let navBack = this.app.getOptions("crud.navigateBackAfter", []);
         if (navBack && Array.isArray(navBack) && navBack.indexOf(action) > -1) {
             window.history.back();
         } else {
@@ -72,14 +72,14 @@ class ncProfile extends notController {
 
     linkBackToList() {
         return notCommon.buildURL({
-            prefix: super.getURLPrefix(),
+            prefix: this.getURLPrefix(),
             action: "profile",
         });
     }
 
     buildFrame() {
         let el = document.querySelector(
-            super.app.getOptions("crud.containerSelector", "body")
+            this.app.getOptions("crud.containerSelector", "body")
         );
         while (el.firstChild) {
             el.removeChild(el.firstChild);
@@ -139,7 +139,7 @@ class ncProfile extends notController {
 
     async runDetails() {
         try {
-            await super.preloadVariants("details");
+            await this.preloadVariants("details");
             this.setBreadcrumbs([
                 {
                     title: "Просмотр",
@@ -160,20 +160,14 @@ class ncProfile extends notController {
                         own: true,
                         mode: "profile",
                         user: notCommon.stripProxy(res.result),
-                        rolesColorScheme: super.app.getOptions(
+                        rolesColorScheme: this.app.getOptions(
                             "modules.user.colorsOfRoles"
                         ),
+                        onGoChangePassword: () => this.runChangePassword(),
+                        onupdate:(ev) =>                             this.onUserUpdateFormSubmit(ev),
+                        onRejectForm: () => UserCommon.goDashboard()
                     },
                 });
-                this.ui.update.$on("goChangePassword", () => {
-                    this.runChangePassword();
-                });
-                this.ui.update.$on("update", (ev) => {
-                    this.onUserUpdateFormSubmit(ev.detail);
-                });
-                this.ui.update.$on("rejectForm", () =>
-                    UserCommon.goDashboard()
-                );
             } else {
                 this.showErrorMessage(res);
             }
@@ -197,14 +191,16 @@ class ncProfile extends notController {
             }
             this.ui.changePassword = mount(UserUIChangePassword, {
                 target: this.els.main,
-                props: {},
+                props: {
+                    onChangePassword: (ev) => {
+                        this.onUserChangePassword({
+                            ...ev,
+                        })
+                    },
+                    onreject: () => this.goProfile()
+                },
             });
-            this.ui.changePassword.$on("changePassword", (ev) => {
-                this.onUserChangePassword({
-                    ...ev.detail,
-                });
-            });
-            this.ui.changePassword.$on("reject", () => this.goProfile());
+            
         } catch (e) {
             this.showErrorMessage({
                 error: e.message,
@@ -229,7 +225,7 @@ class ncProfile extends notController {
     }
 
     showErrorMessage(res) {
-        super.error(res);
+        this.error(res);
         this.ui.error = new UIError({
             target: this.els.main,
             props: {
@@ -254,7 +250,7 @@ class ncProfile extends notController {
         this.getModel()(user)
             .$update()
             .then((res) => {
-                super.log(res);
+                this.log(res);
                 this.showResult(this.ui.update, res);
                 if (!UserCommon.isError(res) && !res.error) {
                     setTimeout(() => this.goProfile(), 3000);

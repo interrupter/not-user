@@ -11,9 +11,9 @@ const { notController } = Frame;
 class ncLogout extends notController {
     constructor(app) {
         super(app, "User.logout");
-        super.setModelName("user");
+        this.setModelName("user");
         if (confirm("Хотите выйти?")) {
-            super.make
+            this.make
                 .user({})
                 .$logout()
                 .then(() => {
@@ -23,7 +23,7 @@ class ncLogout extends notController {
                     return true;
                 })
                 .catch((err) => {
-                    super.report(err);
+                    this.report(err);
                 });
         } else {
             window.history.back();

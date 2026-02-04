@@ -1,5 +1,5 @@
 <script>
-    import { run } from 'svelte/legacy';
+    import { run } from "svelte/legacy";
 
     import { Elements, notCommon } from "not-bulma";
 
@@ -11,12 +11,8 @@
 
     import UIUserInlineInfo from "./UIUserInlineInfo.svelte";
 
-    import { createEventDispatcher, onMount } from "svelte";
+    import { onMount } from "svelte";
     import { UIButton } from "not-bulma/src/elements/button";
-    let dispatch = createEventDispatcher();
-
-
-    
 
     /**
      * @typedef {Object} Props
@@ -49,7 +45,8 @@
         serviceName = "nsUser",
         userData = $bindable(null),
         loading = $bindable(false),
-        narrow = false
+        narrow = false,
+        onchange = () => {},
     } = $props();
 
     function getService() {
@@ -86,7 +83,7 @@
             })
             .then((value) => {
                 inputStarted = true;
-                dispatch("change", {
+                onchange({
                     field: fieldname,
                     value,
                 });
@@ -99,7 +96,7 @@
     function resetUser() {
         value = undefined;
         userData = null;
-        dispatch("change", {
+        onchange({
             field: fieldname,
             value,
         });

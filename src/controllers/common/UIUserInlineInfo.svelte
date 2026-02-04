@@ -1,7 +1,4 @@
 <script>
-    import { createEventDispatcher } from "svelte";
-    const dispatch = createEventDispatcher();
-
     import { UIButton } from "not-bulma/src/elements/button";
     import { UITitle } from "not-bulma/src/elements/various";
 
@@ -13,14 +10,19 @@
      */
 
     /** @type {Props} */
-    let { userID = -1, username = "no_name", usernameFormatter = (data) => `${data.userID}#${data.username}` } = $props();
+    let {
+        userID = -1,
+        username = "no_name",
+        usernameFormatter = (data) => `${data.userID}#${data.username}`,
+        onclick = () => {},
+    } = $props();
 
     let usernameString = $derived(usernameFormatter({ username, userID }));
 </script>
 
 <UIButton
     classes="user-inline-info"
-    on:click
+    {onclick}
     icon={"user"}
     iconSide={"left"}
     title={usernameString}

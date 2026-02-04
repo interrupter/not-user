@@ -1,5 +1,5 @@
 <script>
-  import { run } from 'svelte/legacy';
+    import { run } from "svelte/legacy";
 
     import { LOCALE, Elements } from "not-bulma";
 
@@ -7,9 +7,7 @@
 
     const { UICommon } = Elements;
 
-    import { createEventDispatcher, onMount } from "svelte";
-
-    let dispatch = createEventDispatcher();
+    import { onMount } from "svelte";
 
     function enrich(val = []) {
         if (Array.isArray(val)) {
@@ -76,55 +74,55 @@
   }
   **/
     let _value = $state([]); //local copy enriched with data for gui
-    
-    
-  /**
-   * @typedef {Object} Props
-   * @property {boolean} [inputStarted]
-   * @property {any} [value]
-   * @property {any} [variants]
-   * @property {string} [fieldname] - export let placeholder = 'placeholder';
-   * @property {boolean} [readonly] - export let required = true;
-   * @property {boolean} [valid]
-   * @property {boolean} [validated]
-   * @property {boolean} [errors]
-   * @property {boolean} [formErrors]
-   * @property {boolean} [formLevelError]
-   */
 
-  /** @type {Props} */
-  let {
-    inputStarted = $bindable(false),
-    value = $bindable([]),
-    variants = [],
-    fieldname = "role",
-    readonly = false,
-    valid = true,
-    validated = false,
-    errors = false,
-    formErrors = false,
-    formLevelError = false
-  } = $props();
+    /**
+     * @typedef {Object} Props
+     * @property {boolean} [inputStarted]
+     * @property {any} [value]
+     * @property {any} [variants]
+     * @property {string} [fieldname] - export let placeholder = 'placeholder';
+     * @property {boolean} [readonly] - export let required = true;
+     * @property {boolean} [valid]
+     * @property {boolean} [validated]
+     * @property {boolean} [errors]
+     * @property {boolean} [formErrors]
+     * @property {boolean} [formLevelError]
+     */
+
+    /** @type {Props} */
+    let {
+        inputStarted = $bindable(false),
+        value = $bindable([]),
+        variants = [],
+        fieldname = "role",
+        readonly = false,
+        valid = true,
+        validated = false,
+        errors = false,
+        formErrors = false,
+        formLevelError = false,
+        onchange = () => {},
+    } = $props();
 
     let allErrors;
-  run(() => {
-    allErrors = [].concat(
-          errors ? errors : [],
-          formErrors ? formErrors : []
-      );
-  });
+    run(() => {
+        allErrors = [].concat(
+            errors ? errors : [],
+            formErrors ? formErrors : []
+        );
+    });
     let showErrors;
-  run(() => {
-    showErrors = !(validated && valid) && inputStarted;
-  });
+    run(() => {
+        showErrors = !(validated && valid) && inputStarted;
+    });
     let invalid = $derived(valid === false || formLevelError);
     let validationClasses;
-  run(() => {
-    validationClasses =
-          valid === true || !inputStarted
-              ? UICommon.CLASS_OK
-              : UICommon.CLASS_ERR;
-  });
+    run(() => {
+        validationClasses =
+            valid === true || !inputStarted
+                ? UICommon.CLASS_OK
+                : UICommon.CLASS_ERR;
+    });
 
     function remove(e) {
         e && e.preventDefault();
@@ -136,7 +134,7 @@
             value = deplete(_value);
             value = value;
             inputStarted = true;
-            dispatch("change", {
+            onchange({
                 field: "role",
                 value: value,
             });
@@ -155,7 +153,7 @@
             _value = _value;
             value = deplete(_value);
             value = value;
-            dispatch("change", {
+            onchange({
                 field: "role",
                 value: value,
             });
@@ -176,7 +174,7 @@
                         data-id={item.id}
                         class="delete is-small"
                         onclick={remove}
-></button>
+                    ></button>
                 {/if}
             </span>
         {/each}

@@ -77,14 +77,16 @@
             </div>
         {/if}
 
-        <div class="list-item">
-            <div class="list-item-content">
-                <div class="list-item-title">Дата создания</div>
-                <div class="list-item-description">
-                    {user.created.split("T")[0]}
+        {#if user.created}
+            <div class="list-item">
+                <div class="list-item-content">
+                    <div class="list-item-title">Дата создания</div>
+                    <div class="list-item-description">
+                        {user.created.split("T")[0]}
+                    </div>
                 </div>
             </div>
-        </div>
+        {/if}
 
         {#if user.role}
             <div class="list-item">
@@ -101,18 +103,20 @@
             </div>
         {/if}
 
-        <div class="list-item">
-            <div class="list-item-content">
-                <div class="list-item-title">Активен</div>
-                <div class="list-item-description">
-                    {#if user.active}
-                        <span class="tag is-success">Активен</span>
-                    {:else}
-                        <span class="tag is-danger">Не активирован</span>
-                    {/if}
+        {#if typeof user.active === "boolean"}
+            <div class="list-item">
+                <div class="list-item-content">
+                    <div class="list-item-title">Активен</div>
+                    <div class="list-item-description">
+                        {#if user.active}
+                            <span class="tag is-success">Активен</span>
+                        {:else}
+                            <span class="tag is-danger">Не активирован</span>
+                        {/if}
+                    </div>
                 </div>
             </div>
-        </div>
+        {/if}
 
         {#if user.ip}
             <div class="list-item">
@@ -125,13 +129,15 @@
             </div>
         {/if}
 
-        <div class="list-item">
-            <div class="list-item-content">
-                <div class="list-item-title">Страна</div>
-                <div class="list-item-description">
-                    {user.country}
+        {#if typeof user.country === "string"}
+            <div class="list-item">
+                <div class="list-item-content">
+                    <div class="list-item-title">Страна</div>
+                    <div class="list-item-description">
+                        {user.country}
+                    </div>
                 </div>
             </div>
-        </div>
+        {/if}
     </div>
 </div>

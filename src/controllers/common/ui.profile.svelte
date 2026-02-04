@@ -4,11 +4,9 @@
 
     const DEFAULT_USER_ROLE_COLOR = "danger";
 
-    import { createEventDispatcher, onMount } from "svelte";
-    let dispatch = createEventDispatcher();
+    import { onMount } from "svelte";
 
     import UserCommon from "./user.js";
-
 
     /**
      * @typedef {Object} Props
@@ -18,12 +16,17 @@
      */
 
     /** @type {Props} */
-    let { user = {}, readonly = true, rolesColorScheme } = $props();
+    let {
+        user = {},
+        readonly = true,
+        rolesColorScheme,
+        onGoChangePassword = () => {},
+    } = $props();
 
     let rolesTags = $state([]);
 
     function goChangePassword() {
-        dispatch("goChangePassword");
+        onGoChangePassword();
     }
 
     function findColorInScheme(roleTitle, scheme) {
@@ -87,10 +90,16 @@
                 <div class="list-item-title">Email</div>
                 <div class="list-item-description">
                     {user.email}
-                    {#if user.emailConfirmed}
-                        <span class="tag is-success">Подтверждён</span>
+                    {#if typeof user.emailConfirmed === "boolean"}
+                        {#if user.emailConfirmed}
+                            <span class="tag is-success">Подтверждён</span>
+                        {:else}
+                            <span class="tag is-danger">Не подтверждён</span>
+                        {/if}
                     {:else}
-                        <span class="tag is-danger">Не подтверждён</span>
+                        <span class="tag is-warning"
+                            >Нет данных о валидности</span
+                        >
                     {/if}
                 </div>
             </div>
@@ -102,10 +111,17 @@
                 <div class="list-item-description">
                     {#if user.telephone && typeof user.telephone !== "undefined" && user.telephone !== "undefined"}
                         {user.telephone}
-                        {#if user.telephoneConfirmed}
-                            <span class="tag is-success">Подтверждён</span>
+                        {#if typeof user.telephoneConfirmed === "boolean"}
+                            {#if user.telephoneConfirmed}
+                                <span class="tag is-success">Подтверждён</span>
+                            {:else}
+                                <span class="tag is-danger">Не подтверждён</span
+                                >
+                            {/if}
                         {:else}
-                            <span class="tag is-danger">Не подтверждён</span>
+                            <span class="tag is-warning"
+                                >Нет данных о валидности</span
+                            >
                         {/if}
                     {:else}
                         Не указан
@@ -114,14 +130,16 @@
             </div>
         </div>
 
-        <div class="list-item">
-            <div class="list-item-content">
-                <div class="list-item-title">Дата создания</div>
-                <div class="list-item-description">
-                    {user.created.split("T")[0]}
+        {#if typeof user.created === "string"}
+            <div class="list-item">
+                <div class="list-item-content">
+                    <div class="list-item-title">Дата создания</div>
+                    <div class="list-item-description">
+                        {user.created.split("T")[0]}
+                    </div>
                 </div>
             </div>
-        </div>
+        {/if}
 
         <div class="list-item">
             <div class="list-item-content">
@@ -134,36 +152,42 @@
             </div>
         </div>
 
-        <div class="list-item">
-            <div class="list-item-content">
-                <div class="list-item-title">Активен</div>
-                <div class="list-item-description">
-                    {#if user.active}
-                        <span class="tag is-success">Активен</span>
-                    {:else}
-                        <span class="tag is-danger">Не активирован</span>
-                    {/if}
+        {#if typeof user.active === "boolean"}
+            <div class="list-item">
+                <div class="list-item-content">
+                    <div class="list-item-title">Активен</div>
+                    <div class="list-item-description">
+                        {#if user.active}
+                            <span class="tag is-success">Активен</span>
+                        {:else}
+                            <span class="tag is-danger">Не активирован</span>
+                        {/if}
+                    </div>
                 </div>
             </div>
-        </div>
+        {/if}
 
-        <div class="list-item">
-            <div class="list-item-content">
-                <div class="list-item-title">IP</div>
-                <div class="list-item-description">
-                    {user.ip}
+        {#if user.ip}
+            <div class="list-item">
+                <div class="list-item-content">
+                    <div class="list-item-title">IP</div>
+                    <div class="list-item-description">
+                        {user.ip}
+                    </div>
                 </div>
             </div>
-        </div>
+        {/if}
 
-        <div class="list-item">
-            <div class="list-item-content">
-                <div class="list-item-title">Страна</div>
-                <div class="list-item-description">
-                    {user.country}
+        {#if typeof user.country === "string"}
+            <div class="list-item">
+                <div class="list-item-content">
+                    <div class="list-item-title">Страна</div>
+                    <div class="list-item-description">
+                        {user.country}
+                    </div>
                 </div>
             </div>
-        </div>
+        {/if}
 
         <div class="list-item">
             <div class="list-item-content">

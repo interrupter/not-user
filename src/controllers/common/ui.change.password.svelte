@@ -6,17 +6,22 @@
     const { UICommon } = Elements;
     const { UISuccess, UIError } = Elements.Notifications;
 
-    import { createEventDispatcher } from "svelte";
-    let dispatch = createEventDispatcher();
-
     /**
      * @typedef {Object} Props
      * @property {string} [oldPassword]
      * @property {string} [newPassword]
+     * @property {function} onChangePassword
+     * @property {function} onreject
      */
 
     /** @type {Props} */
-    let { oldPassword = $bindable(""), newPassword = $bindable("") } = $props();
+    let {
+        oldPassword = $bindable(""),
+        newPassword = $bindable(""),
+        onChangePassword = (ev) => {},
+        onreject = () => {},
+    } = $props();
+
     let newPassword2 = $state("");
     let waiting = $state(false);
     let success = $state(false);
@@ -36,14 +41,14 @@
 
     function reject(e) {
         e && e.preventDefault();
-        dispatch("reject");
+        onreject();
         return false;
     }
 
     function requestChangePassword(e) {
         e && e.preventDefault();
         fatalError = false;
-        dispatch("changePassword", {
+        onChangePassword({
             oldPassword,
             newPassword,
         });
