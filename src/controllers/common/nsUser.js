@@ -3,7 +3,7 @@ import { Builder } from "not-validation";
 import Validator from "validator";
 
 import UIGenericSelector from "not-bulma/src/elements/modal/ui.generic.selector.svelte";
-import { mount, unmount } from "svelte";
+import { UIAdapterSvelte } from "not-bulma/src/frame";
 
 const emptyResult = () => {
     return {
@@ -65,31 +65,28 @@ export default class nsUser {
     openSelector() {
         return new Promise((resolve, reject) => {
             try {
-                const el = mount(UIGenericSelector, {
-                    target: document.body,
-                    props: {},
-                });
-                el.$on("termChange", async ({ detail }) => {
+                const el = new UIAdapterSvelte(UIGenericSelector, document.body,{},);
+                el.$on("onTermChange", async ({ detail }) => {
                     const results = await this.searchUserByTerm(detail);
                     el.$set({ results });
                 });
 
-                el.$on("next", () => {
+                el.$on("onnext", () => {
                     console.log("next");
                 });
 
-                el.$on("prev", () => {
+                el.$on("onprev", () => {
                     console.log("prev");
                 });
 
-                el.$on("reject", () => {
+                el.$on("onreject", () => {
                     console.log("reject");
-                    unmount(el);
+                    el.$destroy();
                     reject();
                 });
-                el.$on("resolve", ({ detail }) => {
+                el.$on("onresolve", ({ detail }) => {
                     console.log("resolve");
-                    unmount(el);
+                    el.$destroy();
                     resolve({
                         _id: detail._id,
                         userID: detail.id,
