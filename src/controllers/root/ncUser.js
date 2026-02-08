@@ -118,7 +118,7 @@ class ncUser extends notCRUD {
 
     rolesListsToVariants(roles) {
         const rolesVariants = [
-            ...roles.primary.map((name) => {
+            ...(roles.primary || []).map((name) => {
                 return {
                     id: name,
                     title: name,
@@ -126,7 +126,7 @@ class ncUser extends notCRUD {
                     notSelectable: ROLES_NOT_SELECTABLE.includes(name),
                 };
             }),
-            ...roles.secondary.map((name) => {
+            ...(roles.secondary || []).map((name) => {
                 return {
                     id: name,
                     title: name,

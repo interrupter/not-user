@@ -59,9 +59,9 @@
     export function showRequestResult(result) {
         waiting = false;
         if (result.status === "error") {
-            if (Object.prototype.hasOwnProperty.call(result, "errors")) {
+            if (Object.hasOwn(result, "errors")) {
                 showError(result.errors);
-            } else if (Object.prototype.hasOwnProperty.call(result, "error")) {
+            } else if (Object.hasOwn(result, "error")) {
                 showFatalError(result.error);
             }
         } else {
@@ -78,7 +78,7 @@
     function showError(errs) {
         resetErrors();
         Object.keys(errs).forEach((key) => {
-            if (Object.prototype.hasOwnProperty.call(errs, key)) {
+            if (Object.hasOwn(errs, key)) {
                 error[key] = errs[key];
             }
         });

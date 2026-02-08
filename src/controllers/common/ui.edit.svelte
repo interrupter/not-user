@@ -91,7 +91,7 @@
         for (let t in user) {
             if (t === "role") {
                 initUserRoles(user.role);
-            } else if (Object.prototype.hasOwnProperty.call(fields, t)) {
+            } else if (Object.hasOwn(fields, t)) {
                 fields[t].value = user[t];
             }
         }
@@ -107,7 +107,7 @@
         let result = {};
         MODES_FIELDS[mode].forEach((fieldname) => {
             if (
-                Object.prototype.hasOwnProperty.call(fields, fieldname) &&
+                Object.hasOwn(fields, fieldname) &&
                 fields[fieldname].enabled
             ) {
                 result[fieldname] = fields[fieldname].value;
