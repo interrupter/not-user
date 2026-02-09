@@ -13,12 +13,12 @@ export default class RequestLoginCodeOnTelephone extends notForm {
             data,
         });
         //events after user button actions
-        this.on("submit", (e) => this.onSubmit(e));
-        this.on("reject", () => {
+        this.on("onsubmit", (e) => this.onSubmit(e));
+        this.on("onreject", () => {
             location.href = "/";
             location.reload();
         });
-        this.on("success", () => {
+        this.on("onsuccess", () => {
             if (this.getOptions("changeMode")) {
                 setTimeout(() => {
                     this.getOptions("changeMode")("loginByCode");

@@ -14,21 +14,25 @@ const DEFAULT_LOGIN_OPTIONS = [
 
 const FORMS = [
     {
+        id:1,
         mode: "login",
         title: "not-user:form_mode_login_label",
         form: LoginForm,
     },
     {
+        id:2,
         mode: "requestLoginCodeOnEmail",
         title: "not-user:form_mode_requestLoginCodeOnEmail_label",
         form: RequestLoginCodeOnEmailForm,
     },
     {
+        id:3,
         mode: "requestLoginCodeOnTelephone",
         title: "not-user:form_mode_requestLoginCodeOnTelephone_label",
         form: RequestLoginCodeOnTelephoneForm,
     },
     {
+        id:4,
         mode: "loginByCode",
         title: "not-user:form_mode_loginByCode_label",
         form: LoginByCodeForm,

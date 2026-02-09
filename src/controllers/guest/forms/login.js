@@ -14,11 +14,11 @@ export default class LoginForm extends notForm {
             data,
         });
         //events after user button actions
-        this.on("submit", (e) => this.onSubmit(e));
-        this.on("reject", () => {
+        this.on("onsubmit", (e) => this.onSubmit(e));
+        this.on("onreject", () => {
             location.assign(UserCommon.DEFAULT_USER_AFTER_LOGIN_FAILED_URL);
         });
-        this.on("success", () => {
+        this.on("onsuccess", () => {
             location.assign(
                 UserCommon.getUserAfterLoginRedirectURL(notCommon.getApp())
             );

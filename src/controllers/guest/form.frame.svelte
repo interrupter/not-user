@@ -5,9 +5,7 @@
     const { UIButtons } = Elements.Buttons;
     import LockBlockComponent from "./lock.block.svelte";
 
-    import { createEventDispatcher, onMount } from "svelte";
-
-    let dispatch = createEventDispatcher();
+    import { onMount } from "svelte";
 
     /**
      * @typedef {Object} Props
@@ -27,11 +25,12 @@
         mode = $bindable("login"),
         loading = $bindable(false),
         MODES_TITLES = {},
+        onmode = () => {},
     } = $props();
 
     function setMode(val) {
         mode = val;
-        dispatch("mode", val);
+        onmode(val);
         updateModesButtons();
     }
 
@@ -40,8 +39,9 @@
     function updateModesButtons() {
         MODES_BUTTONS = MODES.filter((thisMode) => {
             return mode !== thisMode;
-        }).map((thisMode) => {
+        }).map((thisMode, index) => {
             return {
+                id: index,
                 title: MODES_TITLES[thisMode],
                 outlined: true,
                 type: "link",
@@ -67,11 +67,7 @@
         {#if status === "error"}
             <!--<UIError title="" message={message}></UIError>-->
         {/if}
-        <UIButtons
-            centered={true}
-            bind:values={MODES_BUTTONS}
-            classes={"mb-4"}
-        />
+        <UIButtons centered={true} values={MODES_BUTTONS} classes={"mb-4"} />
     {/if}
 </div>
 

@@ -13,11 +13,11 @@ export default class RegisterForm extends notForm {
             data,
         });
         //events after user button actions
-        this.on("submit", (e) => this.onSubmit(e));
-        this.on("reject", () => {
+        this.on("onsubmit", (e) => this.onSubmit(e));
+        this.on("onreject", () => {
             location.href = "/";
         });
-        this.on("success", () => {
+        this.on("onsuccess", () => {
             location.href = "/dashboard";
             location.reload();
         });
