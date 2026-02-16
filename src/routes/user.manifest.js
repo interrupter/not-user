@@ -344,10 +344,42 @@ module.exports = {
             rules: [
                 {
                     root: true,
+                    return: {
+                        list: [
+                            "_id",
+                            "userID",
+                            "username",
+                            "email",
+                            "telephone",
+                            "active",
+                            "country",
+                            "role",
+                        ],
+                        count: 1,
+                        page: 1,
+                        pages: 1,
+                        skip: 1,
+                    },
                 },
                 {
                     auth: true,
                     role: "admin",
+                    return: {
+                        list: [
+                            "_id",
+                            "userID",
+                            "username",
+                            "email",
+                            "telephone",
+                            "active",
+                            "country",
+                            "role",
+                        ],
+                        count: 1,
+                        page: 1,
+                        pages: 1,
+                        skip: 1,
+                    },
                 },
             ],
             postFix: actionNamePath,

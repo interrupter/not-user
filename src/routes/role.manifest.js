@@ -11,10 +11,12 @@ module.exports = {
             rules: [
                 {
                     root: true,
+                    return: ['primary','secondary'],
                 },
                 {
                     auth: true,
                     role: "admin",
+                    return: ['primary','secondary'],
                 },
             ],
             postFix: "/:actionName",

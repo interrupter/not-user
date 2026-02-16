@@ -11,8 +11,8 @@ module.exports = {
         searchable: true,
         required: true,
         safe: notFieldsFilter.initSafetyProtocol(
-            ["@*"],
-            ["@*"],
+            ["*"],
+            ["*"],
             ["admin", "root"],
             ["admin", "root"]
         ),

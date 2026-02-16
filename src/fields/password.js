@@ -7,7 +7,7 @@ module.exports = {
         required: true,
         safe: notFieldsFilter.mergeSafetyProtocols(
             SafetyProtocols.ownerRootAdminCRUD_clientC,
-            notFieldsFilter.initSafetyProtocol(["@*"], [], ["@owner"])
+            notFieldsFilter.initSafetyProtocol(["*"], [], ["@owner"])
         ),
     },
     ui: {

@@ -14,7 +14,7 @@ module.exports = {
         safe: notFieldsFilter.initSafetyProtocol(
             ["root", "admin"],
             ["root", "admin"],
-            ["@*"],
+            ["*"],
             ["root", "admin"],
             ["@system"]
         ),
